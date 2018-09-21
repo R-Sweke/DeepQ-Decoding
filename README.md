@@ -14,11 +14,11 @@ Finally, we provide some of the results obtained from the trained models that ha
 
 Enjoy!
 
-### 1) Setting
+#### 1) Setting
 
 Topological quantum error correcting codes, and in particular the surface code, currently provide the most promising path to <a href="https://www.nature.com/articles/nature14236"> scalable fault tolerant quantum computation</a>. While a variety of decoders exist for such codes, such as <a href="https://arxiv.org/abs/1709.02154"> minimum weight perfect matching</a>, recently decoders obtained via  <a href="https://arxiv.org/abs/1802.06441"> machine learning techniques</a> have attracted attention due to both their potential flexibility, with respect to codes and noise models, and their potentially fast run times. However, up until this point it has not been demonstrated how one could use machine learning techniques to obtain decoders for the setting of fault tolerant quantum computation, in which both the physical qubits and syndrome extraction is assumed to be noisy. Here, we demonstrate how reinforcement learning techniques, and in particular deepQ learning, can be utilized to solve this problem and obtain such decoders.
 
-#### 1a) The Surface Code
+##### 1a) The Surface Code
 
 While the techniques presented here could be applied to any stabilizer code (work-in-progress) we focus on the surface code, as shown below: 
 

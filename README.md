@@ -131,7 +131,7 @@ Given these ingredients we can now examine in detail the training procedure, thr
 From the agent's perspective the goal is to converge to a strategy which allows it to maximise the expected value of its (discounted) cumulative reward. In our particular context of the decoding problem, an episode works as illustrated below:
 
 <p align="center">
-<img src="./Images/https://user-images.githubusercontent.com/6330346/45884798-20b0fb80-bdb5-11e8-9ef3-23b55b52a498.png" width="80%" height="80%">
+<img src="https://user-images.githubusercontent.com/6330346/45884798-20b0fb80-bdb5-11e8-9ef3-23b55b52a498.png" width="80%" height="80%">
 </p>
 
 In particular:

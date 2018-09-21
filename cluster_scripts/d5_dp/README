@@ -1,0 +1,73 @@
+This file is a step by step description of how to start a simulation chain.
+
+1) On your local machine, go into the sub-directory corresponding to the lowest error rate:
+
+        a) Set the base configuration grid in Generate_Base_Configs_and_Simulation_Scripts.py
+        b) run this script from _inside_ the sub-directory containing this folder
+
+2) The previous step will have generated many configuration subdirectories, as well as a "fixed_configs.p" file:
+
+        a) delete the configuration subdirectories
+        b) copy the fixed_configs.p file into all of the other error rate subdirectories
+
+2) At this stage, make sure that every error rate subdirectory contains only:
+
+        a) The environments
+        b) the function library
+        c) the bash script "Start_Continuing_Simulations.sh"
+        d) the python script "Single_Point_Continue_Training_Script.py"
+        e) the fixed_configs.p file that has now appeared in the lowest error rate subdirectory
+        f) an empty folder called "output_files"
+
+3) In Controller.py:
+ 
+        a) set the grid you would like to use for continuing training over from each spawned simulation
+        b) set the thresholds for continued training, and the number of grids which should spawn for each new error rate - NB! Pay attention here!!
+        c) Also make sure that all the cluster parameters (job time, nodes etc) are set correctly
+        d) make sure the time threshold for evaluating whether simulations have timed out corresponds to the cluster configurations
+
+4) Make sure history.txt is empty, make sure the results folder is empty, make sure that current_error_rate.txt contains one line with only the lowest error rate written in
+
+5) Now, scp the entire directory structure onto the cluster. The rest of the instructions take place on the cluster.
+
+6) Start a "screen" - this allows the session we are about to initiate to be maintained even when we log out of the cluster:
+
+        a) type "screen"
+        b) then press enter
+        c) We are now in a screen
+
+6) Go into the base folder containing the Controller.py script:
+
+        a) run the command "module load python/3.6.5"
+        b) Run the bash script "make_executable.sh" which ensures that all the "Start_Continuing_Simulations.sh" scripts in subdirectories can be run from python scripts
+                        - Note that this script should throw an error for both the lowest error rate and results subdirectory
+
+7) Go into the subdirectory for the lowest error rate:
+
+        a) run the command "python Generate_Base_..."
+        b) Check that this generated a whole bunch of configuration subdirectories
+        c) run the bash script "Start_Simulations.sh"
+        d) This should have submitted a job for every configuration. Check this.
+
+
+8) Now we have to get the script Controller.py to run periodically.
+
+        a) Go into the base directory containing controller.py
+        b) run the command "watch -n interval_in_seconds python Controller.py"
+        c) eg: for ten minute intervals: "watch -n 600 Controller.py"
+
+9) At this stage we are looking at the watch screen, which displays the difference in output between successive calls to Controller.py
+
+        a) We want to detach this screen, so type ctrl+a, then d
+
+10) Now we should find ourselves back in the root directory of the cluster, we can log out and everything is safe.
+
+11) To check how things are going, we can scp the relevant files from the cluster whenever we want.
+
+12) When we want to kill the job we have to login to the cluster and run the following commands:
+
+        a) reattach the screen with "screen -r"
+        b) We are now looking at the watch output - kill this with ctrl+c
+        c) Now we need to kill the screen with ctrl+a and then k
+        d) voila!
+

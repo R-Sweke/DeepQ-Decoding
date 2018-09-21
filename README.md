@@ -42,7 +42,7 @@ In order to get intuition for the decoding problem, which we will present in det
 
 In particular, it is very important to note that the map from syndromes to error configurations is _not_ one-to-one! For example, one can see that the error configurations given in the top-left and bottom-left codes both lead to the same syndrome. This ambiguity in the error configuration leading to a given syndrome gives rise to the decoding problem, which we describe below.
 
-#### 1b) The Decoding Problem
+##### 1b) The Decoding Problem
 
 Given the above introduction to the surface code it is now possible to understand the decoding problem, within the fault tolerant setting. Quite loosely, given a code in the eigenstate of one of the logical operators (or, more generally, given any state in the ground state space of the code), the key aim of decoding is keep the code in this given state by exploiting _faulty_ syndrome information to determine which corrections need to be applied to the code to compensate for continuous noise and errors.
 
@@ -61,7 +61,7 @@ To be more specific, lets consider the above illustration:
    <li> In the ideal case the decoder will be able to correctly diagnose a sufficient proportion of syndrome volumes, such that the probability of an error occuring on the logical qubit is lower than the physical error rate on a physical qubit.
 </ol> 
 
-### 1c) DeepQ Learning as a Tool for Obtaining Decoders
+#### 1c) DeepQ Learning as a Tool for Obtaining Decoders
 
 Given the problem as specified above, we utilize <a href="https://www.nature.com/articles/nature14236">DeepQ</a> <a href="http://incompleteideas.net/book/bookdraft2017nov5.pdf">reinforcement learning</a>, a technique which has been sucessfully used to obtain agents capable of super-human performance in domains such as  <a href="https://www.nature.com/articles/nature14236">Atari</a>, to obtain decoders which are capable of dealing with faulty measurements up to a threshold physical and measurement error rate. We will not go too deeply into the details and theory of Q-learning here, as an excellent introduction can be found in the fantastic textbook of <a href="http://incompleteideas.net/book/bookdraft2017nov5.pdf">Sutton and Barto</a>, which is strongly recommended.
 
@@ -165,11 +165,11 @@ Specifically, decoding proceeds as follows:
 </ol> 
 
 
-## 2) Training Decoders in Practice
+### 2) Training Decoders in Practice
 
 Now that we have discussed the conceptual foundations, strategies and techniques involved, lets walk through a detailed example of how to train a decoder.
 
-### 2a) Requirements
+#### 2a) Requirements
 
 The following packages are required, and can be installed via PIP:
 

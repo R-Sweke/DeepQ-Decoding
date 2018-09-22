@@ -177,13 +177,6 @@ If you would like to run the code discussed in this section, you can find the co
 
 The following packages are required, and can be installed via PIP:
 
-
-   - Python 3 (with numpy and scipy)
-   - tensorflow </li>
-   - keras
-   - gym
-
-
 <ol>
   <li> Python 3 (with numpy and scipy)</li>
   <li> tensorflow </li>
@@ -229,22 +222,22 @@ We then proceed by providing all required hyperparameters and physical configura
 In particular, the fixed parameters one must provide are:
 
    1. **d**: The lattice width (equal to the lattice height)
-   - **use_Y**: If true then the agent can perform Y Pauli flips directly, if False then the agent can only perform X and Z Pauli flips.
-   - **train_freq**: The number of agent-environment interaction steps which occur between each updating of the agent's weights.
-   - **batch_size**: The size of batches used for calculating loss functions for gradient descent updates of agent weights.
-   - **print_freq**: Every print_freq episodes the statistics of the training procedure will be logged.
-   - **rolling_average_length**: The number of most recent episodes over which any relevant rolling average will be calculated.
-   - **stopping_patience**: The number of episodes after which no improvement will result in the early stopping of the training procedure.
-   - **error_model**: A string in ["X", "DP"], specifiying the noise model of the environment as X flips only or depolarizing noise.
-   - **c_layers**: A list of lists specifying the structure of the convolutional layers of the agent deepQ network. Each inner list describes a layer and has the form [num_filters, filter_width, stride].
-   - **ff_layers**: A list of lists specifying the structure of the feed-forward neural network sitting on top of the convolutional neural network. Each inner list has the form [num_neurons, output_dropout_rate].
-   - **max_timesteps**: The maximum number of training timesteps allowed.
-   - **volume_depth**: The number of syndrome measurements taken each time a new syndrome extraction is performed - i.e. the depth of the syndrome volume passed to the agent.
-   - **testing_length**: The number of episodes uses to evaluate the trained agents performance. 
-   - **buffer_size**: The maximum number of experience tuples held in the memory from which the update batches for agent updating are drawn.
-   - **dueling**: A boolean indicating whether or not a [dueling architecture](https://arxiv.org/abs/1511.06581) should be used.
-   - **masked_greedy**: A boolean which indicates whether the agent will only be allowed to choose legal actions (actions next to an anyon or previously flipped qubit) when acting greedily (i.e. when choosing actions via the argmax of the Q-values)
-   - **static_decoder**: For training within the fault tolerant setting (multi-cycle decoding) this should always be set to True.
+   2. **use_Y**: If true then the agent can perform Y Pauli flips directly, if False then the agent can only perform X and Z Pauli flips.
+   3. **train_freq**: The number of agent-environment interaction steps which occur between each updating of the agent's weights.
+   4. **batch_size**: The size of batches used for calculating loss functions for gradient descent updates of agent weights.
+   5. **print_freq**: Every print_freq episodes the statistics of the training procedure will be logged.
+   6. **rolling_average_length**: The number of most recent episodes over which any relevant rolling average will be calculated.
+   7. **stopping_patience**: The number of episodes after which no improvement will result in the early stopping of the training procedure.
+   8. **error_model**: A string in ["X", "DP"], specifiying the noise model of the environment as X flips only or depolarizing noise.
+   9. **c_layers**: A list of lists specifying the structure of the convolutional layers of the agent deepQ network. Each inner list describes a layer and has the form [num_filters, filter_width, stride].
+   10. **ff_layers**: A list of lists specifying the structure of the feed-forward neural network sitting on top of the convolutional neural network. Each inner list has the form [num_neurons, output_dropout_rate].
+   11. **max_timesteps**: The maximum number of training timesteps allowed.
+   12. **volume_depth**: The number of syndrome measurements taken each time a new syndrome extraction is performed - i.e. the depth of the syndrome volume passed to the agent.
+   13. **testing_length**: The number of episodes uses to evaluate the trained agents performance. 
+   14. **buffer_size**: The maximum number of experience tuples held in the memory from which the update batches for agent updating are drawn.
+   15. **dueling**: A boolean indicating whether or not a [dueling architecture](https://arxiv.org/abs/1511.06581) should be used.
+   16. **masked_greedy**: A boolean which indicates whether the agent will only be allowed to choose legal actions (actions next to an anyon or previously flipped qubit) when acting greedily (i.e. when choosing actions via the argmax of the Q-values)
+   17. **static_decoder**: For training within the fault tolerant setting (multi-cycle decoding) this should always be set to True.
    
 In addition, the parameters which we will later incrementally vary or grid search around are:
 
@@ -387,7 +380,7 @@ history = dqn.fit(env,
   single_cycle=False)
 ```
 
-During the training procedure various statistics are logged, at the specified episode frequency, to both stdout and to file in the specified directory:
+During the training procedure various statistics are logged, at the specified episode frequency, to both stdout and to the file "training_history.json" in the specified directory:
 
     Training for 1000000 steps ...
     -----------------

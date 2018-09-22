@@ -169,11 +169,18 @@ Specifically, decoding proceeds as follows:
 
 #### 2) Training Decoders in Practice
 
-Now that we have discussed the conceptual foundations, strategies and techniques involved, lets walk through a detailed example of how to train a decoder, for a single set of hyperparameters. In the next section we will then examine methods for large scale training via hyper-parameter grid searches.
+Now that we have discussed the conceptual foundations, strategies and techniques involved, lets walk through a detailed example of how to train a decoder, for a single set of hyperparameters. In the next section we will then examine methods for large scale training via error rate incrementation coupled with hyper-parameter grid searches.
 
 ##### 2a) Requirements
 
 The following packages are required, and can be installed via PIP:
+
+
+  - Python 3 (with numpy and scipy)
+  - tensorflow </li>
+  - keras
+  - gym
+
 
 <ol>
   <li> Python 3 (with numpy and scipy)</li>

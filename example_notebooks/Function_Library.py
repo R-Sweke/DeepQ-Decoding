@@ -1,6 +1,3 @@
-# This script contains stable, concise, well documented helper functions!
-# Best to not edit anything in here lightly!
-
 import random
 import numpy as np
 from numpy import copy

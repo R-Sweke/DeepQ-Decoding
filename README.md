@@ -166,11 +166,12 @@ Specifically, decoding proceeds as follows:
 
 
 
-### 2) Training Decoders in Practice
 
-Now that we have discussed the conceptual foundations, strategies and techniques involved, lets walk through a detailed example of how to train a decoder.
+#### 2) Training Decoders in Practice
 
-#### 2a) Requirements
+Now that we have discussed the conceptual foundations, strategies and techniques involved, lets walk through a detailed example of how to train a decoder, for a single set of hyperparameters. In the next section we will then examine methods for large scale training via hyper-parameter grid searches.
+
+##### 2a) Requirements
 
 The following packages are required, and can be installed via PIP:
 
@@ -182,6 +183,10 @@ The following packages are required, and can be installed via PIP:
 </ol> 
 
 In addition, a modified version of the Keras-RL package is required, which should be installed from <a href="https://github.com/R-Sweke/keras-rl">this fork</a>
+
+##### 2b) A Simple Training Script
+
+We begin by importing all required packages and methods:
 
 
 ```python
@@ -207,8 +212,45 @@ import shutil
 import datetime
 ```
 
-    Using TensorFlow backend.
+We then proceed by providing all required hyperparameters and physical configuration settings. In order to allow for easier grid searching and incremented training later on we choose to split all hyperparameters into two categories:
 
+   - fixed configs: These remain constant during the course of a grid search or incremented training procedure.
+   - variable configs: We will later set up training grids over these hyperparameters.
+    
+In particular, the fixed parameters one must provide are:
+
+   1. **d**: The lattice width (equal to the lattice height)
+   - **use_Y**: If true then the agent can perform Y Pauli flips directly, if False then the agent can only perform X and Z Pauli flips.
+   - **train_freq**: The number of agent-environment interaction steps which occur between each updating of the agent's weights.
+   - **batch_size**: The size of batches used for calculating loss functions for gradient descent updates of agent weights.
+   - **print_freq**: Every print_freq episodes the statistics of the training procedure will be logged.
+   - **rolling_average_length**: The number of most recent episodes over which any relevant rolling average will be calculated.
+   - **stopping_patience**: The number of episodes after which no improvement will result in the early stopping of the training procedure.
+   - **error_model**: A string in ["X", "DP"], specifiying the noise model of the environment as X flips only or depolarizing noise.
+   - **c_layers**: A list of lists specifying the structure of the convolutional layers of the agent deepQ network. Each inner list describes a layer and has the form [num_filters, filter_width, stride].
+   - **ff_layers**: A list of lists specifying the structure of the feed-forward neural network sitting on top of the convolutional neural network. Each inner list has the form [num_neurons, output_dropout_rate].
+   - **max_timesteps**: The maximum number of training timesteps allowed.
+   - **volume_depth**: The number of syndrome measurements taken each time a new syndrome extraction is performed - i.e. the depth of the syndrome volume passed to the agent.
+   - **testing_length**: The number of episodes uses to evaluate the trained agents performance. 
+   - **buffer_size**: The maximum number of experience tuples held in the memory from which the update batches for agent updating are drawn.
+   - **dueling**: A boolean indicating whether or not a [dueling architecture](https://arxiv.org/abs/1511.06581) should be used.
+   - **masked_greedy**: A boolean which indicates whether the agent will only be allowed to choose legal actions (actions next to an anyon or previously flipped qubit) when acting greedily (i.e. when choosing actions via the argmax of the Q-values)
+   - **static_decoder**: For training within the fault tolerant setting (multi-cycle decoding) this should always be set to True.
+   
+In addition, the parameters which we will later incrementally vary or grid search around are:
+
+   1. **p_phys**: The physical error probability
+   2. **p_meas**: The measurement error probability
+   3. **success_threshold**: The qubit lifetime rolling average at which training has been deemed succesfull and will be stopped.
+   4. **learning_starts**: The number of initial steps taken to contribute experience tuples to memory before any weight updates are made.
+   5. **learning_rate**: The learning rate for gradient descent optimization (via the Adam optimizer)
+   6. **exploration_fraction**: The number of time steps over which epsilon, the parameter controlling the probability of a random explorative action, is annealed.
+   7. **max_eps**: The initial maximum value of epsilon.
+   8. **target_network_update_freq**: In order to achieve stable training, a target network is cloned off from the active deepQ agent every target_network_update_freq interval of steps. This target network is then used to generate the target Q-function over the following interval.
+   9. **gamma**: The discount rate used for calculating the expected discounted cumulative return (the Q-values).
+   10. **final_eps**: The final value at which annealing of epsilon will be stopped.
+   
+Furthermore, in addition to all the above parameters one must provide a directory into which results and training progress as logged, as well as the path to a pre-trained referee decoder. Here e provide two pre-trained feed forward classification based referee decoders, one for X noise and one for DP noise. However, in principle any perfect-measurement decoding algorithm (such as MWPM) could be used here.
 
 
 ```python
@@ -258,6 +300,8 @@ logging_path = os.path.join(logging_directory,"training_history.json")
 logging_callback = FileLogger(filepath = logging_path,interval = all_configs["print_freq"])
 ```
 
+Now that we have specified all the required parameters we can instantiate our environment:
+
 
 ```python
 env = Surface_Code_Environment_Multi_Decoding_Cycles(d=all_configs["d"], 
@@ -269,13 +313,12 @@ env = Surface_Code_Environment_Multi_Decoding_Cycles(d=all_configs["d"],
     static_decoder=static_decoder)
 ```
 
+The environment class is defined to mirror the environments of [https://gym.openai.com/](openAI gym), and such contains the required "reset" and "step" methods, via which the agent can interact with the environment, in addition to decoding specific methods and attributes whose details can be found in the relevant method docstrings.
+
+We can now proceed to define the agent. We being by specifying the memory to be used, as well as the exploration and testing policies.
+
 
 ```python
-model = build_convolutional_nn(all_configs["c_layers"], 
-                               all_configs["ff_layers"], 
-                               env.observation_space.shape, 
-                               env.num_actions)
-
 memory = SequentialMemory(limit=all_configs["buffer_size"], window_length=1)
 
 policy = LinearAnnealedPolicy(EpsGreedyQPolicy(masked_greedy=all_configs["masked_greedy"]), 
@@ -287,8 +330,15 @@ policy = LinearAnnealedPolicy(EpsGreedyQPolicy(masked_greedy=all_configs["masked
 test_policy = GreedyQPolicy(masked_greedy=True)
 ```
 
+Finally, we can then build the deep convolutional neural network which will represent our Q-function and compile our agent.
+
 
 ```python
+model = build_convolutional_nn(all_configs["c_layers"], 
+                               all_configs["ff_layers"], 
+                               env.observation_space.shape, 
+                               env.num_actions)
+
 dqn = DQNAgent(model=model, 
                nb_actions=env.num_actions, 
                memory=memory, 
@@ -302,6 +352,8 @@ dqn = DQNAgent(model=model,
 
 dqn.compile(Adam(lr=all_configs["learning_rate"]))
 ```
+
+With both the agent and the environment specified, it is then possible to train the agent by calling the agent's "fit" method. If you want to run this on a single computer, be careful, it may take up to 12 hours!
 
 
 ```python
@@ -325,6 +377,8 @@ history = dqn.fit(env,
   min_nb_steps=all_configs["exploration_fraction"],
   single_cycle=False)
 ```
+
+During the training procedure various statistics are logged, at the specified episode frequency, to both stdout and to file in the specified directory:
 
     Training for 1000000 steps ...
     -----------------
@@ -359,341 +413,7 @@ history = dqn.fit(env,
     Metrics: loss: 0.023562, mean_q: 0.120933, mean_eps: 0.956116
     Total Training Time: 106.792s
     
-    -----------------
-                    
-    Episode: 750
-    Step: 6816/1000000
-    This Episode Steps: 17
-    This Episode Reward: 0.0
-    This Episode Duration: 0.458s
-    Rolling Lifetime length: 40.450
-    Best Lifetime Rolling Avg: 52.857142857142854
-    Best Episode: 6
-    Time Since Best: 743
-    Has Succeeded: False
-    Stopped Improving: False
-    Metrics: loss: 0.036497, mean_q: 0.276420, mean_eps: 0.933291
-    Total Training Time: 173.804s
-    
-    -----------------
-                    
-    Episode: 1000
-    Step: 9114/1000000
-    This Episode Steps: 8
-    This Episode Reward: 1.0
-    This Episode Duration: 0.242s
-    Rolling Lifetime length: 39.430
-    Best Lifetime Rolling Avg: 52.857142857142854
-    Best Episode: 6
-    Time Since Best: 993
-    Has Succeeded: False
-    Stopped Improving: False
-    Metrics: loss: 0.025847, mean_q: 0.249734, mean_eps: 0.910727
-    Total Training Time: 239.278s
-    
-    -----------------
-                    
-    Episode: 1250
-    Step: 11476/1000000
-    This Episode Steps: 8
-    This Episode Reward: 3.0
-    This Episode Duration: 0.244s
-    Rolling Lifetime length: 41.060
-    Best Lifetime Rolling Avg: 52.857142857142854
-    Best Episode: 6
-    Time Since Best: 1243
-    Has Succeeded: False
-    Stopped Improving: False
-    Metrics: loss: 0.037298, mean_q: 0.447289, mean_eps: 0.887579
-    Total Training Time: 307.324s
-    
-    -----------------
-                    
-    Episode: 1500
-    Step: 13912/1000000
-    This Episode Steps: 3
-    This Episode Reward: 0.0
-    This Episode Duration: 0.105s
-    Rolling Lifetime length: 41.730
-    Best Lifetime Rolling Avg: 52.857142857142854
-    Best Episode: 6
-    Time Since Best: 1493
-    Has Succeeded: False
-    Stopped Improving: False
-    Metrics: loss: 0.039221, mean_q: 0.421553, mean_eps: 0.863682
-    Total Training Time: 376.612s
-    
-    -----------------
-                    
-    Episode: 1750
-    Step: 16078/1000000
-    This Episode Steps: 3
-    This Episode Reward: 0.0
-    This Episode Duration: 0.102s
-    Rolling Lifetime length: 40.190
-    Best Lifetime Rolling Avg: 52.857142857142854
-    Best Episode: 6
-    Time Since Best: 1743
-    Has Succeeded: False
-    Stopped Improving: False
-    Metrics: loss: 0.064389, mean_q: 0.455956, mean_eps: 0.842455
-    Total Training Time: 438.599s
-    
-    -----------------
-                    
-    Episode: 2000
-    Step: 18717/1000000
-    This Episode Steps: 8
-    This Episode Reward: 1.0
-    This Episode Duration: 0.230s
-    Rolling Lifetime length: 42.200
-    Best Lifetime Rolling Avg: 52.857142857142854
-    Best Episode: 6
-    Time Since Best: 1993
-    Has Succeeded: False
-    Stopped Improving: False
-    Metrics: loss: 0.036992, mean_q: 0.554969, mean_eps: 0.816617
-    Total Training Time: 512.786s
-    
-    -----------------
-                    
-    Episode: 2250
-    Step: 21381/1000000
-    This Episode Steps: 14
-    This Episode Reward: 0.0
-    This Episode Duration: 0.390s
-    Rolling Lifetime length: 45.030
-    Best Lifetime Rolling Avg: 52.857142857142854
-    Best Episode: 6
-    Time Since Best: 2243
-    Has Succeeded: False
-    Stopped Improving: False
-    Metrics: loss: 0.045886, mean_q: 0.642659, mean_eps: 0.790540
-    Total Training Time: 587.940s
-    
-    -----------------
-                    
-    Episode: 2500
-    Step: 23909/1000000
-    This Episode Steps: 5
-    This Episode Reward: 0.0
-    This Episode Duration: 0.160s
-    Rolling Lifetime length: 46.660
-    Best Lifetime Rolling Avg: 52.857142857142854
-    Best Episode: 6
-    Time Since Best: 2493
-    Has Succeeded: False
-    Stopped Improving: False
-    Metrics: loss: 0.054479, mean_q: 0.717090, mean_eps: 0.765721
-    Total Training Time: 660.193s
-    
-    -----------------
-                    
-    Episode: 2750
-    Step: 26466/1000000
-    This Episode Steps: 10
-    This Episode Reward: 0.0
-    This Episode Duration: 0.299s
-    Rolling Lifetime length: 45.160
-    Best Lifetime Rolling Avg: 52.857142857142854
-    Best Episode: 6
-    Time Since Best: 2743
-    Has Succeeded: False
-    Stopped Improving: False
-    Metrics: loss: 0.051640, mean_q: 0.803924, mean_eps: 0.740687
-    Total Training Time: 733.650s
-    
-    -----------------
-                    
-    Episode: 3000
-    Step: 29116/1000000
-    This Episode Steps: 10
-    This Episode Reward: 0.0
-    This Episode Duration: 0.286s
-    Rolling Lifetime length: 45.770
-    Best Lifetime Rolling Avg: 52.857142857142854
-    Best Episode: 6
-    Time Since Best: 2993
-    Has Succeeded: False
-    Stopped Improving: False
-    Metrics: loss: 0.069156, mean_q: 0.757156, mean_eps: 0.714717
-    Total Training Time: 809.657s
-    
-    -----------------
-                    
-    Episode: 3250
-    Step: 32038/1000000
-    This Episode Steps: 7
-    This Episode Reward: 1.0
-    This Episode Duration: 0.210s
-    Rolling Lifetime length: 49.800
-    Best Lifetime Rolling Avg: 52.857142857142854
-    Best Episode: 6
-    Time Since Best: 3243
-    Has Succeeded: False
-    Stopped Improving: False
-    Metrics: loss: 0.060753, mean_q: 0.862240, mean_eps: 0.686067
-    Total Training Time: 892.617s
-    
-    -----------------
-                    
-    Episode: 3500
-    Step: 35087/1000000
-    This Episode Steps: 4
-    This Episode Reward: 0.0
-    This Episode Duration: 0.131s
-    Rolling Lifetime length: 51.020
-    Best Lifetime Rolling Avg: 52.857142857142854
-    Best Episode: 6
-    Time Since Best: 3493
-    Has Succeeded: False
-    Stopped Improving: False
-    Metrics: loss: 0.104373, mean_q: 1.079528, mean_eps: 0.656172
-    Total Training Time: 978.630s
-    
-    -----------------
-                    
-    Episode: 3750
-    Step: 38207/1000000
-    This Episode Steps: 9
-    This Episode Reward: 0.0
-    This Episode Duration: 0.256s
-    Rolling Lifetime length: 53.970
-    Best Lifetime Rolling Avg: 54.44
-    Best Episode: 3696
-    Time Since Best: 53
-    Has Succeeded: False
-    Stopped Improving: False
-    Metrics: loss: 0.080510, mean_q: 1.064533, mean_eps: 0.625620
-    Total Training Time: 1066.612s
-    
-    -----------------
-                    
-    Episode: 4000
-    Step: 41734/1000000
-    This Episode Steps: 8
-    This Episode Reward: 0.0
-    This Episode Duration: 0.222s
-    Rolling Lifetime length: 60.340
-    Best Lifetime Rolling Avg: 60.48
-    Best Episode: 3993
-    Time Since Best: 6
-    Has Succeeded: False
-    Stopped Improving: False
-    Metrics: loss: 0.057967, mean_q: 1.162211, mean_eps: 0.591051
-    Total Training Time: 1165.103s
-    
-    -----------------
-                    
-    Episode: 4250
-    Step: 44888/1000000
-    This Episode Steps: 30
-    This Episode Reward: 1.0
-    This Episode Duration: 0.789s
-    Rolling Lifetime length: 61.910
-    Best Lifetime Rolling Avg: 62.12
-    Best Episode: 4080
-    Time Since Best: 169
-    Has Succeeded: False
-    Stopped Improving: False
-    Metrics: loss: 0.078224, mean_q: 1.276537, mean_eps: 0.560249
-    Total Training Time: 1254.294s
-    
-    -----------------
-                    
-    Episode: 4500
-    Step: 48271/1000000
-    This Episode Steps: 5
-    This Episode Reward: 1.0
-    This Episode Duration: 0.159s
-    Rolling Lifetime length: 62.600
-    Best Lifetime Rolling Avg: 62.78
-    Best Episode: 4439
-    Time Since Best: 60
-    Has Succeeded: False
-    Stopped Improving: False
-    Metrics: loss: 0.091546, mean_q: 1.308860, mean_eps: 0.526974
-    Total Training Time: 1349.351s
-    
-    -----------------
-                    
-    Episode: 4750
-    Step: 52236/1000000
-    This Episode Steps: 27
-    This Episode Reward: 1.0
-    This Episode Duration: 0.729s
-    Rolling Lifetime length: 68.760
-    Best Lifetime Rolling Avg: 68.78
-    Best Episode: 4747
-    Time Since Best: 2
-    Has Succeeded: False
-    Stopped Improving: False
-    Metrics: loss: 0.142958, mean_q: 1.590916, mean_eps: 0.488224
-    Total Training Time: 1459.410s
-    
-    -----------------
-                    
-    Episode: 5000
-    Step: 56625/1000000
-    This Episode Steps: 17
-    This Episode Reward: 3.0
-    This Episode Duration: 0.474s
-    Rolling Lifetime length: 75.710
-    Best Lifetime Rolling Avg: 75.71
-    Best Episode: 4999
-    Time Since Best: 0
-    Has Succeeded: False
-    Stopped Improving: False
-    Metrics: loss: 0.162122, mean_q: 1.784167, mean_eps: 0.445163
-    Total Training Time: 1581.474s
-    
-    -----------------
-                    
-    Episode: 5250
-    Step: 61647/1000000
-    This Episode Steps: 72
-    This Episode Reward: 27.0
-    This Episode Duration: 1.902s
-    Rolling Lifetime length: 83.940
-    Best Lifetime Rolling Avg: 83.94
-    Best Episode: 5249
-    Time Since Best: 0
-    Has Succeeded: False
-    Stopped Improving: False
-    Metrics: loss: 0.168767, mean_q: 2.040635, mean_eps: 0.396217
-    Total Training Time: 1719.928s
-    
-    -----------------
-                    
-    Episode: 5500
-    Step: 67704/1000000
-    This Episode Steps: 9
-    This Episode Reward: 2.0
-    This Episode Duration: 0.262s
-    Rolling Lifetime length: 106.920
-    Best Lifetime Rolling Avg: 107.24
-    Best Episode: 5483
-    Time Since Best: 16
-    Has Succeeded: False
-    Stopped Improving: False
-    Metrics: loss: 0.224453, mean_q: 2.257581, mean_eps: 0.336550
-    Total Training Time: 1885.324s
-    
-    -----------------
-                    
-    Episode: 5750
-    Step: 75097/1000000
-    This Episode Steps: 115
-    This Episode Reward: 50.0
-    This Episode Duration: 3.092s
-    Rolling Lifetime length: 143.220
-    Best Lifetime Rolling Avg: 143.22
-    Best Episode: 5749
-    Time Since Best: 0
-    Has Succeeded: False
-    Stopped Improving: False
-    Metrics: loss: 0.279388, mean_q: 3.023634, mean_eps: 0.264618
-    Total Training Time: 2086.488s
+And training goes on...
     
     -----------------
                     
@@ -735,11 +455,17 @@ history = dqn.fit(env,
     Final Episode Lifetimes Rolling Avg: 2882.750
 
 
+As you can see above, we manually stopped training after approximately 6000 seconds while the agent was still improving, and before it has reached the specified success threshold.
+
+In order to evaluate the agent later on, or apply the agent in a production decoding scenario we can easily save the weights:
+
 
 ```python
 weights_file = os.path.join(logging_directory, "dqn_weights.h5f")
 dqn.save_weights(weights_file, overwrite=True)
 ```
+
+And finally, in order to evaluate the training procedure we may be interested in viewing any of the metrics which were logged. These are all saved within the history.history dictionary. For example, we are often most interested in analyzing the training procedure by looking at the rolling average of the qubit lifetime, which we can do as follows:
 
 
 ```python
@@ -755,7 +481,10 @@ plt.ylabel('Rolling Average Qubit Lifetime')
 _ = plt.title("Training History")
 ```
 
+<p align="center">
+<img src="https://user-images.githubusercontent.com/6330346/45919538-2121c300-be97-11e8-902e-a217734f33ed.png" width="60%" height="60%">
+</p>
 
-![png](output_8_0.png)
+From the above plot one can see that during the exploration phase the agent was unable to do well, due to constant exploratory random actions, but was able to exploit this knowledge effectively once the exploration probability became sufficiently low. Again, it is also clear that the agent was definitely still learning and improving when we chose to stop the training procedure.
 
 

@@ -165,19 +165,597 @@ Specifically, decoding proceeds as follows:
 </ol> 
 
 
-#### 2) Training Decoders in Practice
+
+### 2) Training Decoders in Practice
 
 Now that we have discussed the conceptual foundations, strategies and techniques involved, lets walk through a detailed example of how to train a decoder.
 
-##### 2a) Requirements
+#### 2a) Requirements
 
 The following packages are required, and can be installed via PIP:
 
 <ol>
-  <li> Python 3</li>
+  <li> Python 3 (with numpy and scipy)</li>
   <li> tensorflow </li>
   <li> keras </li> 
   <li> gym </li> 
 </ol> 
 
-In addition, a modified version of the Keras-RL package is required, which should be installed from <a href="https://github.com/R-Sweke/keras-rl">this fork</a>.
+In addition, a modified version of the Keras-RL package is required, which should be installed from <a href="https://github.com/R-Sweke/keras-rl">this fork</a>
+
+
+```python
+import numpy as np
+import keras
+import tensorflow
+import gym
+
+from Function_Library import *
+from Environments import *
+
+import rl as rl
+from rl.agents.dqn import DQNAgent
+from rl.policy import BoltzmannQPolicy, EpsGreedyQPolicy, LinearAnnealedPolicy, GreedyQPolicy
+from rl.memory import SequentialMemory
+from rl.callbacks import FileLogger
+
+import json
+import copy
+import sys
+import os
+import shutil
+import datetime
+```
+
+    Using TensorFlow backend.
+
+
+
+```python
+fixed_configs = {"d": 5,
+                "use_Y": False,
+                "train_freq": 1,
+                "batch_size": 32,
+                "print_freq": 250,
+                "rolling_average_length": 500,
+                "stopping_patience": 500,
+                "error_model": "X",
+                "c_layers": [[64,3,2],[32,2,1],[32,2,1]],
+                "ff_layers": [[512,0.2]],
+                "max_timesteps": 1000000,
+                "volume_depth": 5,
+                "testing_length": 101,
+                "buffer_size": 50000,
+                "dueling": True,
+                "masked_greedy": False,
+                "static_decoder": True}
+
+variable_configs = {"p_phys": 0.001,
+                    "p_meas": 0.001,
+                    "success_threshold": 10000,
+                    "learning_starts": 1000,
+                    "learning_rate": 0.00001,
+                    "exploration_fraction": 100000,
+                    "max_eps": 1.0,
+                    "target_network_update_freq": 5000,
+                    "gamma": 0.99,
+                    "final_eps": 0.02}
+
+logging_directory = os.path.join(os.getcwd(),"logging_directory/")
+static_decoder_path = os.path.join(os.getcwd(),"referee_decoders/nn_d5_X_p5")
+
+
+all_configs = {}
+
+for key in fixed_configs.keys():
+    all_configs[key] = fixed_configs[key]
+
+for key in variable_configs.keys():
+    all_configs[key] = variable_configs[key]
+
+static_decoder = load_model(static_decoder_path)                                                 
+logging_path = os.path.join(logging_directory,"training_history.json")
+logging_callback = FileLogger(filepath = logging_path,interval = all_configs["print_freq"])
+```
+
+
+```python
+env = Surface_Code_Environment_Multi_Decoding_Cycles(d=all_configs["d"], 
+    p_phys=all_configs["p_phys"], 
+    p_meas=all_configs["p_meas"],  
+    error_model=all_configs["error_model"], 
+    use_Y=all_configs["use_Y"], 
+    volume_depth=all_configs["volume_depth"],
+    static_decoder=static_decoder)
+```
+
+
+```python
+model = build_convolutional_nn(all_configs["c_layers"], 
+                               all_configs["ff_layers"], 
+                               env.observation_space.shape, 
+                               env.num_actions)
+
+memory = SequentialMemory(limit=all_configs["buffer_size"], window_length=1)
+
+policy = LinearAnnealedPolicy(EpsGreedyQPolicy(masked_greedy=all_configs["masked_greedy"]), 
+    attr='eps', value_max=all_configs["max_eps"], 
+    value_min=all_configs["final_eps"], 
+    value_test=0.0, 
+    nb_steps=all_configs["exploration_fraction"])
+
+test_policy = GreedyQPolicy(masked_greedy=True)
+```
+
+
+```python
+dqn = DQNAgent(model=model, 
+               nb_actions=env.num_actions, 
+               memory=memory, 
+               nb_steps_warmup=all_configs["learning_starts"], 
+               target_model_update=all_configs["target_network_update_freq"], 
+               policy=policy,
+               test_policy = test_policy,
+               gamma = all_configs["gamma"],
+               enable_dueling_network=all_configs["dueling"])  
+
+
+dqn.compile(Adam(lr=all_configs["learning_rate"]))
+```
+
+
+```python
+now = datetime.datetime.now()
+started_file = os.path.join(logging_directory,"started_at.p")
+pickle.dump(now, open(started_file, "wb" ) )
+
+history = dqn.fit(env, 
+  nb_steps=all_configs["max_timesteps"], 
+  action_repetition=1, 
+  callbacks=[logging_callback], 
+  verbose=2,
+  visualize=False, 
+  nb_max_start_steps=0, 
+  start_step_policy=None, 
+  log_interval=all_configs["print_freq"],
+  nb_max_episode_steps=None, 
+  episode_averaging_length=all_configs["rolling_average_length"], 
+  success_threshold=all_configs["success_threshold"],
+  stopping_patience=all_configs["stopping_patience"],
+  min_nb_steps=all_configs["exploration_fraction"],
+  single_cycle=False)
+```
+
+    Training for 1000000 steps ...
+    -----------------
+                    
+    Episode: 250
+    Step: 2232/1000000
+    This Episode Steps: 4
+    This Episode Reward: 0.0
+    This Episode Duration: 0.122s
+    Rolling Lifetime length: 38.000
+    Best Lifetime Rolling Avg: 52.857142857142854
+    Best Episode: 6
+    Time Since Best: 243
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.024631, mean_q: 0.104172, mean_eps: 0.978151
+    Total Training Time: 42.201s
+    
+    -----------------
+                    
+    Episode: 500
+    Step: 4482/1000000
+    This Episode Steps: 7
+    This Episode Reward: 1.0
+    This Episode Duration: 0.201s
+    Rolling Lifetime length: 39.290
+    Best Lifetime Rolling Avg: 52.857142857142854
+    Best Episode: 6
+    Time Since Best: 493
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.023562, mean_q: 0.120933, mean_eps: 0.956116
+    Total Training Time: 106.792s
+    
+    -----------------
+                    
+    Episode: 750
+    Step: 6816/1000000
+    This Episode Steps: 17
+    This Episode Reward: 0.0
+    This Episode Duration: 0.458s
+    Rolling Lifetime length: 40.450
+    Best Lifetime Rolling Avg: 52.857142857142854
+    Best Episode: 6
+    Time Since Best: 743
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.036497, mean_q: 0.276420, mean_eps: 0.933291
+    Total Training Time: 173.804s
+    
+    -----------------
+                    
+    Episode: 1000
+    Step: 9114/1000000
+    This Episode Steps: 8
+    This Episode Reward: 1.0
+    This Episode Duration: 0.242s
+    Rolling Lifetime length: 39.430
+    Best Lifetime Rolling Avg: 52.857142857142854
+    Best Episode: 6
+    Time Since Best: 993
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.025847, mean_q: 0.249734, mean_eps: 0.910727
+    Total Training Time: 239.278s
+    
+    -----------------
+                    
+    Episode: 1250
+    Step: 11476/1000000
+    This Episode Steps: 8
+    This Episode Reward: 3.0
+    This Episode Duration: 0.244s
+    Rolling Lifetime length: 41.060
+    Best Lifetime Rolling Avg: 52.857142857142854
+    Best Episode: 6
+    Time Since Best: 1243
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.037298, mean_q: 0.447289, mean_eps: 0.887579
+    Total Training Time: 307.324s
+    
+    -----------------
+                    
+    Episode: 1500
+    Step: 13912/1000000
+    This Episode Steps: 3
+    This Episode Reward: 0.0
+    This Episode Duration: 0.105s
+    Rolling Lifetime length: 41.730
+    Best Lifetime Rolling Avg: 52.857142857142854
+    Best Episode: 6
+    Time Since Best: 1493
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.039221, mean_q: 0.421553, mean_eps: 0.863682
+    Total Training Time: 376.612s
+    
+    -----------------
+                    
+    Episode: 1750
+    Step: 16078/1000000
+    This Episode Steps: 3
+    This Episode Reward: 0.0
+    This Episode Duration: 0.102s
+    Rolling Lifetime length: 40.190
+    Best Lifetime Rolling Avg: 52.857142857142854
+    Best Episode: 6
+    Time Since Best: 1743
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.064389, mean_q: 0.455956, mean_eps: 0.842455
+    Total Training Time: 438.599s
+    
+    -----------------
+                    
+    Episode: 2000
+    Step: 18717/1000000
+    This Episode Steps: 8
+    This Episode Reward: 1.0
+    This Episode Duration: 0.230s
+    Rolling Lifetime length: 42.200
+    Best Lifetime Rolling Avg: 52.857142857142854
+    Best Episode: 6
+    Time Since Best: 1993
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.036992, mean_q: 0.554969, mean_eps: 0.816617
+    Total Training Time: 512.786s
+    
+    -----------------
+                    
+    Episode: 2250
+    Step: 21381/1000000
+    This Episode Steps: 14
+    This Episode Reward: 0.0
+    This Episode Duration: 0.390s
+    Rolling Lifetime length: 45.030
+    Best Lifetime Rolling Avg: 52.857142857142854
+    Best Episode: 6
+    Time Since Best: 2243
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.045886, mean_q: 0.642659, mean_eps: 0.790540
+    Total Training Time: 587.940s
+    
+    -----------------
+                    
+    Episode: 2500
+    Step: 23909/1000000
+    This Episode Steps: 5
+    This Episode Reward: 0.0
+    This Episode Duration: 0.160s
+    Rolling Lifetime length: 46.660
+    Best Lifetime Rolling Avg: 52.857142857142854
+    Best Episode: 6
+    Time Since Best: 2493
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.054479, mean_q: 0.717090, mean_eps: 0.765721
+    Total Training Time: 660.193s
+    
+    -----------------
+                    
+    Episode: 2750
+    Step: 26466/1000000
+    This Episode Steps: 10
+    This Episode Reward: 0.0
+    This Episode Duration: 0.299s
+    Rolling Lifetime length: 45.160
+    Best Lifetime Rolling Avg: 52.857142857142854
+    Best Episode: 6
+    Time Since Best: 2743
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.051640, mean_q: 0.803924, mean_eps: 0.740687
+    Total Training Time: 733.650s
+    
+    -----------------
+                    
+    Episode: 3000
+    Step: 29116/1000000
+    This Episode Steps: 10
+    This Episode Reward: 0.0
+    This Episode Duration: 0.286s
+    Rolling Lifetime length: 45.770
+    Best Lifetime Rolling Avg: 52.857142857142854
+    Best Episode: 6
+    Time Since Best: 2993
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.069156, mean_q: 0.757156, mean_eps: 0.714717
+    Total Training Time: 809.657s
+    
+    -----------------
+                    
+    Episode: 3250
+    Step: 32038/1000000
+    This Episode Steps: 7
+    This Episode Reward: 1.0
+    This Episode Duration: 0.210s
+    Rolling Lifetime length: 49.800
+    Best Lifetime Rolling Avg: 52.857142857142854
+    Best Episode: 6
+    Time Since Best: 3243
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.060753, mean_q: 0.862240, mean_eps: 0.686067
+    Total Training Time: 892.617s
+    
+    -----------------
+                    
+    Episode: 3500
+    Step: 35087/1000000
+    This Episode Steps: 4
+    This Episode Reward: 0.0
+    This Episode Duration: 0.131s
+    Rolling Lifetime length: 51.020
+    Best Lifetime Rolling Avg: 52.857142857142854
+    Best Episode: 6
+    Time Since Best: 3493
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.104373, mean_q: 1.079528, mean_eps: 0.656172
+    Total Training Time: 978.630s
+    
+    -----------------
+                    
+    Episode: 3750
+    Step: 38207/1000000
+    This Episode Steps: 9
+    This Episode Reward: 0.0
+    This Episode Duration: 0.256s
+    Rolling Lifetime length: 53.970
+    Best Lifetime Rolling Avg: 54.44
+    Best Episode: 3696
+    Time Since Best: 53
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.080510, mean_q: 1.064533, mean_eps: 0.625620
+    Total Training Time: 1066.612s
+    
+    -----------------
+                    
+    Episode: 4000
+    Step: 41734/1000000
+    This Episode Steps: 8
+    This Episode Reward: 0.0
+    This Episode Duration: 0.222s
+    Rolling Lifetime length: 60.340
+    Best Lifetime Rolling Avg: 60.48
+    Best Episode: 3993
+    Time Since Best: 6
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.057967, mean_q: 1.162211, mean_eps: 0.591051
+    Total Training Time: 1165.103s
+    
+    -----------------
+                    
+    Episode: 4250
+    Step: 44888/1000000
+    This Episode Steps: 30
+    This Episode Reward: 1.0
+    This Episode Duration: 0.789s
+    Rolling Lifetime length: 61.910
+    Best Lifetime Rolling Avg: 62.12
+    Best Episode: 4080
+    Time Since Best: 169
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.078224, mean_q: 1.276537, mean_eps: 0.560249
+    Total Training Time: 1254.294s
+    
+    -----------------
+                    
+    Episode: 4500
+    Step: 48271/1000000
+    This Episode Steps: 5
+    This Episode Reward: 1.0
+    This Episode Duration: 0.159s
+    Rolling Lifetime length: 62.600
+    Best Lifetime Rolling Avg: 62.78
+    Best Episode: 4439
+    Time Since Best: 60
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.091546, mean_q: 1.308860, mean_eps: 0.526974
+    Total Training Time: 1349.351s
+    
+    -----------------
+                    
+    Episode: 4750
+    Step: 52236/1000000
+    This Episode Steps: 27
+    This Episode Reward: 1.0
+    This Episode Duration: 0.729s
+    Rolling Lifetime length: 68.760
+    Best Lifetime Rolling Avg: 68.78
+    Best Episode: 4747
+    Time Since Best: 2
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.142958, mean_q: 1.590916, mean_eps: 0.488224
+    Total Training Time: 1459.410s
+    
+    -----------------
+                    
+    Episode: 5000
+    Step: 56625/1000000
+    This Episode Steps: 17
+    This Episode Reward: 3.0
+    This Episode Duration: 0.474s
+    Rolling Lifetime length: 75.710
+    Best Lifetime Rolling Avg: 75.71
+    Best Episode: 4999
+    Time Since Best: 0
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.162122, mean_q: 1.784167, mean_eps: 0.445163
+    Total Training Time: 1581.474s
+    
+    -----------------
+                    
+    Episode: 5250
+    Step: 61647/1000000
+    This Episode Steps: 72
+    This Episode Reward: 27.0
+    This Episode Duration: 1.902s
+    Rolling Lifetime length: 83.940
+    Best Lifetime Rolling Avg: 83.94
+    Best Episode: 5249
+    Time Since Best: 0
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.168767, mean_q: 2.040635, mean_eps: 0.396217
+    Total Training Time: 1719.928s
+    
+    -----------------
+                    
+    Episode: 5500
+    Step: 67704/1000000
+    This Episode Steps: 9
+    This Episode Reward: 2.0
+    This Episode Duration: 0.262s
+    Rolling Lifetime length: 106.920
+    Best Lifetime Rolling Avg: 107.24
+    Best Episode: 5483
+    Time Since Best: 16
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.224453, mean_q: 2.257581, mean_eps: 0.336550
+    Total Training Time: 1885.324s
+    
+    -----------------
+                    
+    Episode: 5750
+    Step: 75097/1000000
+    This Episode Steps: 115
+    This Episode Reward: 50.0
+    This Episode Duration: 3.092s
+    Rolling Lifetime length: 143.220
+    Best Lifetime Rolling Avg: 143.22
+    Best Episode: 5749
+    Time Since Best: 0
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.279388, mean_q: 3.023634, mean_eps: 0.264618
+    Total Training Time: 2086.488s
+    
+    -----------------
+                    
+    Episode: 6000
+    Step: 89611/1000000
+    This Episode Steps: 37
+    This Episode Reward: 24.0
+    This Episode Duration: 1.061s
+    Rolling Lifetime length: 279.420
+    Best Lifetime Rolling Avg: 279.42
+    Best Episode: 5999
+    Time Since Best: 0
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.343747, mean_q: 4.159633, mean_eps: 0.121998
+    Total Training Time: 2478.817s
+    
+    -----------------
+                    
+    Episode: 6250
+    Step: 126262/1000000
+    This Episode Steps: 784
+    This Episode Reward: 566.0
+    This Episode Duration: 21.441s
+    Rolling Lifetime length: 1020.830
+    Best Lifetime Rolling Avg: 1020.83
+    Best Episode: 6249
+    Time Since Best: 0
+    Has Succeeded: False
+    Stopped Improving: False
+    Metrics: loss: 0.580168, mean_q: 9.287714, mean_eps: 0.020000
+    Total Training Time: 3490.853s
+    
+    Training Finished in 5840.354 seconds
+            
+    Final Step: 210321
+    Succeeded: False
+    Stopped_Improving: False
+    Final Episode Lifetimes Rolling Avg: 2882.750
+
+
+
+```python
+weights_file = os.path.join(logging_directory, "dqn_weights.h5f")
+dqn.save_weights(weights_file, overwrite=True)
+```
+
+
+```python
+from matplotlib import pyplot as plt
+%matplotlib inline
+
+training_history = history.history["episode_lifetimes_rolling_avg"]
+
+plt.figure(figsize=(12,7))
+plt.plot(training_history)
+plt.xlabel('Episode')
+plt.ylabel('Rolling Average Qubit Lifetime')
+_ = plt.title("Training History")
+```
+
+
+![png](output_8_0.png)
+
+

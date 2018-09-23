@@ -490,3 +490,675 @@ _ = plt.title("Training History")
 From the above plot one can see that during the exploration phase the agent was unable to do well, due to constant exploratory random actions, but was able to exploit this knowledge effectively once the exploration probability became sufficiently low. Again, it is also clear that the agent was definitely still learning and improving when we chose to stop the training procedure.
 
 
+#### 3) Evaluating and Running Decoders
+
+Now that we know how to train a decoder, we would like to see how to evaluate the performance of that decoder, as well as how to use the decoder in a production setting. In this notebook we will demonstrate how to perform both of these tasks.
+
+##### 3a) Evaluating a Trained Decoder
+
+Given a trained decoder we would of course like to benchmark the decoder to evaluate how well it performs. This procedure is very similar to training the decoder, in that we run multiple decoding episodes in which the agent interacts with the environment until it "dies" - however in this context we would like the agent to use only a greedy policy for action selection, i.e. to never make random moves, and we do not need to update the agents parameters in time. As we will see benchmarking an agent is made easy by use of the DQNAgent class "test" method.
+
+Again, we begin by importing the necessary packages:
+
+
+```python
+import numpy as np
+import keras
+import tensorflow
+import gym
+
+from Function_Library import *
+from Environments import *
+
+import rl as rl
+from rl.agents.dqn import DQNAgent
+from rl.policy import BoltzmannQPolicy, EpsGreedyQPolicy, LinearAnnealedPolicy, GreedyQPolicy
+from rl.memory import SequentialMemory
+from rl.callbacks import FileLogger
+
+import json
+import copy
+import sys
+import os
+import shutil
+import datetime
+```
+
+    Using TensorFlow backend.
+
+
+Now, we need to load:
+    
+   1. The hyper-parameters of the agent we would like to test
+   2. The weights of the agent
+    
+In this example we will evaluate one of the provided pre-trained decoders, for d=5, with X noise only, trained at an error rate of p_phys=p_meas=0.004
+
+
+```python
+fixed_configs_path = os.path.join(os.getcwd(),"../trained_models/d5_x/fixed_config.p")
+variable_configs_path = os.path.join(os.getcwd(),"../trained_models/d5_x/0.004/variable_config_22.p")
+model_weights_path = os.path.join(os.getcwd(),"../trained_models/d5_x/0.004/dqn_weights.h5f")
+
+static_decoder_path = os.path.join(os.getcwd(),"referee_decoders/nn_d5_X_p5")
+static_decoder = load_model(static_decoder_path)
+
+fixed_configs = pickle.load( open(fixed_configs_path, "rb" ) )
+variable_configs = pickle.load( open(variable_configs_path, "rb" ) )
+
+all_configs = {}
+
+for key in fixed_configs.keys():
+    all_configs[key] = fixed_configs[key]
+
+for key in variable_configs.keys():
+    all_configs[key] = variable_configs[key]
+```
+
+Now we can instantiate the environment in which we will test the agent:
+
+
+```python
+env = Surface_Code_Environment_Multi_Decoding_Cycles(d=all_configs["d"], 
+    p_phys=all_configs["p_phys"], 
+    p_meas=all_configs["p_meas"],  
+    error_model=all_configs["error_model"], 
+    use_Y=all_configs["use_Y"], 
+    volume_depth=all_configs["volume_depth"],
+    static_decoder=static_decoder)
+```
+
+Now we build a model and instantiate an agent with all the parameters of the pre-trained agent. Notice that we insist on a greedy policy!
+
+
+```python
+model = build_convolutional_nn(all_configs["c_layers"],all_configs["ff_layers"], 
+                               env.observation_space.shape, env.num_actions)
+memory = SequentialMemory(limit=all_configs["buffer_size"], window_length=1)
+policy = GreedyQPolicy(masked_greedy=True)
+test_policy = GreedyQPolicy(masked_greedy=True)
+
+# ------------------------------------------------------------------------------------------
+
+dqn = DQNAgent(model=model, 
+               nb_actions=env.num_actions, 
+               memory=memory, 
+               nb_steps_warmup=all_configs["learning_starts"], 
+               target_model_update=all_configs["target_network_update_freq"], 
+               policy=policy,
+               test_policy=test_policy,
+               gamma = all_configs["gamma"],
+               enable_dueling_network=all_configs["dueling"])  
+
+
+dqn.compile(Adam(lr=all_configs["learning_rate"]))
+```
+
+At this stage the agent has random weights, and so we load in the weights of the pre-trained agent:
+
+
+```python
+dqn.model.load_weights(model_weights_path)
+```
+
+And now finally we can benchmark the agent using the test method. 
+
+It is important to note that the reported episode length is the number of _non-trivial_ syndrome volumes that the agent received, as these are the steps during which a decision needs to be taken on the part of the agent. The qubit lifetime, whose rolling average is reported, is the total number of syndrome measurements (between which an error may occur) for which the agent survived, as this is the relevant metric to compare with a single faulty qubit whose expected lifetime is 1/(error_probability).
+
+
+```python
+nb_test_episodes = 1001
+testing_history = dqn.test(env,nb_episodes = nb_test_episodes, visualize=False, verbose=2, 
+                           interval=100, single_cycle=False)
+```
+
+    Testing for 1001 episodes ...
+    -----------------
+    Episode: 1
+    This Episode Length: 59
+    This Episode Reward: 29.0
+    This Episode Lifetime: 220
+    
+    Episode Lifetimes Avg: 220.000
+    
+    -----------------
+    Episode: 101
+    This Episode Length: 76
+    This Episode Reward: 38.0
+    This Episode Lifetime: 300
+    
+    Episode Lifetimes Avg: 698.861
+    
+   and the evaluation continues...
+    
+    -----------------
+    Episode: 901
+    This Episode Length: 414
+    This Episode Reward: 306.0
+    This Episode Lifetime: 1905
+    
+    Episode Lifetimes Avg: 683.235
+    
+    -----------------
+    Episode: 1001
+    This Episode Length: 55
+    This Episode Reward: 30.0
+    This Episode Lifetime: 215
+    
+    Episode Lifetimes Avg: 679.141
+    
+
+
+```python
+results = testing_history.history["episode_lifetime"]
+
+print("Mean Qubit Lifetime:", np.mean(results))
+```
+
+    Mean Qubit Lifetime: 679.1408591408591
+
+
+Here we see that on average, over 1001 test episodes, the qubit survives for 679 syndrome measurements on average, which is better than the average lifetime of 250 syndrome measurements for a single faulty qubit.
+
+##### 3b) Using a Trained Decoder in Production
+
+In addition to benchmarking a decoder via the agent test method, we would like to demonstrate how to use the decoder in practice, given a faulty syndrome volume. In principle all the information on how to do this is contained within the environments and test method, but to aid in applying these decoders quickly and easily in practice we make everything explicit here:
+
+To do this, we start by generating a faulty syndrome volume as would be generated by an experiment or in the process of a quantum computation:
+
+
+```python
+d=5
+p_phys=0.004
+p_meas=p_phys
+error_model = "X"
+qubits = generateSurfaceCodeLattice(d)
+
+hidden_state = np.zeros((d, d), int)
+
+faulty_syndromes = []
+for j in range(d):
+    error = generate_error(d, p_phys, error_model)
+    hidden_state = obtain_new_error_configuration(hidden_state, error)
+    current_true_syndrome = generate_surface_code_syndrome_NoFT_efficient(hidden_state, qubits)
+    current_faulty_syndrome = generate_faulty_syndrome(current_true_syndrome, p_meas)
+    faulty_syndromes.append(current_faulty_syndrome)
+```
+
+By viewing the hidden_state (the lattice state) we can see what errors occured, which here was a single error on the 6th qubit (we start counting from 0, and move row wise left to right).
+
+
+```python
+print(hidden_state)
+```
+
+    [[0. 0. 0. 0. 0.]
+     [0. 1. 0. 0. 0.]
+     [0. 0. 0. 0. 0.]
+     [0. 0. 0. 0. 0.]
+     [0. 0. 0. 0. 0.]]
+
+
+And we can view the faulty_syndromes that we received, which is what would come out of an experiment. As we can see, a measurement error occured in the first time slice, and the actual error occured between the 3rd and 4th slice...
+
+
+```python
+for j in range(d):
+    print("syndrome slice", j)
+    print()
+    print(faulty_syndromes[j])
+    print()
+```
+
+    syndrome slice 0
+    
+    [[0 0 0 0 0 0]
+     [0 0 0 0 0 0]
+     [0 0 0 0 0 0]
+     [0 0 0 0 0 0]
+     [0 0 1 0 0 0]
+     [0 0 0 0 0 0]]
+    
+    syndrome slice 1
+    
+    [[0 0 0 0 0 0]
+     [0 0 0 0 0 0]
+     [0 0 0 0 0 0]
+     [0 0 0 0 0 0]
+     [0 0 0 0 0 0]
+     [0 0 0 0 0 0]]
+    
+    syndrome slice 2
+    
+    [[0 0 0 0 0 0]
+     [0 0 0 0 0 0]
+     [0 0 0 0 0 0]
+     [0 0 0 0 0 0]
+     [0 0 0 0 0 0]
+     [0 0 0 0 0 0]]
+    
+    syndrome slice 3
+    
+    [[0 0 0 0 0 0]
+     [0 0 1 0 0 0]
+     [0 1 0 0 0 0]
+     [0 0 0 0 0 0]
+     [0 0 0 0 0 0]
+     [0 0 0 0 0 0]]
+    
+    syndrome slice 4
+    
+    [[0 0 0 0 0 0]
+     [0 0 1 0 0 0]
+     [0 1 0 0 0 0]
+     [0 0 0 0 0 0]
+     [0 0 0 0 0 0]
+     [0 0 0 0 0 0]]
+    
+
+
+And now we would like to decode and obtain the suggested corrections. To do this, we begin by padding the faulty syndromes as required and by concatenating the obtained volume with an action history slice, in which all the actions are initially zero:
+
+
+```python
+# Intialize a zero'd input volume
+input_state = np.zeros((d+1, 2*d + 1, 2*d + 1),int)
+
+# embed and place the faulty syndrome slices in the correct place
+for j in range(d):
+            input_state[j, :, :] = env.padding_syndrome(faulty_syndromes[j])
+```
+
+And now we can run the agent, collecting the suggested actions, until the agent does the identity, which suggests that it is finished decoding:
+
+
+```python
+corrections = []
+
+still_decoding = True
+while still_decoding:
+    
+    # Fetch the suggested correction
+    action = dqn.forward(input_state)
+    
+    if action not in corrections and action != env.identity_index:
+        # If the action has not yet been done, or is not the identity
+        
+        # append the suggested correction to the list of corrections
+        corrections.append(action)
+        
+        # Update the input state to the agent to indicate the correction it would have made
+        input_state[d, :, :] = env.padding_actions(corrections)
+        
+    else:
+        # decoding should stop
+        still_decoding = False
+        
+```
+
+And now we can view the suggested corrections, which in this case was a single correct suggestion:
+
+
+```python
+print(corrections)
+```
+
+    [6]
+
+
+Note that in general if there is more than one error, or if the agent is uncertain about a given configuration, it may choose to do the identity, therefore triggering a new syndrome volume from which it may be more certain which action to take - The crucial point is that in practice we are interested in how long the qubit survives for, and an optimal strategy for achieving long qubit lifetimes may not be to attempt to fully decode into the ground state after each syndrome volume - in fact, that is one of the primary advantages of this approach!
+
+
+#### 4) Large Scale Iterative Training and Hyper-Parameter Optimization
+
+Now that we have seen how to train and test decoders at a fixed error rate, for a given set of hyper-parameters, we would like to turn our attention to how we might be able to obtain good decoders for a large range of error rates. In order to achieve this we have developed an iterative training procedure involving hyper-parameter searches at each level of the iteration. In this notebook we will first outline the procedure before proceeding to discuss in detail how one can implement this procedure on a high-performance computing cluster. The scripts required for this implementation are contained in the cluster_scripts folder of the repo.
+
+##### 4a) Outline of the Procedure
+
+As illustrated in the figure below, the fundemental idea is to iterate through increasing error rates, performing hyper-parameter optimizations at each iteration, and using various attributes of the optimization at one step of the iteration as a starting point for the subsequent step.
+
+<p align="center">
+<img src="https://user-images.githubusercontent.com/6330346/45932272-0d02c200-bf7a-11e8-8c3f-f29b19d5e93f.png" width="70%" height="70%">
+</p>
+
+In particular, the procedure works as follows:
+
+  1. We begin by fixing the error rate to some small initial value which we estimate to be far below the threshold of the decoder and at which the agent will be able to learn a good strategy.
+  2. We then set the fixed hyper-parameters (as discussed in the previous section) which will remain constant throughout the entire training procedure, even as we increment the error rate. 
+  3. Next, we create a hyper-parameter grid over the hyperparameters which we would like to optimize (the variable hyper-parameters) and proceed to train a decoder for each set of hyper-parameters in the grid. For each of these initial simulations the decoder/agent is initialized with no memory and with random initial weights.
+  4. For each point in the hyperparameter grid we store 
+      - The hyper-parameter settings for this point.
+      - The entire training history.
+      - The weights of the final agent.
+      - The memory of the agent.
+  5. Additionally, for each trained agent we then evaluate the agent in "test-mode" and record the results (i.e. the average qubit lifetime one can expect when using this decoder in practice).
+  6. Now, given all "test-mode" results for all obtained decoders at this error rate, we then filter the results and identify the best performing decoder.
+  7. At this point, provided the results from just completed iteration are above some specified performance threshold, we then increase the error rate. To do this we start by fetching the experience memory and weights of the optimal decoder from the just completed iteration. Then, at the increased error rate we create a new hyper-parameter grid over the variable hyper-parameters, and train a decoder at each point in this new hyper-parameter grid. However, in this subsequent step of the iteration the agents are not initialized with random memories and weights, but with the memory and weights of the optimal performing decoder from the previous iteration.
+  8. This procedure then iterates until the point at which, with respect to the current error rate, the logical qubit lifetime when corrected by the optimal decoder falls beneath that of a single faulty-qubit - i.e until we are able to identify the pseudo-threshold of the decoder.
+      
+
+##### 4a) Practically Implementing Large Scale Iterative Training on an HPC Cluster
+
+In the cluster_scripts folder of the repo we provide scripts for practically implementing the above iterating training procedure on an HPC cluster using the slurm workload manager. In this section we provide detailed documentation for how to set up and implement this procedure using the provided scripts.
+
+As an example, we will work through the iterative training procedure in detail for d=5 and X noise only, although the steps here can be easily modified to different physical scenarios, and we have also provided all the scripts necessary for d=5 with depolarizing noise. 
+
+Before beginning make sure that base "../d5_x/" directory contains:
+
+   - Environments.py
+   - Function_Library.py
+   - Controller.py
+   - make_executable.sh
+   - static_decoder (an appropriate referee decoder with the corresponding lattice size and error model)
+   - An empty folder called "results" 
+   - An empty text document called "history.txt"
+   - A subdirectory for each error rate one would like to iterate through
+   - A text file "current_error_rate.txt" containing one line with the lowest error rate - i.e. 0.001
+    
+Furthermore, the subdirectory corresponding to the lowest error rate (0.001 here) should contain:
+
+   - Environments.py
+   - Function_Library.py
+   - Generate_Base_Configs_and_Simulation_Scripts.py
+   - Single_Point_Training_Script.py
+   - Start_Simulations.sh
+   - An empty folder "output_files"
+    
+Additionally every other error rate subdirectory should contain:
+
+   - Environments.py
+   - Function_Library.py
+   - Single_Point_Continue_Training_Script.py
+   - Start_Continuing_Simulations.sh
+   - An empty folder "output_files"
+
+
+In order to run a customized/modified version of this procedure this exact directory and file structure should be replicated, as we will see below all that is necessary is to modify:
+
+   - Controller.py
+   - Generate_Base_Configs_and_Simulation_Scripts.py
+   - Providing the appropriate static/referee decoder
+   - Renaming the error rate subdirectories appropriately
+
+To begin, copy the entire folder "d5_x" onto the HPC cluster and navigate into the "../d5_x/" directory. Then:
+
+1) From "../d5_x/" start a "screen" - this provides a persistent terminal which we can later detach and re-attach at will to keep track of the training procedure, without having to remain logged in to the cluster.
+
+     a) type "screen"
+     b) then press enter
+     c) We are now in a screen
+     
+2) Run the command "bash make_executable.sh". This will allow the controller - a python script which will be run periodically to control the training process - to submit jobs via slurm.
+
+3) Using vim or some other in-terminal editor, modify the following in Controller.py:
+    
+    a) Set all the error rates that you would like to iterate through - make sure there is an appropriate subdirectory for each error rate given here.
+    b) For each error rate, provide the expected lifetime of a single faulty qubit (i.e. the threshold for decoding sucess) as well as the average qubit lifetime you would like to use as a threshold for stopping training. We recommend setting this training threshold extremely high, so that training ends due to convergence.
+    c) set the hyper-parameter grid that you would like to use at each error rate iteration.
+    d) Also make sure that all the cluster parameters (job time, nodes etc) are set correctly.
+    e) make sure the time threshold for evaluating whether simulations have timed out corresponds to the cluster configurations
+    
+4) Make sure history.txt is empty, make sure the results folder is empty, make sure that current_error_rate.txt contains one line with only the lowest error rate written in.
+
+5) Navigate to the directory "../d5_x/0.001/", or in a modified scenario, the folder corresponding to the lowest error rate, again using Vim or some in-terminal editor:
+
+    a) Set the base configuration grid (fixed hyperparameters) in Generate_Base_Configs_and_Simulation_Scripts.py
+    c) Specify the variable hyper-parameter grid for this initial error rate.
+    d) Set the maximum run times for each job (each grid point will be submitted as a seperate job).
+    e) run this script with the command "python Generate_Base_Configs_and_Simulation_Scripts.py"
+
+6) The previous step will have generated many configuration subdirectories, as well as a "fixed_configs.p" file in the "../d5_x/" directory one level up in the directory hierachy. Check that the fixed_configs.p file has been generated. In addition check that each "config_x" subdirectory within "../d5_x/0.001/" contains:
+
+    a) simulation_script.sh
+    b) variable_config_x.py
+
+7) At this stage we then have to submit all the jobs (one for each grid point) for the initial error rate. We do this by running the command "bash Start_Simulations.sh" from inside "../d5_x/0.001/".
+
+8) Now we have to get the script Controller.py to run periodically. Every time this script runs it will check for the current error rate and collect all available results from simulations from that error rate. If all the simulations at the specified error rate are finished, or if the time threshold for an error rate has passed, then it will write and sort the results, generate a new hyperparameter grid and simulation scripts for an increased error rate, copy the memory and weights of the optimal model from the old error rate into the appropriate directories, and submit a new batch of jobs for all the new grid points at the increased error rates. To get the controller to run periodically we do the following:
+
+     a) Navigate into the base directory "../d5_x/" containing Controller.py
+     b) run the command "watch -n interval_in_seconds python Controller.py"
+     c) eg: for ten minute intervals: "watch -n 600 Controller.py"
+
+9) At this stage we are looking at the watch screen, which displays the difference in output between successive calls to Controller.py
+
+     a) We want to detach this screen so that we can safely logout of the cluster without interrupting training
+     b) To do this type ctrl+a, then d
+
+10) We can now log out and the training procedure will continue safely, as directed by the Controller. We can log in and out of the cluster to see how training is proceeding whenever we want. In particular we can view the contents of:
+
+    a) history.txt: This file contains the result of every call to Controller.py - i.e. the current error rate, how many simulations are finished or in progress, and what action was taken.
+    b) results: The results folder contains text files which contain both all the results and the best result from each error rate.
+
+11) When training is finished and we want to kill the controller we have to login to the cluster and run the following commands:
+
+    a) reattach the screen with "screen -r"
+    b) We are now looking at the watch output - kill this with ctrl+c
+    c) Now we need to kill the screen with ctrl+a and then k
+
+
+#### 5) Results
+
+As we have discussed, during the course of the training procedure the results of all trained agents in "test_mode" are written out and stored, as well as the results from the best agent at each error rate. However, in order to ease computational time during training, each agent was only benchmarked for 100 episodes. In this notebook we present these raw preliminary results from the training procedure, as well as provide a script for obtaining more rigorous results from the optimal trained models.
+
+##### 5a) Preliminary Results
+
+Here we present the preliminary results, as obtained from within the training procedure, and from which the controller script based its decisions.
+
+
+```python
+import numpy as np
+import keras
+import tensorflow
+import gym
+
+from Function_Library import *
+from Environments import *
+
+import rl as rl
+from rl.agents.dqn import DQNAgent
+from rl.policy import BoltzmannQPolicy, EpsGreedyQPolicy, LinearAnnealedPolicy, GreedyQPolicy
+from rl.memory import SequentialMemory
+from rl.callbacks import FileLogger
+
+import json
+import copy
+import sys
+import os
+import shutil
+import datetime
+
+from matplotlib import pyplot as plt
+%matplotlib inline
+```
+
+    Using TensorFlow backend.
+
+
+
+```python
+directory_dict = {"X Noise": os.path.join(os.getcwd(),"../results/d5_x/"),
+                  "DP Noise": os.path.join(os.getcwd(),"../results/d5_dp/")}
+
+results_dict = {}
+for key in directory_dict.keys():
+    results_list = []
+    for file in os.listdir(directory_dict[key]):
+        if "best" in file:
+            with open(directory_dict[key]+file) as f:
+                content = f.readlines()
+            content = [x.strip() for x in content]
+            start_index = content[0].index(":")
+            result = float(content[0][start_index+2:])
+            results_list.append(result)
+    results_list.sort(reverse=True)
+    results_dict[key] = results_list
+    
+    
+```
+
+
+```python
+end = 8
+p_phys = [j/1000 for j in range(1, end+1)]
+bench = [1/p for p in p_phys]
+key = "X Noise"
+
+_=plt.figure(figsize=[12,8])
+plt.semilogy(p_phys[:end],results_dict[key][:end],"b",label="Decoded Logical Qubit")
+plt.semilogy(p_phys[:end],results_dict[key][:end],"bo")
+plt.semilogy(p_phys[:end],bench[:end],"r",label="Single Faulty Qubit")
+plt.semilogy(p_phys[:end],bench[:end],"rx")
+plt.title("d=5 X Noise Preliminary Decoder Results")
+plt.xlabel("p_phys=p_meas")
+plt.ylabel("Average Qubit Survival Time")
+_=plt.legend()
+```
+
+
+<p align="center">
+<img src="https://user-images.githubusercontent.com/6330346/45932267-01af9680-bf7a-11e8-9caa-5c7168727ae7.png" width="70%" height="70%">
+</p>
+
+
+
+```python
+end = 5
+p_phys = [j/1000 for j in range(1, end+1)]
+bench = [1/p for p in p_phys]
+key = "DP Noise"
+
+_=plt.figure(figsize=[12,8])
+plt.semilogy(p_phys[:end],results_dict[key][:end],"g",label="Decoded Logical Qubit")
+plt.semilogy(p_phys[:end],results_dict[key][:end],"go")
+plt.semilogy(p_phys[:end],bench[:end],"r",label="Single Faulty Qubit")
+plt.semilogy(p_phys[:end],bench[:end],"rx")
+plt.title("d=5 DP Noise Preliminary Decoder Results")
+plt.xlabel("p_phys=p_meas")
+plt.ylabel("Average Qubit Survival Time")
+_=plt.legend()
+```
+
+
+<p align="center">
+<img src="https://user-images.githubusercontent.com/6330346/45932266-01170000-bf7a-11e8-8097-674dcf23c087.png" width="70%" height="70%">
+</p>
+
+
+##### 5b) Rigorous Results - !NB: TO DO! Run these cells!!
+
+As mentioned, the preliminary results above were obtained directly from the training procedure over only 100 episodes. As such we would like to obtain more rigorous results over more benchmarking episodes, which can be done with the following methodology.
+
+We begin by defining a function for evaluation of a single point, which we can then loop over:
+
+
+```python
+def evaluate_single_point(models_directory, error_rate, nb_testing_episodes, static_decoder):
+    
+    # Load all the configs
+    fixed_configs_path = os.path.join(models_directory,"fixed_config.p")
+    
+    error_rate_directory = os.path.join(models_directory,error_rate+"/")
+    all_files = os.listdir(os.path.join(error_rate_directory))
+    
+    for file in all_files:
+        if "config" in file:
+            variable_configs_path = os.path.join(error_rate_directory, file)
+    
+    model_weights_path = os.path.join(error_rate_directory,"dqn_weights.h5f")
+
+    fixed_configs = pickle.load( open(fixed_configs_path, "rb" ) )
+    variable_configs = pickle.load( open(variable_configs_path, "rb" ) )
+
+    all_configs = {}
+
+    for key in fixed_configs.keys():
+        all_configs[key] = fixed_configs[key]
+
+    for key in variable_configs.keys():
+        all_configs[key] = variable_configs[key]
+        
+    # instantiate the environment
+    env = Surface_Code_Environment_Multi_Decoding_Cycles(d=all_configs["d"], 
+    p_phys=all_configs["p_phys"], 
+    p_meas=all_configs["p_meas"],  
+    error_model=all_configs["error_model"], 
+    use_Y=all_configs["use_Y"], 
+    volume_depth=all_configs["volume_depth"],
+    static_decoder=static_decoder)
+    
+    # Instantiate the agent
+    model = build_convolutional_nn(all_configs["c_layers"],all_configs["ff_layers"], env.observation_space.shape, env.num_actions)
+    memory = SequentialMemory(limit=all_configs["buffer_size"], window_length=1)
+    policy = GreedyQPolicy(masked_greedy=True)
+    test_policy = GreedyQPolicy(masked_greedy=True)
+
+    dqn = DQNAgent(model=model, 
+                   nb_actions=env.num_actions, 
+                   memory=memory, 
+                   nb_steps_warmup=all_configs["learning_starts"], 
+                   target_model_update=all_configs["target_network_update_freq"], 
+                   policy=policy,
+                   test_policy=test_policy,
+                   gamma = all_configs["gamma"],
+                   enable_dueling_network=all_configs["dueling"])  
+
+
+    dqn.compile(Adam(lr=all_configs["learning_rate"]))
+    
+    # Load the weights
+    dqn.model.load_weights(model_weights_path)
+    
+    # Test
+    nb_test_episodes = nb_testing_episodes
+    testing_history = dqn.test(env,nb_episodes = nb_test_episodes, visualize=False, 
+                               verbose=2, interval=100, single_cycle=False)
+    
+    return testing_history.history["episode_lifetime"]
+```
+
+And now we can perform the required evaluations:
+
+
+```python
+nb_testing_episodes = 5000
+
+models_directory = os.path.join(os.getcwd(),"../trained_models/d5_x/")
+static_decoder_path = os.path.join(os.getcwd(),"referee_decoders/nn_d5_X_p5")
+static_decoder = load_model(static_decoder_path)
+
+error_rates = ["0.001", "0.002", "0.003", "0.004", "0.005", "0.006", "0.007", "0.008"]
+
+final_all_results = {}
+final_mean_results = {}
+for error_rate in error_rates:
+    print("Evaluating at error rate:" ,error_rate)
+    print()
+    
+    final_all_results[error_rate] = evaluate_single_point(models_directory,error_rate,nb_testing_episodes, static_decoder)
+    final_mean_results[error_rate] = np.mean(final_all_results[error_rate])
+```
+
+
+```python
+final_results = [final_mean_results[key] for key in error_rates]
+
+end = 8
+p_phys = [j/1000 for j in range(1, end+1)]
+bench = [1/p for p in p_phys]
+key = "X Noise"
+
+_=plt.figure(figsize=[12,8])
+plt.semilogy(p_phys[:end],final_results[:end],"b",label="Decoded Logical Qubit")
+plt.semilogy(p_phys[:end],final_results[:end],"bo")
+plt.semilogy(p_phys[:end],bench[:end],"r",label="Single Faulty Qubit")
+plt.semilogy(p_phys[:end],bench[:end],"rx")
+plt.title("d=5 X Noise Rigorous Decoder Results")
+plt.xlabel("p_phys=p_meas")
+plt.ylabel("Average Qubit Survival Time")
+_=plt.legend()
+```
+
+
+
+

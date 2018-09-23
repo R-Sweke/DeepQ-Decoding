@@ -169,9 +169,9 @@ Specifically, decoding proceeds as follows:
 
 #### 2) Training Decoders in Practice
 
-Now that we have discussed the conceptual foundations, strategies and techniques involved, lets walk through a detailed example of how to train a decoder, for a single set of hyperparameters. In the next section we will then examine methods for large scale training via error rate incrementation coupled with hyper-parameter grid searches.
+Now that we have discussed the conceptual foundations, strategies and techniques involved, we will provide detailed examples of how train decoders via the procedures discussed. In particular, we will first walk through a very simple script for training a decoder with a given set of hyper-parameters, before proceeding to discuss how to obtain optimal decoders for a range of error rates through an iterative training procedure involving a hyper-parameter optimization for each error rate.
 
-If you would like to run the code discussed in this section, you can find the corresponding "Training Example" notebook in the example_notebooks folder of the repo.
+If you would like to run the code discussed in this section, you can find the simple single point training script within the "Training Example" notebook in the example_notebooks folder of the repo, while the cluster scripts for the iterative training procedure can be found in the cluster_scripts folder of the repo.
 
 ##### 2a) Requirements
 

@@ -884,10 +884,10 @@ To begin, copy the entire folder "d5_x" onto the HPC cluster and navigate into t
 
 1) From "../d5_x/" start a "screen" - this provides a persistent terminal which we can later detach and re-attach at will to keep track of the training procedure, without having to remain logged in to the cluster.
 
-     a) type "screen"
-     b) then press enter
-     c) We are now in a screen
-     
+  a) type "screen"
+  b) then press enter
+  c) We are now in a screen
+   
 2) Run the command "bash make_executable.sh". This will allow the controller - a python script which will be run periodically to control the training process - to submit jobs via slurm.
 
 3) Using vim or some other in-terminal editor, modify the following in Controller.py:

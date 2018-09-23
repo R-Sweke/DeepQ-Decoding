@@ -90,8 +90,6 @@ for ls in learning_starts_list:
 #SBATCH --mem-per-cpu=1000                   # Memory per cpu in MB (see also --mem) 
 #SBATCH --output='''+output_file+'''         # File to which standard out will be written
 #SBATCH --error='''+error_file+'''           # File to which standard err will be written
-#SBATCH --mail-type=ALL                      # Type of email notification- BEGIN,END,FAIL,ALL
-#SBATCH --mail-user=rsweke@gmail.com         # Email to which notifications will be sent 
 
 # store job info in output file, if you want...
 scontrol show job $SLURM_JOBID
@@ -101,7 +99,7 @@ scontrol show job $SLURM_JOBID
 
 # ----------- Activate the environment  -----------------------------------------
 
-module load python/3.6.5
+#module load python/3.6.5
 
 # ------- run the script -----------------------
 

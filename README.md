@@ -1,16 +1,21 @@
 
 ###  _DeepQ Decoding_
 
-This repository provides all the tools necessary to obtain and run surface code decoders for fault tolerant quantum computation, i.e. decoders capable of dealing with faulty syndrome measurements, via <a href="https://www.nature.com/articles/nature14236">DeepQ reinforcement learning</a>.
+This repository provides all the tools necessary to obtain, run and evaluate surface code decoders for fault tolerant quantum computation, i.e. decoders capable of dealing with faulty syndrome measurements, via <a href="https://www.nature.com/articles/nature14236">DeepQ reinforcement learning</a>.
 
-We begin with an introduction to the setting, strategy and techniques, before providing detailed working examples for:
+In particular, this README contains:
 
-<ul>
-  <li>Training and evaulating new decoders from scratch.</li>
-  <li>Loading and running pre-trained decoders.</li>
-</ul> 
+<ol>
+  <li>A detailed introduction to the setting, conceptual foundations, strategies and techniques used for obtaining DeepQ decoders.</li>
+  <li>A full explanation of how to train a deepQ decoder for a single set of hyper-parameters.</li>
+  <li>A full explanation of how to evaluate a trained DeepQ decoder, and how to use such a decoder in the setting of an actual experiment or computation.</li>
+  <li>Complete instructions for how to implement an iterated large scale training procedure on an HPC cluster, for obtaining optimal decoders over a large range of error rates.</li>
+  <li>The results obtained when executing the above large scale training procedure on a d=5 surface code lattice for both X noise and depolarizing noise </li>
+</ol> 
 
-Finally, we provide some of the results obtained from the trained models that have been provided here.
+Each of the above sections of the README is also contained within a jupyter notebook that can be found inside the "example_notebooks" folder of the repo, and within which the code cells can be run. In addition, all the scripts necessary forThe large-scale distributed iterative training procedure described in Section 4 can be found inside the "cluster_scripts" folder of the repo, and following the instructions in Section 4 should allow you to run this procedure on your own HPC cluster, provided it utilizes the slurm workload manager.
+
+The main goal of this repo is to allow you to reproduce for yourself in a straightforward and transparent way all the results contained in Section 5, and additionally to obtain new decoders, and to implement these decoders easily in practice within an experimental or computational setting.
 
 Enjoy!
 
@@ -818,7 +823,7 @@ Now that we have seen how to train and test decoders at a fixed error rate, for 
 As illustrated in the figure below, the fundemental idea is to iterate through increasing error rates, performing hyper-parameter optimizations at each iteration, and using various attributes of the optimization at one step of the iteration as a starting point for the subsequent step.
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/6330346/45932272-0d02c200-bf7a-11e8-8c3f-f29b19d5e93f.png" width="70%" height="70%">
+<img src="https://user-images.githubusercontent.com/6330346/45932272-0d02c200-bf7a-11e8-8c3f-f29b19d5e93f.png" width="80%" height="80%">
 </p>
 
 In particular, the procedure works as follows:

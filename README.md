@@ -13,7 +13,7 @@ In particular, this README contains:
   <li>The results obtained when executing the above large scale training procedure on a d=5 surface code lattice for both X noise and depolarizing noise </li>
 </ol> 
 
-Each of the above sections of the README is also contained within a jupyter notebook that can be found inside the "example_notebooks" folder of the repo, and within which the code cells can be run. In addition, all the scripts necessary forThe large-scale distributed iterative training procedure described in Section 4 can be found inside the "cluster_scripts" folder of the repo, and following the instructions in Section 4 should allow you to run this procedure on your own HPC cluster, provided it utilizes the slurm workload manager.
+Each of the above sections of the README is also contained within a jupyter notebook that can be found inside the "example_notebooks" folder of the repo, and within which the code cells can be run. In addition, all the scripts necessary for the large-scale distributed iterative training procedure described in Section 4 can be found inside the "cluster_scripts" folder of the repo, and following the instructions in Section 4 should allow you to run this procedure on your own HPC cluster, provided it utilizes the slurm workload manager.
 
 The main goal of this repo is to allow you to reproduce for yourself in a straightforward and transparent way all the results contained in Section 5, and additionally to obtain new decoders, and to implement these decoders easily in practice within an experimental or computational setting.
 
@@ -174,9 +174,9 @@ Specifically, decoding proceeds as follows:
 
 #### 2) Training Decoders in Practice
 
-Now that we have discussed the conceptual foundations, strategies and techniques involved, we will provide detailed examples of how train decoders via the procedures discussed. In particular, we will first walk through a very simple script for training a decoder with a given set of hyper-parameters, before proceeding to discuss how to obtain optimal decoders for a range of error rates through an iterative training procedure involving a hyper-parameter optimization for each error rate.
+Now that we have discussed the conceptual foundations, strategies and techniques involved, we will provide detailed examples of how train decoders via the procedures discussed. In particular, we will first walk through a very simple script for training a decoder with a given set of hyper-parameters, which will lay the foundation for the discussion in Section 4 of how to perform a large scale iterated training procedure, involving multiple hyper-parameter optimizations at each stage, in order to obtain optimal decoders over a large range of error rates.
 
-If you would like to run the code discussed in this section, you can find the simple single point training script within the "Training Example" notebook in the example_notebooks folder of the repo, while the cluster scripts for the iterative training procedure can be found in the cluster_scripts folder of the repo.
+If you would like to run the code discussed in this section, you can find the simple single point training script within the "Training Example" notebook in the example_notebooks folder of the repo.
 
 ##### 2a) Requirements
 
@@ -497,7 +497,7 @@ From the above plot one can see that during the exploration phase the agent was 
 
 #### 3) Evaluating and Running Decoders
 
-Now that we know how to train a decoder, we would like to see how to evaluate the performance of that decoder, as well as how to use the decoder in a production setting. In this notebook we will demonstrate how to perform both of these tasks.
+Now that we know how to train a decoder, we would like to see how to evaluate the performance of that decoder, as well as how to use the decoder in a production setting. In this section we will demonstrate how to perform both of these tasks. Once again, all of this code can be found within the "Testing Examples" notebook of the example_notebooks folder of the repo.
 
 ##### 3a) Evaluating a Trained Decoder
 
@@ -816,7 +816,7 @@ Note that in general if there is more than one error, or if the agent is uncerta
 
 #### 4) Large Scale Iterative Training and Hyper-Parameter Optimization
 
-Now that we have seen how to train and test decoders at a fixed error rate, for a given set of hyper-parameters, we would like to turn our attention to how we might be able to obtain good decoders for a large range of error rates. In order to achieve this we have developed an iterative training procedure involving hyper-parameter searches at each level of the iteration. In this notebook we will first outline the procedure before proceeding to discuss in detail how one can implement this procedure on a high-performance computing cluster. The scripts required for this implementation are contained in the cluster_scripts folder of the repo.
+Now that we have seen how to train and test decoders at a fixed error rate, for a given set of hyper-parameters, we would like to turn our attention to how we might be able to obtain good decoders for a large range of error rates. In order to achieve this we have developed an iterative training procedure involving hyper-parameter searches at each level of the iteration. In this section we will first outline the procedure before proceeding to discuss in detail how one can implement this procedure on a high-performance computing cluster. The scripts required for this implementation are contained in the cluster_scripts folder of the repo.
 
 ##### 4a) Outline of the Procedure
 
@@ -944,7 +944,7 @@ To begin, copy the entire folder "d5_x" onto the HPC cluster and navigate into t
 
 #### 5) Results
 
-As we have discussed, during the course of the training procedure the results of all trained agents in "test_mode" are written out and stored, as well as the results from the best agent at each error rate. However, in order to ease computational time during training, each agent was only benchmarked for 100 episodes. In this notebook we present these raw preliminary results from the training procedure, as well as provide a script for obtaining more rigorous results from the optimal trained models.
+As we have discussed, during the course of the training procedure the results of all trained agents in "test_mode" are written out and stored, as well as the results from the best agent at each error rate. However, in order to ease computational time during training, each agent was only benchmarked for 100 episodes. In this section we present these raw preliminary results from the training procedure, as well as provide a script for obtaining more rigorous results from the optimal trained models. Again, see the example_notebooks folder for a companion notebook containing all the code in this section.
 
 ##### 5a) Preliminary Results
 

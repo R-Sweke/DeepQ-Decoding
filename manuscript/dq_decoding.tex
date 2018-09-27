@@ -1,4 +1,4 @@
-\documentclass[onecolumn,preprintnumbers,amsmath,amssymb,notitlepage,nofootinbib,longbibliography,superscriptaddress]{revtex4-1}
+\documentclass[onecolumn,preprintnumbers,amsmath,amssymb,notitlepage,nofootinbib,longbibliography,superscriptaddress,aps,pra,10pt]{revtex4-1}
 %\documentclass[preprint,showpacs,preprintnumbers,amsmath,amssymb]{revtex4}
 
 \usepackage{natbib}
@@ -8,7 +8,7 @@
 \usepackage{bm}
 %\usepackage{float}
 
-\usepackage{xcolor}
+\usepackage[usenames, dvipsnames]{color}
 \usepackage{url}
 \usepackage[colorlinks=true,breaklinks=true,allcolors=blue]{hyperref}
 \usepackage{microtype}
@@ -17,7 +17,13 @@
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
 
-\newcommand{\ryan}[1]{\textcolor{cyan}{#1}}
+\newcommand{\ryan}[1]{\textcolor{Cyan}{rs: #1}}
+
+\newcommand{\mk}[1]{\textcolor{Cyan}{mk: #1}}
+
+\newcommand{\en}[1]{\textcolor{Cyan}{en: #1}}
+
+\newcommand{\je}[1]{\textcolor{Cyan}{je: #1}}
 
 
 
@@ -27,7 +33,7 @@
 
 \author{Ryan Sweke}
 \affiliation{\mbox{Dahlem Center for Complex Quantum Systems, Freie Universit\"{a}t Berlin, 14195 Berlin, Germany}}
-\author{Markus Kesselring}
+\author{Markus S. Kesselring}
 \affiliation{\mbox{Dahlem Center for Complex Quantum Systems, Freie Universit\"{a}t Berlin, 14195 Berlin, Germany}}
 \author{Evert P.L. van Nieuwenburg}
 \affiliation{\mbox{Institute for Quantum Information and Matter, Caltech, Pasadena, CA 91125, USA}}
@@ -39,25 +45,48 @@
 
 
 \begin{abstract}
-Topological error correcting codes, and particularly the surface code, currently provide the most feasible roadmap towards large-scale fault tolerant quantum computation. As such, obtaining fast and flexible decoding algorithms for these codes, within the experimentally relevant context of faulty syndrome measurements, is of critical importance. In this work we show that the problem of decoding such codes, in the full fault tolerant setting, can be naturally reformulated as a process of repeated interactions between a decoding agent and a code environment, to which the machinery of reinforcement learning can be applied to obtain decoding agents. As a demonstration, by using deepQ learning, we obtain fast decoding agents for the surface code, for a variety of noise-models, within the fully fault tolerant setting.
+	Topological error correcting codes, and particularly the surface code, currently provide the most feasible roadmap towards large-scale fault tolerant quantum computation.
+	As such, obtaining fast and flexible decoding algorithms for these codes, within the experimentally relevant context of faulty syndrome measurements, is of critical importance.
+	In this work we show that the problem of decoding such codes, in the full fault tolerant setting, can be naturally reformulated as a process of repeated interactions between a decoding agent and a code environment, to which the machinery of reinforcement learning can be applied to obtain decoding agents.
+	As a demonstration, by using deepQ learning, we obtain fast decoding agents for the surface code, for a variety of noise-models, within the fully fault tolerant setting.
 \end{abstract}
 
 \maketitle
- 
- 
+
+
 \section{Introduction}\label{s:introduction}
 
-    In order to implement large scale quantum algorithms it is necessary to be able to store and manipulate quantum information in a manner that is robust with respect to the unavoidable errors introduced through the interaction of physical qubits with a noisy environment. A typical strategy for achieving such robustness is to encode a single logical qubit into the state of many physical qubits, via a quantum error correcting code, from which it may be possible to actively diagnose and correct errors that might occur. While many quantum error correcting codes exist, topological quantum codes in which only local operations are required to diagnose and correct errors, are of particular interest as a result of their experimental feasibility. Recently the surface code has emerged as an espescially promising code for large scale fault tolerant quantum computation, due to the combination of its comparitively low overhead and locality requirements, coupled with the availability of convenient strategies for the implementation of all required logical gates.
+	In order to implement large scale quantum algorithms it is necessary to be able to store and manipulate quantum information in a manner that is robust with respect to the unavoidable errors introduced through the interaction of physical qubits with a noisy environment.
+	A typical strategy for achieving such robustness is to encode a single logical qubit into the state of many physical qubits, via a quantum error correcting code, from which it may be possible to actively diagnose and correct errors that might occur~\cite{Terhal15,Campbell17}.
+	While many quantum error correcting codes exist, topological quantum codes~\cite{Kitaev03, Dennis02, Preskill17lectures, Nayak08, Pachos12, Terhal15, Brown16, Campbell17} in which only local operations are required to diagnose and correct errors, are of particular interest as a result of their experimental feasibility~\cite{Reed12, Barends14, Nigg14, Corcoles15, Albrecht16, Takita16, Linke17}.
+	Recently the surface code has emerged as an espescially promising code for large scale fault tolerant quantum computation, due to the combination of its comparitively low overhead and locality requirements, coupled with the availability of convenient strategies for the implementation of all required logical gates.
 
-    Within any such code based strategy for fault tolerant quantum compuation, decoding algorithms play a critical role. At a high level, throughout the course of a computation these algorithms take as input the outcome of diagnostic syndrome measurements and should provide as output suggested corrections for any errors which might have occured, which can then be tracked through the computation and later used to apply corrections to any obtained results. It is particularly important to note that in any physically realistic setting the required syndrome measurements are themselves obtained via small quantum circuits, and are therefore also generically faulty. As such, while the setting of perfect syndrome measurements provides a good test-bed for the development of decoding algorithms, any decoding algorithm which aims to be experimentally feasible should also be capable of dealing with such faulty syndrome measurements. Additionally, such algorithms should also be capable of dealing with experimentally relevant noise models, as well as be fast enought to not present a bottleneck to the execution of computations, even as the size of the code scales to larger code distances.
+	Within any such code based strategy for fault tolerant quantum compuation, decoding algorithms play a critical role.
+	At a high level, throughout the course of a computation these algorithms take as input the outcome of diagnostic syndrome measurements and should provide as output suggested corrections for any errors which might have occured, which can then be tracked through the computation and later used to apply corrections to any obtained results.
+	It is particularly important to note that in any physically realistic setting the required syndrome measurements are themselves obtained via small quantum circuits, and are therefore also generically faulty.
+	As such, while the setting of perfect syndrome measurements provides a good test-bed for the development of decoding algorithms, any decoding algorithm which aims to be experimentally feasible should also be capable of dealing with such faulty syndrome measurements.
+	Additionally, such algorithms should also be capable of dealing with experimentally relevant noise models, as well as be fast enought to not present a bottleneck to the execution of computations, even as the size of the code scales to larger code distances.
 
-    Due to the importance of decoding algorithms for fault tolerant quantum computation, many different approaches have been developed, each of which tries to satisfy as many of the experimentally required criterion as possible. Perhaps most prominent are algorithms based on minimum-weight perfect matching subroutines, however alternative approaches based on techniques such as the renormalization group and locally operating cellular automata have also been put forward. Furthermore, recently techniques from classical machine learning have begun to find application in diverse areas of quantum physics - such as in the efficient representation of many-body quantum states, the identification of phase transitions, and the autonomous design of novel experimental setups - and various neural-network based decoders have also been proposed. However, despite the diversity of decoding algorithms now available, there is not as of yet an algorithm which clearly satisifes all the required criteria, or a clear consensus as to which technique would be the most experimentally feasible in any given experimental context. In particular, while the so-far proposed neural network decoders promise extremely fast decoding times, flexibility with respect to the underlying noise model and the potential to scale to large code distances, all such decoders are so far restricted either to the setting of perfect syndrome measurements, or to the setting in which one is trying to store a logical qubit as long as possible, without the requirement of performing a subsequent logical gate.  As such, while this approach seems promising, there remains room for improvement and generalization.
+	Due to the importance of decoding algorithms for fault tolerant quantum computation, many different approaches have been developed, each of which tries to satisfy as many of the experimentally required criterion as possible.
+	Perhaps most prominent are algorithms based on minimum-weight perfect matching subroutines~\cite{Fowler13}, however alternative approaches based on techniques such as the renormalization group~\cite{Duclos2010} and locally operating cellular automata~\cite{Herold15} have also been put forward.
+	Furthermore, recently techniques from classical machine learning have begun to find application in diverse areas of quantum physics - such as in the efficient representation of many-body quantum states, the identification of phase transitions, and the autonomous design of novel experimental setups \mk{TODO: add citations} - and various neural-network based decoders have also been proposed~\cite{Torlai10, Varsamopoulos17, Krastanov17, Breuckmann18, Baireuther18a, Baireuther18b, Ni18}.
+	However, despite the diversity of decoding algorithms now available, there is not as of yet an algorithm which clearly satisifes all the required criteria, or a clear consensus as to which technique would be the most experimentally feasible in any given experimental context.
+	In particular, while the so-far proposed neural network decoders promise extremely fast decoding times, flexibility with respect to the underlying noise model and the potential to scale to large code distances, all such decoders are so far restricted either to the setting of perfect syndrome measurements, or to the setting in which one is trying to store a logical qubit as long as possible, without the requirement of performing a subsequent logical gate.
+	As such, while this approach seems promising, there remains room for improvement and generalization.
 
-    Simultaneously, the last few years have also seen extremely impressive advances in the development of deep reinforcement learning algorithms, which have allowed for the training of neural network based agents capable of obtaining super-human performance in domains such as Atari, Chess and Go. These techniques are particularly powerful in situations where it is necessary to learn strategies for complex sequential decision making, involving consideration of the future effects of ones actions. At a surface level, the problem of decoding within the context of fault-tolerant quantum computation seems like exactly such a setting and as such it natural to ask to what extent reinforcement learning techniques could be used to obtain decoding agents, and what advantages such agents might have over existing approaches. In this work we set out to provide answers to these questions.
+	Simultaneously, the last few years have also seen extremely impressive advances in the development of deep reinforcement learning algorithms, which have allowed for the training of neural network based agents capable of obtaining super-human performance in domains such as Atari~\cite{Mnih13}, Chess~\cite{Silver17a} and Go~\cite{Silver17b}.
+	These techniques are particularly powerful in situations where it is necessary to learn strategies for complex sequential decision making, involving consideration of the future effects of ones actions.
+	At a surface level, the problem of decoding within the context of fault-tolerant quantum computation seems like exactly such a setting and as such it natural to ask to what extent reinforcement learning techniques could be used to obtain decoding agents, and what advantages such agents might have over existing approaches.
+	In this work we set out to provide answers to these questions.
 
-    In particular, we reformulate the problem of decoding within the setting of fault-tolerant quantum computation as a process of sequential competitive interaction between a decoding agent and a code environment. This reframing provides a conceptual framework which allows for the application of various deep reinforcement learning algorithms to obtain neural network based decoding agents. As a proof-of-principle, we then utilize to deepQ learning to obtain fast surface code decoders, for a variety of noise models, within the fully fault-tolerant setting. These results then provide a foundation for extension via both more sophisticated reinforcement learning techniques and more sophisticated neural network models.
+	In particular, we reformulate the problem of decoding within the setting of fault-tolerant quantum computation as a process of sequential competitive interaction between a decoding agent and a code environment.
+	This reframing provides a conceptual framework which allows for the application of various deep reinforcement learning algorithms to obtain neural network based decoding agents.
+	As a proof-of-principle, we then utilize to deepQ learning to obtain fast surface code decoders, for a variety of noise models, within the fully fault-tolerant setting.
+	These results then provide a foundation for extension via both more sophisticated reinforcement learning techniques and more sophisticated neural network models.
 
-    In this work we begin by providing an introductory overview of the surface code in Section \ref{s:the_surface_code}, before presenting a description of the decoding problem for fault-tolerant quantum computation in Section \ref{s:the_decoding_problem}. After a brief introduction to the formalism of reinforcement learning and $Q$-functions in Section \ref{s:reinforcement_learning} we are then able to provide the conceptual reframing of decoding as a reinforcement learning problem in Section \ref{s:decoding_as_rl}, which is one of the primary results of this work. In Section \ref{s:results} we then present deepQ surface code decoders for a variety of noise models, before finally in Section \ref{s:conclusions} discussing both the advantages and disadvantages of the approach presented here, along with various potential strategies for building upon the results presented in this work.
+	In this work we begin by providing an introductory overview of the surface code in Section \ref{s:the_surface_code}, before presenting a description of the decoding problem for fault-tolerant quantum computation in Section \ref{s:the_decoding_problem}.
+	After a brief introduction to the formalism of reinforcement learning and $Q$-functions in Section \ref{s:reinforcement_learning} we are then able to provide the conceptual reframing of decoding as a reinforcement learning problem in Section \ref{s:decoding_as_rl}, which is one of the primary results of this work.
+	In Section \ref{s:results} we then present deepQ surface code decoders for a variety of noise models, before finally in Section \ref{s:conclusions} discussing both the advantages and disadvantages of the approach presented here, along with various potential strategies for building upon the results presented in this work.
 
 
 
@@ -106,7 +135,7 @@ Topological error correcting codes, and particularly the surface code, currently
 
 \begin{acknowledgments}
 The authors gratefully acknowledge helpful and insightful discussions with Daniel Litinski, Nicolas Delfosse and Hendrik Poulsen Nautrup. Additionally, the authors would like to thank J\"{o}rg Behrmann for incredible technical support, without which this work would not have been possible. R.S.\ acknowledges the financial support of the Alexander von Humboldt foundation.
-\end{acknowledgments}	
+\end{acknowledgments}
 
 \bibliography{dq}
 

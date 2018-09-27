@@ -88,8 +88,6 @@
 	After a brief introduction to the formalism of reinforcement learning and $Q$-functions in Section \ref{s:reinforcement_learning} we are then able to provide the conceptual reframing of decoding as a reinforcement learning problem in Section \ref{s:decoding_as_rl}, which is one of the primary results of this work.
 	In Section \ref{s:results} we then present deepQ surface code decoders for a variety of noise models, before finally in Section \ref{s:conclusions} discussing both the advantages and disadvantages of the approach presented here, along with various potential strategies for building upon the results presented in this work.
 
-
-
 \section{The Surface Code}\label{s:the_surface_code}
 
 
@@ -117,16 +115,29 @@
 
     At this point it is natural to ask for the motivation behind such a redundant encoding. To answer this question, let's assume that the global lattice state $|\psi\rangle$ is an element of the code space - i.e. a simultaneous $+1$ eigenstate of all the stabilizer operators in $S$. In the process of storing (or manipulating) this state it may happen that some unavoidable error or noise process causes an operation, such as a single qubit Pauli flip on a single data qubit, which is not a logical operation, and therefore causes the global lattice state to move outside of the code space. At this point, the global lattice state \textit{will not} commute with all the stabilizers, and will instead anti-commute with some of the stabilizers supported on the flipped data-qubit (as illustrated in Fig. \ref{f:surface_code}). If we define a \textit{syndrome} as a binary string encoding the outcome of a simultaneous measurement of all the stabilizers in $S$, then we can see that the syndrome obtained from the global lattice state after the single qubit Pauli flip will contain a $-1$ entry in each position corresponding to a stabilizer with which the global lattice state anti-commutes, and $+1$ entries everywhere else. We say that stabilizers which anti-commute with the global lattice state are \textit{violated}. As we will discuss in detail in the next section, unlike a truly single qubit encoding of the state $|\psi\rangle$, there is now a chance that from the measured syndrome we will be able to diagnose the error which occured and implement a correction which moves the global lattice state back into the code space. 
 
-
-
 \section{The Decoding Problem}\label{s:the_decoding_problem}
 
-    % \begin{figure}
-%   \centering
-%       \includegraphics[width=0.75\textwidth]{surface_code_examples.pdf}
-%   \caption{A picture of the same gull
-%            looking the other way!}
-% \end{figure}
+    Given the foundations from the previous section, we are able to succinctly state a simple preliminary version of the decoding problem:\newline
+
+    \noindent\textit{Assume that at} $t=0$  \textit{one is given a global lattice state} $|\psi\rangle = \alpha |0_L\rangle + \beta |1_L\rangle,$ \textit{which is an element of the code space. At some time }$t_1>0$ \textit{a syndrome measurement is performed which indicates that one or more stabilizers are violated - i.e. some errors have occured on data qubits. From the given syndrome, determine a set of corrections which should be applied to the code lattice such that the subsequent global state of the lattice is equal to the state} $|\psi\rangle$ \textit{at} $t=0.$\newline
+
+    \begin{figure}
+      \centering
+          \includegraphics[width=0.75\textwidth]{decoding_problem.pdf}
+      \caption{In the left hand panel, the syndromes associated with various error configurations are illustrated. Note that the error configurations in (a) and (b) lead to the same syndrome. Also, as can be seen in (c), note that continuous strings of errors result in violated stabilizers only at the endpoint of the string. In the right hand panel a typical decoding cycle is illustrated, for the simplified faulty measurements scenario in which one imagines each time step consisting of an initial physical error process generating errors on the data qubits, followed by a second measurement error process which corrupts the true syndrome. The decoding algorithm then has access to a sequence of potentially faulty syndromes.}\label{f:decoding_problem}
+    \end{figure}
+
+    \noindent Before proceeding to discuss more subtle and technical versions of the decoding problem, let's examine why even the above problem is indeed potentially difficult. The most important observation is that the map from error configurations to syndromes is many-to-one, i.e. many different sets of errors can lead to the same syndrome. As an example, consider the error configurations illustrated in lattices (a) and (b) of Fig. \ref{f:decoding_problem}, both of which lead to the same syndrome. If the probability of an error on a single data qubit is low, given such a syndrome one might reasonably assume that the error in lattice (b) occured, as one single qubit error is a much more likely event than four single qubit errors. Given this reasoning, one might then suggest to correct by applying an $X$ flip on the data qubit in the first row and fourth column. If indeed the error in lattice (b) occured then this would be the correct operation. However, if an unlikely event occured and the error in lattice (a) occured, then the combination of the original errors with the correction would effectively implement a logical $X_L$ operation. As a result, even though the post-correction state is back in the code space, it will be in a different state to the original state and the information we were trying to preserve would have been corrupted. From this simple example one can see that most often solving the decoding problem as stated above involves deciding, given an inherently ambiguous syndrome and (possibly imperfect) knowledge of the underlying error model, which error configuration was most likely to have occured. 
+
+    As previously mentioned, in addition to the inherent difficulty resulting from syndrome ambiguity, in experimental settings the process of extracting the syndrome is also subject to noise, and as such the syndrome one receives may also contain errors. In practice, each stabilizer is associated with an ancilla qubit, and the syndrome value for that particular stabilizer is obtained by first executing a small quantum circuit which entangles the ancilla with each of the data qubits on which the corresponding stabilizer is supported, before extracting the syndrome value via a measurement of the ancilla qubit. In order to fully account for errors during the process of syndrome extraction one should therefore model this entire circuit, in which errors can occur on both the data qubits and ancilla qubits at each time step, and importantly, errors on the ancilla qubits can propogate onto the data qubits via the required entangling gates. However, the essential aspect of the additional difficulty from faulty syndrome measurements can be more simply modelled by imagining each time step as consisting of two distinct error processes, as illustrated in Fig. \ref{f:decoding_problem}. In the first error process, an error occurs on each data qubit with some probability. One then imagines extracting the perfect syndrome before a second error process occurs, in which with a given probabiliy an error occurs on each stabilizer measurement outcome.
+
+   
+
+
+
+
+
+
 \section{Reinforcement Learning and Q-Functions}\label{s:reinforcement_learning}
 \section{Decoding as a Reinforcement Learning Problem}\label{s:decoding_as_rl}
 \section{Results}\label{s:results}

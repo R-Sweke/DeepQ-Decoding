@@ -1,4 +1,4 @@
-This is BibTeX, Version 0.99d (TeX Live 2019/dev/Debian)
+This is BibTeX, Version 0.99d (TeX Live 2016/Debian)
 Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
 The top-level auxiliary file: dq_decoding.aux
 The style file: apsrev4-1.bst
@@ -11,6 +11,8 @@ Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
 Database file #1: dq_decodingNotes.bib
 Database file #2: dq.bib
+Warning--entry type for "Preskill17lectures" isn't style-file defined
+--line 312 of file dq.bib
 control{REVTEX41Control}, control.key{N/A}, control.author{N/A}, control.editor{N/A}, control.title{N/A}, control.pages{N/A}, control.year{N/A}, control.eprint{N/A}, 
 control{apsrev41Control}, control.key{N/A}, control.author{00}, control.editor{1}, control.title{0}, control.pages{1}, control.year{0}, control.eprint{N/A}, 
 Warning--jnrlst (dependency: not reversed) set 1
@@ -24,45 +26,45 @@ Control: production of article title (0) allowed
 Control: page (1) range
 Control: year (0) verbatim
 Control: production of eprint (0) enabled
-You've used 2 entries,
+You've used 30 entries,
             5847 wiz_defined-function locations,
-            1602 strings with 14671 characters,
-and the built_in function-call counts, 1003 in all, are:
-= -- 12
-> -- 16
-< -- 35
-+ -- 8
-- -- 20
-* -- 134
-:= -- 73
-add.period$ -- 0
-call.type$ -- 2
-change.case$ -- 0
-chr.to.int$ -- 12
-cite$ -- 2
-duplicate$ -- 137
-empty$ -- 17
-format.name$ -- 0
-if$ -- 129
-int.to.chr$ -- 1
-int.to.str$ -- 10
-missing$ -- 28
-newline$ -- 52
-num.names$ -- 0
-pop$ -- 68
+            1811 strings with 20931 characters,
+and the built_in function-call counts, 35286 in all, are:
+= -- 1962
+> -- 1163
+< -- 261
++ -- 352
+- -- 306
+* -- 5850
+:= -- 3285
+add.period$ -- 55
+call.type$ -- 30
+change.case$ -- 140
+chr.to.int$ -- 38
+cite$ -- 30
+duplicate$ -- 3358
+empty$ -- 2554
+format.name$ -- 652
+if$ -- 6906
+int.to.chr$ -- 3
+int.to.str$ -- 38
+missing$ -- 432
+newline$ -- 136
+num.names$ -- 84
+pop$ -- 1253
 preamble$ -- 1
-purify$ -- 0
+purify$ -- 112
 quote$ -- 0
-skip$ -- 35
+skip$ -- 1261
 stack$ -- 0
-substring$ -- 12
-swap$ -- 112
-text.length$ -- 0
+substring$ -- 651
+swap$ -- 3373
+text.length$ -- 141
 text.prefix$ -- 0
 top$ -- 10
-type$ -- 12
+type$ -- 462
 warning$ -- 2
-while$ -- 11
+while$ -- 89
 width$ -- 0
-write$ -- 52
-(There were 2 warnings)
+write$ -- 296
+(There were 3 warnings)

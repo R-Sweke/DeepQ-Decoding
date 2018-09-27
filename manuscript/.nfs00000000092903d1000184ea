@@ -17,13 +17,13 @@
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
 
-\newcommand{\ryan}[1]{\textcolor{Cyan}{RS: #1}}
+\newcommand{\ryan}[1]{\textcolor{Cyan}{rs: #1}}
 
-\newcommand{\mk}[1]{\textcolor{Cyan}{MK: #1}}
+\newcommand{\mk}[1]{\textcolor{Cyan}{mk: #1}}
 
-\newcommand{\en}[1]{\textcolor{Cyan}{EN: #1}}
+\newcommand{\en}[1]{\textcolor{Cyan}{en: #1}}
 
-\newcommand{\je}[1]{\textcolor{Cyan}{JE: #1}}
+\newcommand{\je}[1]{\textcolor{Cyan}{je: #1}}
 
 
 
@@ -84,69 +84,47 @@
 	As a proof-of-principle, we then utilize to deepQ learning to obtain fast surface code decoders, for a variety of noise models, within the fully fault-tolerant setting.
 	These results then provide a foundation for extension via both more sophisticated reinforcement learning techniques and more sophisticated neural network models.
 
-	In this work we begin by providing an introductory overview of the surface code in Section~\ref{s:the_surface_code}, before presenting a description of the decoding problem for fault-tolerant quantum computation in Section~\ref{s:the_decoding_problem}.
-	After a brief introduction to the formalism of reinforcement learning and $Q$-functions in Section~\ref{s:reinforcement_learning} we are then able to provide the conceptual reframing of decoding as a reinforcement learning problem in Section~\ref{s:decoding_as_rl}, which is one of the primary results of this work.
-	In Section~\ref{s:results} we then present deepQ surface code decoders for a variety of noise models, before finally in Section~\ref{s:conclusions} discussing both the advantages and disadvantages of the approach presented here, along with various potential strategies for building upon the results presented in this work.
+	In this work we begin by providing an introductory overview of the surface code in Section \ref{s:the_surface_code}, before presenting a description of the decoding problem for fault-tolerant quantum computation in Section \ref{s:the_decoding_problem}.
+	After a brief introduction to the formalism of reinforcement learning and $Q$-functions in Section \ref{s:reinforcement_learning} we are then able to provide the conceptual reframing of decoding as a reinforcement learning problem in Section \ref{s:decoding_as_rl}, which is one of the primary results of this work.
+	In Section \ref{s:results} we then present deepQ surface code decoders for a variety of noise models, before finally in Section \ref{s:conclusions} discussing both the advantages and disadvantages of the approach presented here, along with various potential strategies for building upon the results presented in this work.
 
 
 
 \section{The Surface Code}\label{s:the_surface_code}
 
-	The framework and methods presented in this work are not restricted to the surface code, and could be applied to any stabilizer code, but we choose to restrict ourselves to this code here for both simplicity of presentation and experimental relevance.
-	We will focus here on presenting the elements of the surface code necessary for understanding the decoding problem that we aim to address, in the process omitting many details.
-	We refer the reader to the references~\cite{Preskill17lectures, Gottesman97} for indepth discussion of quantum error correction and stabilizer codes.
 
-	For the surface code, we will consider a $d\times d$ lattices with a \textit{physical data qubit} on each vertex, as illustrated in Fig.~\ref{f:surface_code}.
-	Plaquettes of this lattice are assocaited with stabilizers of one of two types.
-	Given single-qubit Pauli operators $X$ and $Z$, bulk (boundary) plaquette stabilizers $X_{p}$ and $Z_{p}$ are local four (two) body operators,
+    We begin by providing a brief high-level and intuitive description of the surface code. The framework and methods presented in this work are not restricted to the surface code, and could be applied to any stabilizer code, but we choose to restrict ourselves to this code here for both simplicity of presentation and experimental relevance. We will focus here on presenting the elements of the surface code necessary for understanding the decoding problem that we aim to address, in the process omitting many details, however there exists a rich underlying theory to both topological error correcting codes, and stabilizer codes more generally, and for a more rigorous or condensed matter perspective we refer to the refs \textit{a,b, and c}.
 
-	\begin{equation}
-		X_{p} \equiv \bigotimes_{q \in p} X_q, \quad Z_{p} \equiv \bigotimes_{q \in p} Z_q,
-	\end{equation}
-	which act only on the vertex qubits of plaquette $p$.
-	With reference to Fig~\ref{f:surface_code}, if we denote the set of all blue (orange) plaquettes as $B_p$ ($O_p$), then the set $S$ of stabilizers defining the surface code is given by,
+    As illustrated in Fig. \ref{f:surface_code}, we will consider $d\times d$ lattices with a \textit{data qubit} on each vertex, such that states of the lattice are elements of the Hilbert space $\mathcal{H} = \bigotimes_{v \in V}\mathbb{C}^2$, where we have indicated the set of all vertices as $V$. A surface code on such a lattice is defined by a set $S$ of plaquette stabilizer operators, of which there are four distinct types. Given single-qubit Pauli operators $X$ and $Z$, bulk (boundary) plaquette stabilizers $X_{p}$ and $Z_{p}$ are local four (two) body operators,
 
-	\begin{equation}
-		S = \big\{ X_p \vert p \in B_p  \big\} \cup \big\{ Z_p \vert p \in O_p  \big\},
-	\end{equation}
-	from which we can define the Hamiltonian of the surface code as $H_{\mathrm{sc}} \equiv -\sum_{\hat{O} \in S}\hat{O}$.
+    \begin{equation}
+        X_{p} \equiv \bigotimes_{q \in p} X_q, \quad Z_{p} \equiv \bigotimes_{q \in p} Z_q,
+    \end{equation}
+    which act non-trivially only on the vertex qubits of plaquette $p$, and when measured indicate the $X$ or $Z$ parity of the plaquette vertex qubits. With reference to Fig \ref{f:surface_code}, if we denote the set of all blue (orange) plaquettes as $B_p$ ($O_p$), then the set $S$ of stabilizers defining the surface code is given by,
 
-	The \textit{code space} $\mathcal{H}_{\mathrm{sc}}$ is the ground state space of the surface code Hamiltonian $H_{\mathrm{sc}}$.
-	This code space contains all surface code states $|\psi\rangle \in \mathcal{H}_{\mathrm{sc}}$ which are simultaneous $+1$ eigenstates of all stabilizers $\hat{O} \in S$.
-	A simple counting arguement allows one to verify that this code space is two-dimensional - i.e. $\mathcal{H}_{\mathrm{sc}} \simeq \mathbb{C}^2$.
-	We can thus effectively identify the code space with the state space of a single \textit{logical qubit}.
-	Operators acting on logical qubits are called \textit{logical operators}, examples of the logical $X$ and $Z$ operators $Z_L$ ($X_L$) are illustrated in Fig.~\ref{f:surface_code}.
+    \begin{equation}
+        S = \big\{ X_p \vert p \in B_p  \big\} \cup \big\{ Z_p \vert p \in O_p  \big\},
+    \end{equation}
+    from which we can define the Hamiltonian of the surface code as $H_{\mathrm{sc}} \equiv -\sum_{\hat{O} \in S}\hat{O}$. 
 
-	\begin{figure}
-		\centering
-		\includegraphics[width=0.75\textwidth]{surface_code.pdf}
-		\caption{
-			An overview of the surface code.
-			(a) We consider square $d \times d$ lattices (shonw $d=5$), with a data qubit on each vertex of the lattice.
-			Additionally, there exist two types of local stabilizer operators: $X$ ($Z$) stabilizers, which act on the vertex qubits of blue (orange) plaquettes.
-			(b) Assuming an initial simultaneous $+1$ eigenstate of all stabilizers, a qubit Pauli flip on a single physical qubit will anti-commute with certain stabilizers supported on this qubit.
-			We call these stabilizers \textit{violated} and marked them with a red dot.
-			(c) Logical $X_L$ ($Z_L$) operators for the surface code are provided by continuous strings of single qubit $X$ ($Z$) operators connecting the top and bottom (left and right) boundaries of the code respectively.
-			\mk{I am not a big fan of these colours =) }}
-			\label{f:surface_code}
-	\end{figure}
-
-	Errors on physical qubits anticommute with surrounding stabilizers, see Fig.~\ref{f:surface_code}~(b).
-	The stabilizer operators are measured in regular intervals to obtain the \textit{syndrome}, a list of violated stabilizers.
-	This enables an indirect detection of errors, as the outcome of the syndrome measurements depend on the occured errors.
-	However, there exist multiple inequivalent error configurations with the same syndrome.
-	A \textit{decoder} is an algorithm which takes in a syndrome and returns a proposed correction, hopefully undoing the error and returning the logical qubit to its original state.
+    At this point it is possible to understand how we can encode one \textit{logical qubit} into the surface code. We begin by defining the \textit{code space} $\mathcal{H}_{\mathrm{sc}}$ as the ground state space of the surface code Hamiltonian $H_{\mathrm{sc}}$. This code space contains all surface code states $|\psi\rangle \in \mathcal{H}$ which are simultaneous $-1$ eigenstates of all stabilizers $\hat{O} \in S$. A simple counting arguement allows one to verify that this code space is in fact two-dimensional - i.e. $\mathcal{H}_{\mathrm{sc}} \simeq \mathbb{C}^2$. A basis for this code space is provided by the states $\{ |0_L\rangle, |1_L\rangle \}$, the  $\mp 1$ eigenstates respectively of the operator $Z_L$, which as illustrated in Fig. \ref{f:surface_code} is any continuous string of single-vertex $Z$ operators connecting the left and right boundaries of the code.
 
 
+    \begin{figure}
+      \centering
+          \includegraphics[width=0.75\textwidth]{surface_code.pdf}
+      \caption{A picture of the same gull
+               looking the other way!}\label{f:surface_code}
+    \end{figure}
 
-\section{The Decoding Problem}\label{s:the_decoding_problem}
-
-    % \begin{figure}
+% \begin{figure}
 %   \centering
 %       \includegraphics[width=0.75\textwidth]{surface_code_examples.pdf}
 %   \caption{A picture of the same gull
 %            looking the other way!}
 % \end{figure}
+
+\section{The Decoding Problem}\label{s:the_decoding_problem}
 \section{Reinforcement Learning and Q-Functions}\label{s:reinforcement_learning}
 \section{Decoding as a Reinforcement Learning Problem}\label{s:decoding_as_rl}
 \section{Results}\label{s:results}
@@ -154,12 +132,7 @@
 
 
 \begin{acknowledgments}
-	The authors gratefully acknowledge helpful and insightful discussions with Daniel Litinski, Nicolas Delfosse, Paul Baireuther, and Hendrik Poulsen Nautrup.
-	Additionally, the authors would like to thank J\"{o}rg Behrmann for incredible technical support, without which this work would not have been possible.
-	RS\ acknowledges the financial support of the Alexander von Humboldt foundation.
-	MSK\ is supported by the DFG (CRC183, project B02).
-	EvN\ is supported by ...
-	JE\ is supported by DFG (CRC 183, EI 519/14-1, and EI 519/7-1), the ERC (TAQ), the Templeton Foundation, and the BMBF (Q.com).
+The authors gratefully acknowledge helpful and insightful discussions with Daniel Litinski, Nicolas Delfosse and Hendrik Poulsen Nautrup. Additionally, the authors would like to thank J\"{o}rg Behrmann for incredible technical support, without which this work would not have been possible. R.S.\ acknowledges the financial support of the Alexander von Humboldt foundation.
 \end{acknowledgments}
 
 \bibliography{dq}

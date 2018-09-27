@@ -1,0 +1,70 @@
+This is BibTeX, Version 0.99d (TeX Live 2016/Debian)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: dq_decoding.aux
+The style file: apsrev4-1.bst
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Database file #1: dq_decodingNotes.bib
+Database file #2: dq.bib
+Warning--entry type for "Preskill17lectures" isn't style-file defined
+--line 312 of file dq.bib
+control{REVTEX41Control}, control.key{N/A}, control.author{N/A}, control.editor{N/A}, control.title{N/A}, control.pages{N/A}, control.year{N/A}, control.eprint{N/A}, 
+control{apsrev41Control}, control.key{N/A}, control.author{00}, control.editor{1}, control.title{0}, control.pages{1}, control.year{0}, control.eprint{N/A}, 
+Warning--jnrlst (dependency: not reversed) set 1
+Warning--dotless (dependency: not initials) set 1
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+merlin.mbs apsrev4-1.bst 2010-07-25 4.21a (PWD, AO, DPC) hacked
+Control: key (0) 
+Control: author (0) dotless jnrlst
+Control: editor formatted (1) identically to author
+Control: production of article title (0) allowed
+Control: page (1) range
+Control: year (0) verbatim
+Control: production of eprint (0) enabled
+You've used 31 entries,
+            5847 wiz_defined-function locations,
+            1818 strings with 21090 characters,
+and the built_in function-call counts, 35931 in all, are:
+= -- 2017
+> -- 1172
+< -- 264
++ -- 356
+- -- 308
+* -- 5936
+:= -- 3363
+add.period$ -- 56
+call.type$ -- 31
+change.case$ -- 144
+chr.to.int$ -- 39
+cite$ -- 31
+duplicate$ -- 3421
+empty$ -- 2603
+format.name$ -- 657
+if$ -- 7030
+int.to.chr$ -- 3
+int.to.str$ -- 39
+missing$ -- 438
+newline$ -- 139
+num.names$ -- 87
+pop$ -- 1279
+preamble$ -- 1
+purify$ -- 116
+quote$ -- 0
+skip$ -- 1290
+stack$ -- 0
+substring$ -- 663
+swap$ -- 3424
+text.length$ -- 142
+text.prefix$ -- 0
+top$ -- 10
+type$ -- 474
+warning$ -- 2
+while$ -- 91
+width$ -- 0
+write$ -- 305
+(There were 3 warnings)

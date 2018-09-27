@@ -47,7 +47,7 @@ Topological error correcting codes, and particularly the surface code, currently
  
 \section{Introduction}\label{s:introduction}
 
-    In order to implement large scale quantum algorithms it is necessary to be able to store and manipulate quantum information in a manner that is robust with respect to the unavoidable errors introduced through the interaction of physical qubits with a noisy environment. A typical strategy for achieving such robustness is to encode a single logical qubit into the state of many physical qubits, via a quantum error correcting code, from which it may be possible to actively diagnose and correct errors that might occur. While many quantum error correcting codes exist, topological quantum codes in which only local operations are required to diagnose and correct errors, are of particular interest as a result of their experimental feasibility. Recently the surface code has emerged as an espescially promising code for large scale fault tolerant quantum computation, due to the combination of its comparitively low overhead requirements and the availability of convenient strategies for the implementation of all required logical gates.
+    In order to implement large scale quantum algorithms it is necessary to be able to store and manipulate quantum information in a manner that is robust with respect to the unavoidable errors introduced through the interaction of physical qubits with a noisy environment. A typical strategy for achieving such robustness is to encode a single logical qubit into the state of many physical qubits, via a quantum error correcting code, from which it may be possible to actively diagnose and correct errors that might occur. While many quantum error correcting codes exist, topological quantum codes in which only local operations are required to diagnose and correct errors, are of particular interest as a result of their experimental feasibility. Recently the surface code has emerged as an espescially promising code for large scale fault tolerant quantum computation, due to the combination of its comparitively low overhead and locality requirements, coupled with the availability of convenient strategies for the implementation of all required logical gates.
 
     Within any such code based strategy for fault tolerant quantum compuation, decoding algorithms play a critical role. At a high level, throughout the course of a computation these algorithms take as input the outcome of diagnostic syndrome measurements and should provide as output suggested corrections for any errors which might have occured, which can then be tracked through the computation and later used to apply corrections to any obtained results. It is particularly important to note that in any physically realistic setting the required syndrome measurements are themselves obtained via small quantum circuits, and are therefore also generically faulty. As such, while the setting of perfect syndrome measurements provides a good test-bed for the development of decoding algorithms, any decoding algorithm which aims to be experimentally feasible should also be capable of dealing with such faulty syndrome measurements. Additionally, such algorithms should also be capable of dealing with experimentally relevant noise models, as well as be fast enought to not present a bottleneck to the execution of computations, even as the size of the code scales to larger code distances.
 
@@ -55,11 +55,46 @@ Topological error correcting codes, and particularly the surface code, currently
 
     Simultaneously, the last few years have also seen extremely impressive advances in the development of deep reinforcement learning algorithms, which have allowed for the training of neural network based agents capable of obtaining super-human performance in domains such as Atari, Chess and Go. These techniques are particularly powerful in situations where it is necessary to learn strategies for complex sequential decision making, involving consideration of the future effects of ones actions. At a surface level, the problem of decoding within the context of fault-tolerant quantum computation seems like exactly such a setting and as such it natural to ask to what extent reinforcement learning techniques could be used to obtain decoding agents, and what advantages such agents might have over existing approaches. In this work we set out to provide answers to these questions.
 
-    In particular, we reformulate the problem of decoding within the setting of fault-tolerant quantum computation as a process of sequential competitive interaction between a decoding agent and a code environment. This reframing provides a conceptual framework which allows for the application of various deep reinforcement learning algorithms to obtain neural network based decoding agents. As a proof-of-principle, we then utilize to deepQ learning to obtain fast surface code decoders, for a variety of noise models, within the fully fault-tolerant setting.
+    In particular, we reformulate the problem of decoding within the setting of fault-tolerant quantum computation as a process of sequential competitive interaction between a decoding agent and a code environment. This reframing provides a conceptual framework which allows for the application of various deep reinforcement learning algorithms to obtain neural network based decoding agents. As a proof-of-principle, we then utilize to deepQ learning to obtain fast surface code decoders, for a variety of noise models, within the fully fault-tolerant setting. These results then provide a foundation for extension via both more sophisticated reinforcement learning techniques and more sophisticated neural network models.
+
+    In this work we begin by providing an introductory overview of the surface code in Section \ref{s:the_surface_code}, before presenting a description of the decoding problem for fault-tolerant quantum computation in Section \ref{s:the_decoding_problem}. After a brief introduction to the formalism of reinforcement learning and $Q$-functions in Section \ref{s:reinforcement_learning} we are then able to provide the conceptual reframing of decoding as a reinforcement learning problem in Section \ref{s:decoding_as_rl}, which is one of the primary results of this work. In Section \ref{s:results} we then present deepQ surface code decoders for a variety of noise models, before finally in Section \ref{s:conclusions} discussing both the advantages and disadvantages of the approach presented here, along with various potential strategies for building upon the results presented in this work.
 
 
 
 \section{The Surface Code}\label{s:the_surface_code}
+
+
+    We begin by providing a brief high-level and intuitive description of the surface code. The framework and methods presented in this work are not restricted to the surface code, and could be applied to any stabilizer code, but we choose to restrict ourselves to this code here for both simplicity of presentation and experimental relevance. We will focus here on presenting the elements of the surface code necessary for understanding the decoding problem that we aim to address, in the process omitting many details, however there exists a rich underlying theory to both topological error correcting codes, and stabilizer codes more generally, and for a more rigorous or condensed matter perspective we refer to the refs \textit{a,b, and c}.
+
+    As illustrated in Fig. \ref{f:surface_code}, we will consider $d\times d$ lattices with a \textit{data qubit} on each vertex, such that states of the lattice are elements of the Hilbert space $\mathcal{H} = \bigotimes_{v \in V}\mathbb{C}^2$, where we have indicated the set of all vertices as $V$. A surface code on such a lattice is defined by a set $S$ of plaquette stabilizer operators, of which there are four distinct types. Given single-qubit Pauli operators $X$ and $Z$, bulk (boundary) plaquette stabilizers $X_{p}$ and $Z_{p}$ are local four (two) body operators,
+
+    \begin{equation}
+        X_{p} \equiv \bigotimes_{q \in p} X_q, \quad Z_{p} \equiv \bigotimes_{q \in p} Z_q,
+    \end{equation}
+    which act non-trivially only on the vertex qubits of plaquette $p$, and when measured indicate the $X$ or $Z$ parity of the plaquette vertex qubits. With reference to Fig \ref{f:surface_code}, if we denote the set of all blue (orange) plaquettes as $B_p$ ($O_p$), then the set $S$ of stabilizers defining the surface code is given by,
+
+    \begin{equation}
+        S = \big\{ X_p \vert p \in B_p  \big\} \cup \big\{ Z_p \vert p \in O_p  \big\},
+    \end{equation}
+    from which we can define the Hamiltonian of the surface code as $H_{\mathrm{sc}} \equiv -\sum_{\hat{O} \in S}\hat{O}$. 
+
+    At this point it is possible to understand how we can encode one \textit{logical qubit} into the surface code. We begin by defining the \textit{code space} $\mathcal{H}_{\mathrm{sc}}$ as the ground state space of the surface code Hamiltonian $H_{\mathrm{sc}}$. This code space contains all surface code states $|\psi\rangle \in \mathcal{H}$ which are simultaneous $-1$ eigenstates of all stabilizers $\hat{O} \in S$. A simple counting arguement allows one to verify that this code space is in fact two-dimensional - i.e. $\mathcal{H}_{\mathrm{sc}} \simeq \mathbb{C}^2$. A basis for this code space is provided by the states $\{ |0_L\rangle, |1_L\rangle \}$, the  $\mp 1$ eigenstates respectively of the operator $Z_L$, which as illustrated in Fig. \ref{f:surface_code} is any continuous string of single-vertex $Z$ operators connecting the left and right boundaries of the code.
+
+
+    \begin{figure}
+      \centering
+          \includegraphics[width=0.75\textwidth]{surface_code.pdf}
+      \caption{A picture of the same gull
+               looking the other way!}\label{f:surface_code}
+    \end{figure}
+
+% \begin{figure}
+%   \centering
+%       \includegraphics[width=0.75\textwidth]{surface_code_examples.pdf}
+%   \caption{A picture of the same gull
+%            looking the other way!}
+% \end{figure}
+
 \section{The Decoding Problem}\label{s:the_decoding_problem}
 \section{Reinforcement Learning and Q-Functions}\label{s:reinforcement_learning}
 \section{Decoding as a Reinforcement Learning Problem}\label{s:decoding_as_rl}

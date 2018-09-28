@@ -141,7 +141,7 @@
     \begin{figure*}
       \centering
       \includegraphics[width=0.65\textwidth]{figures/decoding_problem.pdf}
-      \caption{In the left hand panel, the syndromes associated with various error configurations are illustrated. Note that the error configurations in (a) and (b) lead to the same syndrome. Also, as can be seen in (c), note that continuous strings of errors result in violated stabilizers only at the endpoint of the string. In the right hand panel a typical decoding cycle is illustrated, for the simplified faulty measurements scenario in which one imagines each time step consisting of an initial physical error process generating errors on the data qubits, followed by a second measurement error process which corrupts the true syndrome. The decoding algorithm then has access to a sequence of potentially faulty syndromes.}\label{f:decoding_problem}
+      \caption{A typical decoding cycle is illustrated for the simplified faulty measurements scenario in which one imagines each time step consisting of an initial physical error process generating errors on the data qubits, followed by a second measurement error process which corrupts the true syndrome. The decoding algorithm then has access to a sequence of potentially faulty syndromes.}\label{f:decoding_problem}
     \end{figure*}
 
     \noindent Before proceeding to discuss more subtle and technical versions of the decoding problem, let's examine why even the above problem is indeed potentially difficult.
@@ -175,50 +175,72 @@
     In Section \ref{s:decoding_as_rl} we discuss a proxy criterion for decoding success within this framework.
 
 
-\section{Reinforcement Learning and Q-Functions}\label{s:reinforcement_learning}
+\section{Reinforcement Learning and q-Functions}\label{s:reinforcement_learning}
 
-    In this section we shift focus and introduce some of the fundamental concepts of reinforcement learning and $Q$-functions, which will be crucial to our conceptual reframing of the decoding problem in Section \ref{s:decoding_as_rl}. Again, we will omit many interesting details, which can be found in the standard textbook. As illustrated in Fig. \ref{f:agent_environment}, we imagine an agent interacting with some environment in discrete time steps. In each time step $t$ the agent is in some state $S_t$, which is generically a combination of its knowledge of the environment $S_{E,t}$, its memory of its own previous actions, and possibly the state of additional internal variables. From this state the agent must then choose some valid action $A_t$, which it applies to the environment. In response to this action, via some process which is typically not directly known by the agent, the environment updates and provides the agent with a potentially reduced description of its new state $S_{E,t+1}$ (i.e. a description of the part of the environment which is \textit{visible} to the agent), along with a a scalar reward $R_{t+1}$ and a boolean signal which indicates whether the game is over - i.e. whether the agent has failed, died or lost. In principal it is also possible to imagine settings in which the sequence of interactions can carry on indefinitely, but we will consider here only episodic actions, which end once the environment is placed into a terminal state (which may not be unique) by the actions of the agent. Generically, we consider to goal of the agent to be to avoid dying, while accumulating as much reward as possible.
+    In this section we shift focus and introduce some of the fundamental concepts of reinforcement learning and $q$-functions, which will be crucial to our conceptual reframing of the decoding problem in Section \ref{s:decoding_as_rl}. 
+    Again, we will omit many interesting details, which can be found in the standard textbook. 
+    As illustrated in Fig. \ref{f:agent_environment}, we imagine an agent interacting with some environment in discrete time steps. 
+    In each time step $t$ the agent is in some state $S_t$, which is generically a combination of its knowledge of the environment $S_{E,t}$, its memory of its own previous actions, and possibly the state of additional internal variables. 
+    From this state the agent must then choose some valid action $A_t$, which it applies to the environment. 
+    In response to this action, via some process which is typically not directly known by the agent, the environment updates and provides the agent with a potentially reduced description of its new state $S_{E,t+1}$ (i.e. a description of the part of the environment which is \textit{visible} to the agent), along with a a scalar reward $R_{t+1}$ and a boolean signal which indicates whether the game is over - i.e. whether the agent has failed, died or lost. 
+    In principal it is also possible to imagine settings in which the sequence of interactions can carry on indefinitely, but we will consider here only episodic actions, which end once the environment is placed into a terminal state (which may not be unique) by the actions of the agent. 
+    Generically, we consider to goal of the agent to be to avoid dying, while accumulating as much reward as possible.
 
     Typically the way that the agent chooses its action, the way that the environment is effected by the action, and the reward that is generated can all be stochastic, and in the context of finite state and action spaces, denoted $\mathcal{S}$ and $\mathcal{A}$ respectively, this process can be formalized within the framework of finite Markov decision processes (FMDP):
 
     \begin{equation}
         p(s',r|s,a) \equiv \mathrm{pr}(S_t = s',R_t = r|S_{t-1} = s, A_{t-1} = a).
     \end{equation}
-    To formalize the decision making process of the agent, we define an agent's \textit{policy} $\pi$, in essence the agent's strategy, as a mapping from states to probabilities of specific actions - i.e. $\pi(a|s)$ is the probability that $A_t = a$ if $S_t = s$. For FMDP's we then define the \textit{value} of a state $s$ under policy $\pi$ as,
+    To formalize the decision making process of the agent, we define an agent's \textit{policy} $\pi$, in essence the agent's strategy, as a mapping from states to probabilities of specific actions - i.e. $\pi(a|s)$ is the probability that $A_t = a$ if $S_t = s$. 
+    For FMDP's we then define the \textit{value} of a state $s$ under policy $\pi$ as,
 
     \begin{equation}
-        v_{\pi}(s) = \mathbb{E}_{\pi}[G_t|S_t = s]  = \mathbb{E}_{\pi} \Big[\sum_{k = 0}^{\infty}\gamma^k R_{t+k+1}\Big| S_t = s \Big] \qquad \forall S_t \in \mathcal{S}
+        v_{\pi}(s) = \mathbb{E}_{\pi}[G_t|S_t = s]  = \mathbb{E}_{\pi} \Big[\sum_{k = 0}^{\infty}\gamma^k R_{t+k+1}\Big| S_t = s \Big] 
     \end{equation}
-    where $G_t$ is the discounted return (discounted cumulative reward), with discount factor $0 \leq \gamma \leq 1$, and in practice the infinite sum terminates whenever state $S_{t+k+1}$ is a terminal state. We call $v$ the \textit{state-value function}, which provides the expected discounted cumulative reward the agent would obtain when following policy $\pi$ from state $s$. It is an important conceptual point to note that by using the metric of the discounted cumulative reward the value of any given state depends not only the immediate rewards an agent would obtain from following a specific policy, and hence strategies which involve some element of succesful future planning may lead to higher state values. As such, we see that the value of a state with respect to a given policy reflects accurately the ability of an agent to achieve its long-term goals when following that policy from that state. Similarly, we can define the \textit{action-value function}  (referred to as the $Q$-function) for policy $\pi$ via:
+    $\forall S_t \in \mathcal{S}$, where $G_t$ is the discounted return (discounted cumulative reward), with discount factor $0 \leq \gamma \leq 1$, and in practice the infinite sum terminates whenever state $S_{t+k+1}$ is a terminal state. 
+    We call $v$ the \textit{state-value function}, which provides the expected discounted cumulative reward the agent would obtain when following policy $\pi$ from state $s$. 
+    It is an important conceptual point to note that by using the metric of the discounted cumulative reward the value of any given state depends not only on the immediate rewards an agent would obtain from following a specific policy, and hence strategies which involve some element of successful future planning may lead to higher state values. 
+    As such, we see that the value of a state with respect to a given policy reflects accurately the ability of an agent to achieve its long-term goals when following that policy from that state. 
+    Similarly, we can define the \textit{action-value function}  (referred to as the $q$-function) for policy $\pi$ via:
 
-    \begin{equation}
-        q_{\pi}(s,a) = \mathbb{E}_{\pi}[G_t|S_t = s, A_t = a]  = \mathbb{E}_{\pi} \Big[\sum_{k = 0}^{\infty}\gamma^k R_{t+k+1}\Big| S_t = s, A_t = a \Big]
-    \end{equation}
-    Clearly, the $Q$ function with respect to a given policy is conceptually similar to the value function, except that it provides the value (expected discounted cumulative reward) associated with following a given policy after taking a certain action from a certain state. Importantly, value functions allow us to place an order over policies, i.e. $\pi > \pi' \iff v_{\pi}(s) > v_{\pi'}(s)\quad \forall s \in \mathcal{S} $. Given such an ordering we can then define an optimal policy $\pi^*$, with respect to which the action-value function will be the unique solution of the following system of equations:
+    \begin{align}
+        q_{\pi}(s,a) &= \mathbb{E}_{\pi}[G_t|S_t = s, A_t = a]  \\
+        & = \mathbb{E}_{\pi} \Big[\sum_{k = 0}^{\infty}\gamma^k R_{t+k+1}\Big| S_t = s, A_t = a \Big]
+    \end{align}
+    Clearly, the $q$ function with respect to a given policy is conceptually similar to the value function, except that it provides the value (expected discounted cumulative reward) associated with following a given policy after taking a certain action from a certain state. 
+    Importantly, value functions allow us to place an order over policies, i.e. $\pi > \pi' \iff v_{\pi}(s) > v_{\pi'}(s)\quad \forall s \in \mathcal{S} $. 
+    Given such an ordering we can then define an optimal policy $\pi^*$, with respect to which the action-value function will be the unique solution of the following system of equations:
 
     \begin{figure}
       \centering
           \includegraphics[width=0.4\textwidth]{figures/agent_environment.pdf}
-      \caption{An illustration of the signals passed between an agent and the environment through the duration of the sequential turn based episodes we consider here.}\label{f:agent_environment}
+      \caption{An illustration of the signals passed between an agent and the environment through the duration of a sequential turn based episode.}\label{f:agent_environment}
     \end{figure}
 
     \begin{equation}\label{e:fixed_point}
-        q_*(s,a) = \mathbb{E}\big[R_{t+1} + \gamma\max_{a'}q_{*}(S_{t+1},a')\big|S_t = s, A_t = a \big]
+        q_*(s,a) = \mathbb{E}\big[R_{t+1} + \gamma\max_{a'}q_{*}(S_{t+1},a')\big|S_t = s, A_t = a \big].
     \end{equation}
-    Note that given the optimal $Q$-function it is easy to obtain the optimal strategy; When in a given state $s$ simply choose the action $a = \mathrm{argmax}_{a'}[q_*(s,a')]$ Now, the idea of iterative Q-learning is to start from an arbitary $q$ function, and then use eqn. \eqref{e:fixed_point} as an update function for an agent which uses the $q$ function to make decisions as to how to interact with the environment. The hope (can be proven under certain constraints) is that the $q$ function will eventually converge to $q_*$, which is a stationary point of eqn. (1).
+    Note that given the optimal $q$-function it is easy to obtain the optimal strategy; When in a given state $s$ simply choose the action $a = \mathrm{argmax}_{a'}[q_*(s,a')]$.
 
-    More specifically, for *deep*-Q learning we parameterize $q$ with a neural network, and use eqn. (1) to construct the cost function on which we train the network. In particular we let the agent interact with the environment, using some $\epsilon$-greedy policy, in the process generating tuples of experience of the following form:
+    It is now possible to introduce the idea of iterative $q$-learning as a tool for obtaining optimal $q$-functions via experience gained from interaction with a given environment. 
+    Starting from an arbitrary initial $q$-function, the idea is to use Eqn. \eqref{e:fixed_point} as the basis for an update method, via which the $q$-function is updated while an agent uses this $q$-function (possibly in conjunction with additional exploratory strategies) to interact with the environment. 
+    The goal is that this $q$ function will eventually converge to $q_*$, which is a stationary point of Eqn. \eqref{e:fixed_point}. 
+    Under certain conditions, it can in fact be proven that this will be the case.
 
-    $$[S_t,A_t,R_{t+1},S_{t+1}]$$
+    More specifically, for \textit{deepQ} learning we parametrize $q$ with a neural network, and use Eqn. \eqref{e:fixed_point} to construct the cost function from which the network weights can be updated via some gradient descent method. In particular, we let the agent interact with the environment via an $\epsilon$-greedy exploration policy, in the process generating experience-tuples of the following form:
 
-    From these tuples we can construct a loss on which to train the Q-network, by using the cost function:
+    \begin{equation}
+        [S_t,A_t,R_{t+1},S_{t+1}]
+    \end{equation}
+    From these tuples we can construct a loss on which to train the $q$-network, by using the cost function:
 
     \begin{align} 
     C &= y_{\mathrm{pred}} - y_{\mathrm{true}}\\
     &= q(S_t,A_t) - \big[R_{t+1} + \gamma\max_{a'}q(S_{t+1},a') \big]
     \end{align}
+    which, by comparison with \eqref{e:fixed_point}, will be 0 only for the optimal policy. Unfortunately, despite the simplicity of the idea, in practice a variety of tricks - such as batched experience replay, separate active and target $q$-networks, double-$q$ learning and dueling networks - are required to achieve stable $q$-learning. We refer to the relevant references, or to the associated code repository, for details.
 
-    which, by staring at eqn. (1), we can see will be 0 only for the optimal policy.
+
 
 \section{Decoding as a Reinforcement Learning Problem}\label{s:decoding_as_rl}
 \section{Results}\label{s:results}

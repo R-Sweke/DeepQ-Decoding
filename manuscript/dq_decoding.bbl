@@ -6,7 +6,7 @@
 %Control: page (1) range
 %Control: year (0) verbatim
 %Control: production of eprint (0) enabled
-\begin{thebibliography}{29}%
+\begin{thebibliography}{28}%
 \makeatletter
 \providecommand \@ifxundefined [1]{%
  \@ifx{#1\undefined}
@@ -444,11 +444,4 @@
   knowledge},}\ }\href {\doibase doi:10.1038/nature24270} {\bibfield  {journal}
   {\bibinfo  {journal} {Nature}\ }\textbf {\bibinfo {volume} {550}},\ \bibinfo
   {pages} {354} (\bibinfo {year} {2017}{\natexlab{b}})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Gottesman}(1997)}]{Gottesman97}%
-  \BibitemOpen
-  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Daniel}\ \bibnamefont
-  {Gottesman}},\ }\emph {\bibinfo {title} {Stabilizer Codes and Quantum Error
-  Correction}},\ \href {https://arxiv.org/abs/quant-ph/9705052} {Ph.D.
-  thesis},\ \bibinfo  {school} {California Institute of Technology} (\bibinfo
-  {year} {1997})\BibitemShut {NoStop}%
 \end{thebibliography}%

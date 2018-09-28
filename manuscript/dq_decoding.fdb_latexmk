@@ -1,16 +1,16 @@
 # Fdb version 3
-["bibtex dq_decoding"] 1538077657 "dq_decoding.aux" "dq_decoding.bbl" "dq_decoding" 1538077657
+["bibtex dq_decoding"] 1538109943 "dq_decoding.aux" "dq_decoding.bbl" "dq_decoding" 1538109944
   "/usr/share/texlive/texmf-dist/bibtex/bst/revtex/apsrev4-1.bst" 1480098436 71518 fec93f06df0c073f83d2330456bd19c2 ""
   "dq.bib" 1538047290 13922 0cf6ba6a1ecc1cb7ae23c2e3fad79ed1 ""
-  "dq_decoding.aux" 1538077657 9055 9cdff231b3aa1d23d9d6b9b99d7f3859 ""
+  "dq_decoding.aux" 1538109944 9582 8a796596862361afe0bcf56126c38934 ""
   "dq_decoding.bcf" 0 -1 0 ""
-  "dq_decodingNotes.bib" 1538077657 104 3df53be75d46dc364236f6bd8a7721a4 ""
+  "dq_decodingNotes.bib" 1538109944 104 3df53be75d46dc364236f6bd8a7721a4 ""
   (generated)
   "dq_decoding.blg"
   "dq_decoding.bbl"
-["pdflatex"] 1538077657 "dq_decoding.tex" "/home/ryan/Documents/Academics/NN_Decoders/DeepQ-Decoding/manuscript/dq_decoding.pdf" "dq_decoding" 1538077657
+["pdflatex"] 1538109943 "dq_decoding.tex" "/home/ryan/Documents/Academics/NN_Decoders/DeepQ-Decoding/manuscript/dq_decoding.pdf" "dq_decoding" 1538109944
   "/etc/texmf/web2c/texmf.cnf" 1534837306 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/ryan/Documents/Academics/NN_Decoders/DeepQ-Decoding/manuscript/dq_decoding.aux" 1538077657 9055 9cdff231b3aa1d23d9d6b9b99d7f3859 ""
+  "/home/ryan/Documents/Academics/NN_Decoders/DeepQ-Decoding/manuscript/dq_decoding.aux" 1538109944 9582 8a796596862361afe0bcf56126c38934 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1511824771 3332 103109f5612ad95229751940c61aada0 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy5.tfm" 1480098698 1120 1e8878807317373affa7f7bba4cf2f6a ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy6.tfm" 1480098698 1124 14ccf5552bc7f77ca02a8a402bea8bfb ""
@@ -118,18 +118,18 @@
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1534837329 2731305 b5d02be72c22274ced76c0ba798abaa6 ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1534837340 4218775 115ce7cbb7abdb887a5f47b1f728cf88 ""
   "decoding_problem.pdf" 1538059255 39677 c96788d76b99a4015a0431ac6cc5194b ""
-  "dq_decoding.aux" 1538077657 9055 9cdff231b3aa1d23d9d6b9b99d7f3859 ""
-  "dq_decoding.bbl" 1538077657 27899 75f49d3177167c5417053697c7f8a0bc "bibtex dq_decoding"
-  "dq_decoding.out" 1538077657 733 9d7eee9666d4003a25d3b7c822c3061a ""
-  "dq_decoding.tex" 1538077656 19909 3658d9c6ebbe2185f6e0cabb02b7ad13 ""
+  "dq_decoding.aux" 1538109944 9582 8a796596862361afe0bcf56126c38934 ""
+  "dq_decoding.bbl" 1538109943 27480 a1acacccba4a65f24b86f68da4ca0766 "bibtex dq_decoding"
+  "dq_decoding.out" 1538109944 733 9d7eee9666d4003a25d3b7c822c3061a ""
+  "dq_decoding.tex" 1538109943 22487 09f7d5df450e76e04c817009a87df9c3 ""
   "surface_code.pdf" 1538030804 23782 4e9afdf8239435da0825e392641afe1f ""
   (generated)
-  "/home/mkesselring/Documents/Projects/DeepQ-Decoding/manuscript/dq_decoding.pdf"
   "/home/mkesselring/Documents/Projects/DeepQ-Decoding/manuscript/dq_decoding.log"
-  "/home/ryan/Documents/Academics/NN_Decoders/DeepQ-Decoding/manuscript/dq_decoding.pdf"
   "dq_decoding.out"
   "/home/ryan/Documents/Academics/NN_Decoders/DeepQ-Decoding/manuscript/dq_decoding.log"
+  "/home/ryan/Documents/Academics/NN_Decoders/DeepQ-Decoding/manuscript/dq_decoding.pdf"
   "dq_decoding.aux"
+  "/home/mkesselring/Documents/Projects/DeepQ-Decoding/manuscript/dq_decoding.pdf"
+  "dq_decoding.log"
   "dq_decodingNotes.bib"
   "dq_decoding.pdf"
-  "dq_decoding.log"

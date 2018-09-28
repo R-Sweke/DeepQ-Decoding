@@ -90,50 +90,29 @@
 
 \section{The Surface Code}\label{s:the_surface_code}
 
-	The framework and methods presented in this work are not restricted to the surface code, and could be applied to any stabilizer code, but we choose to restrict ourselves to this code here for both simplicity of presentation and experimental relevance.
-	We will focus here on presenting the elements of the surface code necessary for understanding the decoding problem that we aim to address, in the process omitting many details.
-	We refer the reader to the references~\cite{Preskill17lectures, Gottesman97} for indepth discussion of quantum error correction and stabilizer codes.
+	    We begin by providing a brief high-level and hopefully intuitive description of the surface code. The framework and methods presented in this work are not restricted to the surface code, and could be applied to any stabilizer code, but we choose to restrict ourselves to this code here for both simplicity of presentation and experimental relevance. We will focus here on presenting the elements of the surface code necessary for understanding the decoding problem that we aim to address, in the process omitting many details, however there exists a rich underlying theory to both topological error correcting codes, and stabilizer codes more generally, and for a more rigorous or condensed matter perspective we refer to the refs \textit{a,b, and c}.
 
-	For the surface code, we will consider a $d\times d$ lattices with a \textit{physical data qubit} on each vertex, as illustrated in Fig.~\ref{f:surface_code}.
-	Plaquettes of this lattice are assocaited with stabilizers of one of two types.
-	Given single-qubit Pauli operators $X$ and $Z$, bulk (boundary) plaquette stabilizers $X_{p}$ and $Z_{p}$ are local four (two) body operators,
+    As illustrated in Fig. \ref{f:surface_code}, we will consider $d\times d$ lattices with a \textit{data qubit} on each vertex, such that states of the lattice are elements of the Hilbert space $\mathcal{H} = \bigotimes_{v \in V}\mathbb{C}^2$, where we have indicated the set of all vertices as $V$. A surface code on such a lattice is defined by a set $S$ of plaquette stabilizer operators, of which there are four distinct types; Given single-qubit Pauli operators $X$ and $Z$, bulk (boundary) plaquette stabilizers $X_{p}$ and $Z_{p}$ are local four (two) body operators,
 
-	\begin{equation}
-		X_{p} \equiv \bigotimes_{q \in p} X_q, \quad Z_{p} \equiv \bigotimes_{q \in p} Z_q,
-	\end{equation}
-	which act only on the vertex qubits of plaquette $p$.
-	With reference to Fig~\ref{f:surface_code}, if we denote the set of all blue (orange) plaquettes as $B_p$ ($O_p$), then the set $S$ of stabilizers defining the surface code is given by,
+    \begin{equation}
+        X_{p} \equiv \bigotimes_{q \in p} X_q, \quad Z_{p} \equiv \bigotimes_{q \in p} Z_q,
+    \end{equation}
+    which act non-trivially only on the vertex qubits of plaquette $p$. With reference to Fig \ref{f:surface_code}, if we denote the set of all blue (orange) plaquettes as $B_p$ ($O_p$), then the set $S$ of stabilizers defining the surface code is given by,
 
-	\begin{equation}
-		S = \big\{ X_p \vert p \in B_p  \big\} \cup \big\{ Z_p \vert p \in O_p  \big\},
-	\end{equation}
-	from which we can define the Hamiltonian of the surface code as $H_{\mathrm{sc}} \equiv -\sum_{\hat{O} \in S}\hat{O}$.
+    \begin{equation}
+        S = \big\{ X_p \vert p \in B_p  \big\} \cup \big\{ Z_p \vert p \in O_p  \big\},
+    \end{equation}
+    from which we can define the Hamiltonian of the surface code as $H_{\mathrm{sc}} \equiv -\sum_{\hat{O} \in S}\hat{O}$. 
 
-	The \textit{code space} $\mathcal{H}_{\mathrm{sc}}$ is the ground state space of the surface code Hamiltonian $H_{\mathrm{sc}}$.
-	This code space contains all surface code states $|\psi\rangle \in \mathcal{H}_{\mathrm{sc}}$ which are simultaneous $+1$ eigenstates of all stabilizers $\hat{O} \in S$.
-	A simple counting arguement allows one to verify that this code space is two-dimensional - i.e. $\mathcal{H}_{\mathrm{sc}} \simeq \mathbb{C}^2$.
-	We can thus effectively identify the code space with the state space of a single \textit{logical qubit}.
-	Operators acting on logical qubits are called \textit{logical operators}, examples of the logical $X$ and $Z$ operators $Z_L$ ($X_L$) are illustrated in Fig.~\ref{f:surface_code}.
+    At this point it is possible to understand how we can encode one \textit{logical qubit} into the surface code. We begin by defining the \textit{code space} $\mathcal{H}_{\mathrm{sc}}$ as the ground state space of the surface code Hamiltonian $H_{\mathrm{sc}}$. This code space contains all surface code states $|\psi\rangle \in \mathcal{H}$ which are simultaneous $+1$ eigenstates of all stabilizers $\hat{O} \in S$ - i.e. states which commute with all stabilizers in $S$. A simple counting arguement allows one to verify that this code space is in fact two-dimensional - i.e. $\mathcal{H}_{\mathrm{sc}} \simeq \mathbb{C}^2$ - such that we can effectively identify the code space with the state space of a single qubit, which is the logical qubit associated with the surface code. In addition, as illustrated in Fig. \ref{f:surface_code}, let us define $Z_L$ ($X_L$) as any continuous string of single vertex $Z$ ($X$) operators connecting the left and right (top and bottom) boundaries of the code. Despite the fact that these \textit{logical operators} cannot be expressed as the product of stabilizer operators in $S$, the eigenstates of these operators are elements of the code space, and these operators map states in the code space into other states in the code space. As such, we see that we can use the eigenstates $\{ |0_L\rangle, |1_L\rangle \}$ of $Z_L$ to define a basis for the code space, and additionally, given a state within the code space, i.e. a state of the logical qubit, we can manipulate this state by using products of logical operators. 
 
-	\begin{figure}
-		\centering
-		\includegraphics[width=0.65\textwidth]{surface_code.pdf}
-		\caption{
-			An overview of the surface code.
-			(a) We consider square $d \times d$ lattices (shonw $d=5$), with a data qubit on each vertex of the lattice.
-			Additionally, there exist two types of local stabilizer operators: $X$ ($Z$) stabilizers, which act on the vertex qubits of blue (orange) plaquettes.
-			(b) Assuming an initial simultaneous $+1$ eigenstate of all stabilizers, a qubit Pauli flip on a single physical qubit will anti-commute with certain stabilizers supported on this qubit.
-			We call these stabilizers \textit{violated} and marked them with a red dot.
-			(c) Logical $X_L$ ($Z_L$) operators for the surface code are provided by continuous strings of single qubit $X$ ($Z$) operators connecting the top and bottom (left and right) boundaries of the code respectively.
-			\mk{I am not a big fan of these colours =) }}
-			\label{f:surface_code}
-	\end{figure}
+      \begin{figure}
+      \centering
+          \includegraphics[width=0.65\textwidth]{surface_code.pdf}
+      \caption{An overview of the surface code. (a) We consider square $d\times d$ lattices, with a data qubit on each vertex of the lattice. Additionally, there exist four types of local stabilizer operators: bulk $X$ ($Z$) stabilizers, which are four-body operators acting on the vertex qubits of blue (orange) plaquettes in the bulk of the lattice, and boundary $X$ ($Z$) stabilizers, which are two-body operators acting on the vertex qubits of blue (orange) plaquettes on the boundary of the lattice. (b) Assuming that each data qubit is initialized in the $+1$ eigenstate of the single-qubit $Z$ operator, single qubit Pauli flips on vertex qubits will cause the global lattice state to anti-commute with certain stabilizers supported on this vertex. Here we have illustrated the stabilizers \textit{violated} (those which anti-commute with the global lattice state) after different Pauli flips are applied to a single data qubit. (c) Logical $X_L$ and $Z_L$ operators for the surface code are provided by continuous strings of single qubit $X$ or $Z$ operators connecting the top and bottom or left and right boundaries of the code respectively.}\label{f:surface_code}
+    \end{figure}
 
-	Errors on physical qubits anticommute with surrounding stabilizers, see Fig.~\ref{f:surface_code}~(b).
-	The stabilizer operators are measured in regular intervals to obtain the \textit{syndrome}, a list of violated stabilizers.
-	This enables an indirect detection of errors, as the outcome of the syndrome measurements depend on the occured errors.
-	However, there exist multiple inequivalent error configurations with the same syndrome.
-	A \textit{decoder} is an algorithm which takes in a syndrome and returns a proposed correction, hopefully undoing the error and returning the logical qubit to its original state.
+    At this point it is natural to ask for the motivation behind such a redundant encoding. To answer this question, let's assume that the global lattice state $|\psi\rangle$ is an element of the code space - i.e. a simultaneous $+1$ eigenstate of all the stabilizer operators in $S$. In the process of storing (or manipulating) this state it may happen that some unavoidable error or noise process causes an operation, such as a single qubit Pauli flip on a single data qubit, which is not a logical operation, and therefore causes the global lattice state to move outside of the code space. At this point, the global lattice state \textit{will not} commute with all the stabilizers, and will instead anti-commute with some of the stabilizers supported on the flipped data-qubit (as illustrated in Fig. \ref{f:surface_code}). If we define a \textit{syndrome} as a binary string encoding the outcome of a simultaneous measurement of all the stabilizers in $S$, then we can see that the syndrome obtained from the global lattice state after the single qubit Pauli flip will contain a $-1$ entry in each position corresponding to a stabilizer with which the global lattice state anti-commutes, and $+1$ entries everywhere else. We say that stabilizers which anti-commute with the global lattice state are \textit{violated}. As we will discuss in detail in the next section, unlike a truly single qubit encoding of the state $|\psi\rangle$, there is now a chance that from the measured syndrome we will be able to diagnose the error which occured and implement a correction which moves the global lattice state back into the code space. 
 
 \section{The Decoding Problem}\label{s:the_decoding_problem}
 
@@ -154,11 +133,6 @@
     \ryan{TO DO:} syndrome volume instead of single syndrome in faulty measurements case, and then, differentiate single-shot decoding from multi-cycle decoding! in the context of fault tolerant quantum computation we always imagine that there is a decoded gate or measurement process still to come, and the idea is not necessarily to always put the qubit back into the ground state, but rather to avoid the accumulation of errors for as long as possible, such that the decoding process involved in the next circtui element may be succesfull. As a proxy for whether or not this would work we can imagine a decoder which has access to the true syndrome, and is trying to solve the single shot decoding problem - we say that the logical qubit is "alive" if at any moment in time such a static referee decoder could decode it, and we say that the qubit is dead if at any moment errors have accumulated to the point where a referee decoder would not be succesful in single shot decoding with perfect syndrome measurements. voila.
 
    
-
-
-
-
-
 
 \section{Reinforcement Learning and Q-Functions}\label{s:reinforcement_learning}
 \section{Decoding as a Reinforcement Learning Problem}\label{s:decoding_as_rl}

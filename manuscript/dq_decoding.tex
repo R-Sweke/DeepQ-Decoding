@@ -179,12 +179,6 @@
 
     In this section we shift focus and introduce some of the fundamental concepts of reinforcement learning and $Q$-functions, which will be crucial to our conceptual reframing of the decoding problem in Section \ref{s:decoding_as_rl}. Again, we will omit many interesting details, which can be found in the standard textbook. As illustrated in Fig. \ref{f:agent_environment}, we imagine an agent interacting with some environment in discrete time steps. In each time step $t$ the agent is in some state $S_t$, which is generically a combination of its knowledge of the environment $S_{E,t}$, its memory of its own previous actions, and possibly the state of additional internal variables. From this state the agent must then choose some valid action $A_t$, which it applies to the environment. In response to this action, via some process which is typically not directly known by the agent, the environment updates and provides the agent with a potentially reduced description of its new state $S_{E,t+1}$ (i.e. a description of the part of the environment which is \textit{visible} to the agent), along with a a scalar reward $R_{t+1}$ and a boolean signal which indicates whether the game is over - i.e. whether the agent has failed, died or lost. In principal it is also possible to imagine settings in which the sequence of interactions can carry on indefinitely, but we will consider here only episodic actions, which end once the environment is placed into a terminal state (which may not be unique) by the actions of the agent. Generically, we consider to goal of the agent to be to avoid dying, while accumulating as much reward as possible.
 
-    \begin{figure}
-      \centering
-          \includegraphics[width=0.4\textwidth]{figures/agent_environment.pdf}
-      \caption{An illustration of the signals passed between an agent and the environment through the duration of the sequential turn based episodes we consider here.}\label{f:agent_environment}
-    \end{figure}
-
     Typically the way that the agent chooses its action, the way that the environment is effected by the action, and the reward that is generated can all be stochastic, and in the context of finite state and action spaces, denoted $\mathcal{S}$ and $\mathcal{A}$ respectively, this process can be formalized within the framework of finite Markov decision processes (FMDP):
 
     \begin{equation}
@@ -201,6 +195,12 @@
         q_{\pi}(s,a) = \mathbb{E}_{\pi}[G_t|S_t = s, A_t = a]  = \mathbb{E}_{\pi} \Big[\sum_{k = 0}^{\infty}\gamma^k R_{t+k+1}\Big| S_t = s, A_t = a \Big]
     \end{equation}
     Clearly, the $Q$ function with respect to a given policy is conceptually similar to the value function, except that it provides the value (expected discounted cumulative reward) associated with following a given policy after taking a certain action from a certain state. Importantly, value functions allow us to place an order over policies, i.e. $\pi > \pi' \iff v_{\pi}(s) > v_{\pi'}(s)\quad \forall s \in \mathcal{S} $. Given such an ordering we can then define an optimal policy $\pi^*$, with respect to which the action-value function will be the unique solution of the following system of equations:
+
+    \begin{figure}
+      \centering
+          \includegraphics[width=0.4\textwidth]{figures/agent_environment.pdf}
+      \caption{An illustration of the signals passed between an agent and the environment through the duration of the sequential turn based episodes we consider here.}\label{f:agent_environment}
+    \end{figure}
 
     \begin{equation}\label{e:fixed_point}
         q_*(s,a) = \mathbb{E}\big[R_{t+1} + \gamma\max_{a'}q_{*}(S_{t+1},a')\big|S_t = s, A_t = a \big]

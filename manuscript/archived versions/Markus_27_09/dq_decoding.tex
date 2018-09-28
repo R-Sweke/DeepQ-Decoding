@@ -90,29 +90,50 @@
 
 \section{The Surface Code}\label{s:the_surface_code}
 
-	    We begin by providing a brief high-level and hopefully intuitive description of the surface code. The framework and methods presented in this work are not restricted to the surface code, and could be applied to any stabilizer code, but we choose to restrict ourselves to this code here for both simplicity of presentation and experimental relevance. We will focus here on presenting the elements of the surface code necessary for understanding the decoding problem that we aim to address, in the process omitting many details, however there exists a rich underlying theory to both topological error correcting codes, and stabilizer codes more generally, and for a more rigorous or condensed matter perspective we refer to the refs \textit{a,b, and c}.
+	The framework and methods presented in this work are not restricted to the surface code, and could be applied to any stabilizer code, but we choose to restrict ourselves to this code here for both simplicity of presentation and experimental relevance.
+	We will focus here on presenting the elements of the surface code necessary for understanding the decoding problem that we aim to address, in the process omitting many details.
+	We refer the reader to the references~\cite{Preskill17lectures, Gottesman97} for indepth discussion of quantum error correction and stabilizer codes.
 
-        As illustrated in Fig. \ref{f:surface_code}, we will consider $d\times d$ lattices with a \textit{data qubit} on each vertex, such that states of the lattice are elements of the Hilbert space $\mathcal{H} = \bigotimes_{v \in V}\mathbb{C}^2$, where we have indicated the set of all vertices as $V$. A surface code on such a lattice is defined by a set $S$ of plaquette stabilizer operators, of which there are four distinct types; Given single-qubit Pauli operators $X$ and $Z$, bulk (boundary) plaquette stabilizers $X_{p}$ and $Z_{p}$ are local four (two) body operators,
+	For the surface code, we will consider a $d\times d$ lattices with a \textit{physical data qubit} on each vertex, as illustrated in Fig.~\ref{f:surface_code}.
+	Plaquettes of this lattice are assocaited with stabilizers of one of two types.
+	Given single-qubit Pauli operators $X$ and $Z$, bulk (boundary) plaquette stabilizers $X_{p}$ and $Z_{p}$ are local four (two) body operators,
 
-        \begin{equation}
-            X_{p} \equiv \bigotimes_{q \in p} X_q, \quad Z_{p} \equiv \bigotimes_{q \in p} Z_q,
-        \end{equation}
-        which act non-trivially only on the vertex qubits of plaquette $p$. With reference to Fig \ref{f:surface_code}, if we denote the set of all blue (orange) plaquettes as $B_p$ ($O_p$), then the set $S$ of stabilizers defining the surface code is given by,
+	\begin{equation}
+		X_{p} \equiv \bigotimes_{q \in p} X_q, \quad Z_{p} \equiv \bigotimes_{q \in p} Z_q,
+	\end{equation}
+	which act only on the vertex qubits of plaquette $p$.
+	With reference to Fig~\ref{f:surface_code}, if we denote the set of all blue (orange) plaquettes as $B_p$ ($O_p$), then the set $S$ of stabilizers defining the surface code is given by,
 
-        \begin{equation}
-            S = \big\{ X_p \vert p \in B_p  \big\} \cup \big\{ Z_p \vert p \in O_p  \big\},
-        \end{equation}
-        from which we can define the Hamiltonian of the surface code as $H_{\mathrm{sc}} \equiv -\sum_{\hat{O} \in S}\hat{O}$. 
+	\begin{equation}
+		S = \big\{ X_p \vert p \in B_p  \big\} \cup \big\{ Z_p \vert p \in O_p  \big\},
+	\end{equation}
+	from which we can define the Hamiltonian of the surface code as $H_{\mathrm{sc}} \equiv -\sum_{\hat{O} \in S}\hat{O}$.
 
-        At this point it is possible to understand how we can encode one \textit{logical qubit} into the surface code. We begin by defining the \textit{code space} $\mathcal{H}_{\mathrm{sc}}$ as the ground state space of the surface code Hamiltonian $H_{\mathrm{sc}}$. This code space contains all surface code states $|\psi\rangle \in \mathcal{H}$ which are simultaneous $+1$ eigenstates of all stabilizers $\hat{O} \in S$ - i.e. states which commute with all stabilizers in $S$. A simple counting arguement allows one to verify that this code space is in fact two-dimensional - i.e. $\mathcal{H}_{\mathrm{sc}} \simeq \mathbb{C}^2$ - such that we can effectively identify the code space with the state space of a single qubit, which is the logical qubit associated with the surface code. In addition, as illustrated in Fig. \ref{f:surface_code}, let us define $Z_L$ ($X_L$) as any continuous string of single vertex $Z$ ($X$) operators connecting the left and right (top and bottom) boundaries of the code. Despite the fact that these \textit{logical operators} cannot be expressed as the product of stabilizer operators in $S$, the eigenstates of these operators are elements of the code space, and these operators map states in the code space into other states in the code space. As such, we see that we can use the eigenstates $\{ |0_L\rangle, |1_L\rangle \}$ of $Z_L$ to define a basis for the code space, and additionally, given a state within the code space, i.e. a state of the logical qubit, we can manipulate this state by using products of logical operators. 
+	The \textit{code space} $\mathcal{H}_{\mathrm{sc}}$ is the ground state space of the surface code Hamiltonian $H_{\mathrm{sc}}$.
+	This code space contains all surface code states $|\psi\rangle \in \mathcal{H}_{\mathrm{sc}}$ which are simultaneous $+1$ eigenstates of all stabilizers $\hat{O} \in S$.
+	A simple counting arguement allows one to verify that this code space is two-dimensional - i.e. $\mathcal{H}_{\mathrm{sc}} \simeq \mathbb{C}^2$.
+	We can thus effectively identify the code space with the state space of a single \textit{logical qubit}.
+	Operators acting on logical qubits are called \textit{logical operators}, examples of the logical $X$ and $Z$ operators $Z_L$ ($X_L$) are illustrated in Fig.~\ref{f:surface_code}.
 
-          \begin{figure}
-          \centering
-              \includegraphics[width=0.65\textwidth]{surface_code.pdf}
-          \caption{An overview of the surface code. (a) We consider square $d\times d$ lattices, with a data qubit on each vertex of the lattice. Additionally, there exist four types of local stabilizer operators: bulk $X$ ($Z$) stabilizers, which are four-body operators acting on the vertex qubits of blue (orange) plaquettes in the bulk of the lattice, and boundary $X$ ($Z$) stabilizers, which are two-body operators acting on the vertex qubits of blue (orange) plaquettes on the boundary of the lattice. (b) Assuming that each data qubit is initialized in the $+1$ eigenstate of the single-qubit $Z$ operator, single qubit Pauli flips on vertex qubits will cause the global lattice state to anti-commute with certain stabilizers supported on this vertex. Here we have illustrated the stabilizers \textit{violated} (those which anti-commute with the global lattice state) after different Pauli flips are applied to a single data qubit. (c) Logical $X_L$ and $Z_L$ operators for the surface code are provided by continuous strings of single qubit $X$ or $Z$ operators connecting the top and bottom or left and right boundaries of the code respectively.}\label{f:surface_code}
-        \end{figure}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.65\textwidth]{surface_code.pdf}
+		\caption{
+			An overview of the surface code.
+			(a) We consider square $d \times d$ lattices (shonw $d=5$), with a data qubit on each vertex of the lattice.
+			Additionally, there exist two types of local stabilizer operators: $X$ ($Z$) stabilizers, which act on the vertex qubits of blue (orange) plaquettes.
+			(b) Assuming an initial simultaneous $+1$ eigenstate of all stabilizers, a qubit Pauli flip on a single physical qubit will anti-commute with certain stabilizers supported on this qubit.
+			We call these stabilizers \textit{violated} and marked them with a red dot.
+			(c) Logical $X_L$ ($Z_L$) operators for the surface code are provided by continuous strings of single qubit $X$ ($Z$) operators connecting the top and bottom (left and right) boundaries of the code respectively.
+			\mk{I am not a big fan of these colours =) }}
+			\label{f:surface_code}
+	\end{figure}
 
-        At this point it is natural to ask for the motivation behind such a redundant encoding. To answer this question, let's assume that the global lattice state $|\psi\rangle$ is an element of the code space - i.e. a simultaneous $+1$ eigenstate of all the stabilizer operators in $S$. In the process of storing (or manipulating) this state it may happen that some unavoidable error or noise process causes an operation, such as a single qubit Pauli flip on a single data qubit, which is not a logical operation, and therefore causes the global lattice state to move outside of the code space. At this point, the global lattice state \textit{will not} commute with all the stabilizers, and will instead anti-commute with some of the stabilizers supported on the flipped data-qubit (as illustrated in Fig. \ref{f:surface_code}). If we define a \textit{syndrome} as a binary string encoding the outcome of a simultaneous measurement of all the stabilizers in $S$, then we can see that the syndrome obtained from the global lattice state after the single qubit Pauli flip will contain a $-1$ entry in each position corresponding to a stabilizer with which the global lattice state anti-commutes, and $+1$ entries everywhere else. We say that stabilizers which anti-commute with the global lattice state are \textit{violated}. As we will discuss in detail in the next section, unlike a truly single qubit encoding of the state $|\psi\rangle$, there is now a chance that from the measured syndrome we will be able to diagnose the error which occured and implement a correction which moves the global lattice state back into the code space. 
+	Errors on physical qubits anticommute with surrounding stabilizers, see Fig.~\ref{f:surface_code}~(b).
+	The stabilizer operators are measured in regular intervals to obtain the \textit{syndrome}, a list of violated stabilizers.
+	This enables an indirect detection of errors, as the outcome of the syndrome measurements depend on the occured errors.
+	However, there exist multiple inequivalent error configurations with the same syndrome.
+	A \textit{decoder} is an algorithm which takes in a syndrome and returns a proposed correction, hopefully undoing the error and returning the logical qubit to its original state.
 
 \section{The Decoding Problem}\label{s:the_decoding_problem}
 
@@ -132,62 +153,9 @@
 
     \ryan{TO DO:} syndrome volume instead of single syndrome in faulty measurements case, and then, differentiate single-shot decoding from multi-cycle decoding! in the context of fault tolerant quantum computation we always imagine that there is a decoded gate or measurement process still to come, and the idea is not necessarily to always put the qubit back into the ground state, but rather to avoid the accumulation of errors for as long as possible, such that the decoding process involved in the next circtui element may be succesfull. As a proxy for whether or not this would work we can imagine a decoder which has access to the true syndrome, and is trying to solve the single shot decoding problem - we say that the logical qubit is "alive" if at any moment in time such a static referee decoder could decode it, and we say that the qubit is dead if at any moment errors have accumulated to the point where a referee decoder would not be succesful in single shot decoding with perfect syndrome measurements. voila.
 
+   
+
 \section{Reinforcement Learning and Q-Functions}\label{s:reinforcement_learning}
-
-    In this section we shift focus and introduce some of the fundamental concepts of reinforcement learning and $Q$-functions, which will be crucial to our conceptual reframing of the decoding problem in Section \ref{s:decoding_as_rl}. Again, we will omit many interesting details, which can be found in the standard textbook. As illustrated in Fig. \ref{f:agent_environment}, we imagine an agent interacting with some environment in discrete time steps. In each time step $t$ the agent is in some state $S_t$, which is generically a combination of its knowledge of the environment, its memory of its own previous actions, and possibly the state of additional internal variables. From this state the agent must then choose some valid action $A_t$, which it applies to the environment. In response to this action, via some process which is typically not directly known by the agent, the environment updates and provides the agent with a potentially reduced description of its new state (i.e. a description of the part of the environment which is \textit{visible} to the agent), along with a a scalar reward $R_{t+1}$ and a boolean signal which indicates whether the game is over - i.e. whether the agent has failed, died or lost. In principal it is also possible to imagine settings in which the sequence of interactions can carry on indefinitely, but we will consider here only episodic actions, which end once the environment is placed into a terminal state (which may not be unique) by the actions of the agent. Generically, we consider to goal of the agent to be to avoid dying, while accumulating as much reward as possible.
-
-    \begin{figure}
-      \centering
-          \includegraphics[width=0.4\textwidth]{agent_environment.pdf}
-      \caption{An illustration of the signals passed between an agent and the environment through the duration of the sequential turn based episodes we consider here.}\label{f:agent_environment}
-    \end{figure}
-
-    Typically the way that the agent chooses its action, the way that the environment is effected by the action, and the reward that is generated can all be stochastic, and in the context of finite state and action spaces this process can be formalized within the framework of finite Markov decision processes (FMDP):
-
-    \begin{equation}
-        p(s',r|s,a) \equiv \mathrm{pr}(S_t = s',R_t = r|S_{t-1} = s, A_{t-1} = a).
-    \end{equation}
-    To formalize the decision making process of the agent, we define an agent's \textit{policy} $\pi$, in essence the agent's strategy, as a mapping from states to probabilities of specific actions - i.e. $\pi(a|s)$ is the probability that $A_t = a$ if $S_t = s$. for FMDP's we then define the \textit{value} of a state $s$ under policy $\pi$ as,
-
-    \begin{equation}
-        v_{\pi}(s) = \mathbb{E}_{\pi}[G_t|S_t = s]  = \mathbb{E}_{\pi} \Big[\sum_{k = 0}^{\infty}\gamma^k R_{t+k+1}\Big| S_t = s \Big] \qquad \forall S_t \in \mathcal{S}
-    \end{equation}
-    where $G_t$ is the discounted return (discounted cumulative reward), with discount factor $0 \leq \gamma \leq 1$, and in practice the infinite sum terminates whenever state $S_{t+k+1}$ is a terminal state. We call $v$ the \textit{state-value function}, which provides the expected discounted cumulative reward the agent would obtain when following policy $\pi$ from state $s$. It is an important conceptual point to note that by using the metric of the discounted cumulative reward the value of any given state depends not only the immediate rewards an agent would obtain from following a specific policy, and hence strategies which involve some element of succesful future planning may lead to higher state values. As such, we see that the value of a state reflects accurately the ability of an agent to achieve its long-term goals when following its policy from that state. Similarly, we can define the \textit{action-value function}  (referred to as the $Q$-function) for policy $\pi$ via:
-
-    \begin{equation}
-        q_{\pi}(s,a) = \mathbb{E}_{\pi}[G_t|S_t = s, A_t = a]  = \mathbb{E}_{\pi} \Big[\sum_{k = 0}^{\infty}\gamma^k R_{t+k+1}\Big| S_t = s, A_t = a \Big]
-    \end{equation}
-
-    Importantly, both state and action value functions satisfy a relation (actually system of equations) known as Bellman's equation, which for action-value functions looks as follows:
-
-    \begin{align}
-    q_{\pi}(s,a) & =  \mathbb{E}_{\pi}[G_t|S_t = s, A_t = a] \\
-    & = \mathbb{E}_{\pi}[R_{t+1} + \gamma G_{t+1}|S_t = s, A_t = a]\\
-    & = \sum_{s'}\sum_{r}p(s',r|s,a)\big[r + \gamma\mathbb{E}_{\pi}[G_{t+1}|S_{t+1} = s']\big] \\
-    & = \sum_{s'}\sum_{r}p(s',r|s,a)\big[r + \gamma v_{\pi}(s')\big]
-    \end{align}
-    
-    In addition, value functions allow us to place an order over policies ($\pi > \pi' \iff v_{\pi}(s) > v_{\pi'}(s)\quad \forall s \in \mathcal{S} $) such that we can define an optimal policy $\pi^*$, with respect to which the action-value function will be the unique solution of the following system of equations:
-
-    \begin{equation}
-        q_*(s,a) = \mathbb{E}\big[R_{t+1} + \gamma\max_{a'}q_{*}(S_{t+1},a')\big|S_t = s, A_t = a \big]
-    \end{equation}
-
-    Now, the idea of iterative Q-learning is to start from an arbitary $q$ function, and then use eqn. (1) as an update function for an agent which uses the $q$ function to make decisions as to how to interact with the environment. The hope (can be proven under certain constraints) is that the $q$ function will eventually converge to $q_*$, which is a stationary point of eqn. (1).
-
-    More specifically, for *deep*-Q learning we parameterize $q$ with a neural network, and use eqn. (1) to construct the cost function on which we train the network. In particular we let the agent interact with the environment, using some $\epsilon$-greedy policy, in the process generating tuples of experience of the following form:
-
-    $$[S_t,A_t,R_{t+1},S_{t+1}]$$
-
-    From these tuples we can construct a loss on which to train the Q-network, by using the cost function:
-
-    \begin{align} 
-    C &= y_{\mathrm{pred}} - y_{\mathrm{true}}\\
-    &= q(S_t,A_t) - \big[R_{t+1} + \gamma\max_{a'}q(S_{t+1},a') \big]
-    \end{align}
-
-    which, by staring at eqn. (1), we can see will be 0 only for the optimal policy.
-
 \section{Decoding as a Reinforcement Learning Problem}\label{s:decoding_as_rl}
 \section{Results}\label{s:results}
 \section{Conclusion}\label{s:conclusions}

@@ -169,6 +169,9 @@ INPUT /home/ryan/Documents/Academics/NN_Decoders/DeepQ-Decoding/manuscript/surfa
 INPUT /home/ryan/Documents/Academics/NN_Decoders/DeepQ-Decoding/manuscript/decoding_problem.pdf
 INPUT /home/ryan/Documents/Academics/NN_Decoders/DeepQ-Decoding/manuscript/decoding_problem.pdf
 INPUT /home/ryan/Documents/Academics/NN_Decoders/DeepQ-Decoding/manuscript/decoding_problem.pdf
+INPUT /home/ryan/Documents/Academics/NN_Decoders/DeepQ-Decoding/manuscript/agent_environment.pdf
+INPUT /home/ryan/Documents/Academics/NN_Decoders/DeepQ-Decoding/manuscript/agent_environment.pdf
+INPUT /home/ryan/Documents/Academics/NN_Decoders/DeepQ-Decoding/manuscript/agent_environment.pdf
 INPUT /home/ryan/Documents/Academics/NN_Decoders/DeepQ-Decoding/manuscript/dq_decoding.bbl
 INPUT /home/ryan/Documents/Academics/NN_Decoders/DeepQ-Decoding/manuscript/dq_decoding.bbl
 INPUT /home/ryan/Documents/Academics/NN_Decoders/DeepQ-Decoding/manuscript/dq_decoding.aux
@@ -186,6 +189,7 @@ INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb
+INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb

@@ -6,7 +6,7 @@
 %Control: page (1) range
 %Control: year (0) verbatim
 %Control: production of eprint (0) enabled
-\begin{thebibliography}{28}%
+\begin{thebibliography}{29}%
 \makeatletter
 \providecommand \@ifxundefined [1]{%
  \@ifx{#1\undefined}
@@ -386,27 +386,22 @@
   {https://arxiv.org/pdf/1809.06640.pdf} {\bibfield  {journal} {\bibinfo
   {journal} {arXiv preprint arXiv:1809.06640}\ } (\bibinfo {year}
   {2018})}\BibitemShut {NoStop}%
-\bibitem [{\citenamefont {Mnih}\ \emph {et~al.}(2015)\citenamefont {Mnih},
-  \citenamefont {Kavukcuoglu}, \citenamefont {Silver}, \citenamefont {Rusu},
-  \citenamefont {Veness}, \citenamefont {Bellemare}, \citenamefont {Graves},
-  \citenamefont {Riedmiller}, \citenamefont {Fidjeland}, \citenamefont
-  {Ostrovski} \emph {et~al.}}]{Mnih15}%
+\bibitem [{\citenamefont {Mnih}\ \emph {et~al.}(2013)\citenamefont {Mnih},
+  \citenamefont {Kavukcuoglu}, \citenamefont {Silver}, \citenamefont {Graves},
+  \citenamefont {Antonoglou}, \citenamefont {Wierstra},\ and\ \citenamefont
+  {Riedmiller}}]{Mnih13}%
   \BibitemOpen
   \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Volodymyr}\
   \bibnamefont {Mnih}}, \bibinfo {author} {\bibfnamefont {Koray}\ \bibnamefont
   {Kavukcuoglu}}, \bibinfo {author} {\bibfnamefont {David}\ \bibnamefont
-  {Silver}}, \bibinfo {author} {\bibfnamefont {Andrei~A}\ \bibnamefont {Rusu}},
-  \bibinfo {author} {\bibfnamefont {Joel}\ \bibnamefont {Veness}}, \bibinfo
-  {author} {\bibfnamefont {Marc~G}\ \bibnamefont {Bellemare}}, \bibinfo
-  {author} {\bibfnamefont {Alex}\ \bibnamefont {Graves}}, \bibinfo {author}
-  {\bibfnamefont {Martin}\ \bibnamefont {Riedmiller}}, \bibinfo {author}
-  {\bibfnamefont {Andreas~K}\ \bibnamefont {Fidjeland}}, \bibinfo {author}
-  {\bibfnamefont {Georg}\ \bibnamefont {Ostrovski}},  \emph {et~al.},\
-  }\bibfield  {title} {\enquote {\bibinfo {title} {Human-level control through
-  deep reinforcement learning},}\ }\href {\doibase doi:10.1038/nature14236}
-  {\bibfield  {journal} {\bibinfo  {journal} {Nature}\ }\textbf {\bibinfo
-  {volume} {518}},\ \bibinfo {pages} {529} (\bibinfo {year}
-  {2015})}\BibitemShut {NoStop}%
+  {Silver}}, \bibinfo {author} {\bibfnamefont {Alex}\ \bibnamefont {Graves}},
+  \bibinfo {author} {\bibfnamefont {Ioannis}\ \bibnamefont {Antonoglou}},
+  \bibinfo {author} {\bibfnamefont {Daan}\ \bibnamefont {Wierstra}}, \ and\
+  \bibinfo {author} {\bibfnamefont {Martin}\ \bibnamefont {Riedmiller}},\
+  }\bibfield  {title} {\enquote {\bibinfo {title} {Playing atari with deep
+  reinforcement learning},}\ }\href {https://arxiv.org/pdf/1312.5602v1.pdf}
+  {\bibfield  {journal} {\bibinfo  {journal} {arXiv preprint arXiv:1312.5602}\
+  } (\bibinfo {year} {2013})}\BibitemShut {NoStop}%
 \bibitem [{\citenamefont {Silver}\ \emph
   {et~al.}(2017{\natexlab{a}})\citenamefont {Silver}, \citenamefont {Hubert},
   \citenamefont {Schrittwieser}, \citenamefont {Antonoglou}, \citenamefont
@@ -449,4 +444,11 @@
   knowledge},}\ }\href {\doibase doi:10.1038/nature24270} {\bibfield  {journal}
   {\bibinfo  {journal} {Nature}\ }\textbf {\bibinfo {volume} {550}},\ \bibinfo
   {pages} {354} (\bibinfo {year} {2017}{\natexlab{b}})}\BibitemShut {NoStop}%
+\bibitem [{\citenamefont {Gottesman}(1997)}]{Gottesman97}%
+  \BibitemOpen
+  \bibfield  {author} {\bibinfo {author} {\bibfnamefont {Daniel}\ \bibnamefont
+  {Gottesman}},\ }\emph {\bibinfo {title} {Stabilizer Codes and Quantum Error
+  Correction}},\ \href {https://arxiv.org/abs/quant-ph/9705052} {Ph.D.
+  thesis},\ \bibinfo  {school} {California Institute of Technology} (\bibinfo
+  {year} {1997})\BibitemShut {NoStop}%
 \end{thebibliography}%

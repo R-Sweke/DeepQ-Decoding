@@ -23,7 +23,7 @@
 \citation{Duclos2010}
 \citation{Herold15}
 \citation{Torlai10,Varsamopoulos17,Krastanov17,Breuckmann18,Baireuther18a,Baireuther18b,Ni18}
-\citation{Mnih13}
+\citation{Mnih15}
 \citation{Silver17a}
 \citation{Silver17b}
 \newlabel{FirstPage}{{}{1}{}{section*.1}{}}
@@ -33,31 +33,35 @@
 \newlabel{s:introduction}{{I}{1}{}{section*.3}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {II}The Surface Code}{2}{section*.4}}
 \newlabel{s:the_surface_code}{{II}{2}{}{section*.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces An overview of the surface code. (a) We consider square $d\times d$ lattices, with a data qubit on each vertex of the lattice. Additionally, there exist four types of local stabilizer operators: bulk $X$ ($Z$) stabilizers, which are four-body operators acting on the vertex qubits of blue (orange) plaquettes in the bulk of the lattice, and boundary $X$ ($Z$) stabilizers, which are two-body operators acting on the vertex qubits of blue (orange) plaquettes on the boundary of the lattice. (b) Assuming that each data qubit is initialized in the $+1$ eigenstate of the single-qubit $Z$ operator, single qubit Pauli flips on vertex qubits will cause the global lattice state to anti-commute with certain stabilizers supported on this vertex. Here we have illustrated the stabilizers \textit  {violated} (those which anti-commute with the global lattice state) after different Pauli flips are applied to a single data qubit. (c) Logical $X_L$ and $Z_L$ operators for the surface code are provided by continuous strings of single qubit $X$ or $Z$ operators connecting the top and bottom or left and right boundaries of the code respectively.}}{3}{figure.1}}
-\newlabel{f:surface_code}{{1}{3}{An overview of the surface code. (a) We consider square $d\times d$ lattices, with a data qubit on each vertex of the lattice. Additionally, there exist four types of local stabilizer operators: bulk $X$ ($Z$) stabilizers, which are four-body operators acting on the vertex qubits of blue (orange) plaquettes in the bulk of the lattice, and boundary $X$ ($Z$) stabilizers, which are two-body operators acting on the vertex qubits of blue (orange) plaquettes on the boundary of the lattice. (b) Assuming that each data qubit is initialized in the $+1$ eigenstate of the single-qubit $Z$ operator, single qubit Pauli flips on vertex qubits will cause the global lattice state to anti-commute with certain stabilizers supported on this vertex. Here we have illustrated the stabilizers \textit {violated} (those which anti-commute with the global lattice state) after different Pauli flips are applied to a single data qubit. (c) Logical $X_L$ and $Z_L$ operators for the surface code are provided by continuous strings of single qubit $X$ or $Z$ operators connecting the top and bottom or left and right boundaries of the code respectively}{figure.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces An overview of the $5 \times 5$ surface code. (a) We consider square lattices, with a data qubit on each vertex of the lattice. The coloured plaquettes indicate stabilizer operators as defined in Eq. \textup  {\hbox {\mathsurround \z@ \normalfont  (\ignorespaces \ref  {e:stabilizer_definition}\unskip \@@italiccorr )}}. (b) Logical $X_L$ and $Z_L$ operators for the surface code are given by continuous strings of single qubit $X$ or $Z$ operators connecting the top and bottom or left and right boundaries of the code respectively.}}{2}{figure.1}}
+\newlabel{f:surface_code}{{1}{2}{An overview of the $5 \times 5$ surface code. (a) We consider square lattices, with a data qubit on each vertex of the lattice. The coloured plaquettes indicate stabilizer operators as defined in Eq. \eqref {e:stabilizer_definition}. (b) Logical $X_L$ and $Z_L$ operators for the surface code are given by continuous strings of single qubit $X$ or $Z$ operators connecting the top and bottom or left and right boundaries of the code respectively}{figure.1}{}}
+\newlabel{e:stabilizer_definition}{{1}{2}{}{equation.2.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces (a) Single qubit Pauli flips violate surrounding stabilizers. (b-d) Strings of Pauli flips only violate stabilizers at the endpoint of the string. Multiple error configurations can give rise to the same syndrome. They can differ by stabilizers, as for example in (c) and (d), or by logical operators, see (b) and (c).}}{3}{figure.2}}
+\newlabel{f:surface_code_examples}{{2}{3}{(a) Single qubit Pauli flips violate surrounding stabilizers. (b-d) Strings of Pauli flips only violate stabilizers at the endpoint of the string. Multiple error configurations can give rise to the same syndrome. They can differ by stabilizers, as for example in (c) and (d), or by logical operators, see (b) and (c)}{figure.2}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {III}The Decoding Problem}{3}{section*.5}}
 \newlabel{s:the_decoding_problem}{{III}{3}{}{section*.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces In the left hand panel, the syndromes associated with various error configurations are illustrated. Note that the error configurations in (a) and (b) lead to the same syndrome. Also, as can be seen in (c), note that continuous strings of errors result in violated stabilizers only at the endpoint of the string. In the right hand panel a typical decoding cycle is illustrated, for the simplified faulty measurements scenario in which one imagines each time step consisting of an initial physical error process generating errors on the data qubits, followed by a second measurement error process which corrupts the true syndrome. The decoding algorithm then has access to a sequence of potentially faulty syndromes.}}{4}{figure.2}}
-\newlabel{f:decoding_problem}{{2}{4}{In the left hand panel, the syndromes associated with various error configurations are illustrated. Note that the error configurations in (a) and (b) lead to the same syndrome. Also, as can be seen in (c), note that continuous strings of errors result in violated stabilizers only at the endpoint of the string. In the right hand panel a typical decoding cycle is illustrated, for the simplified faulty measurements scenario in which one imagines each time step consisting of an initial physical error process generating errors on the data qubits, followed by a second measurement error process which corrupts the true syndrome. The decoding algorithm then has access to a sequence of potentially faulty syndromes}{figure.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces An illustration of the signals passed between an agent and the environment through the duration of the sequential turn based episodes we consider here.}}{5}{figure.3}}
-\newlabel{f:agent_environment}{{3}{5}{An illustration of the signals passed between an agent and the environment through the duration of the sequential turn based episodes we consider here}{figure.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {IV}Reinforcement Learning and Q-Functions}{5}{section*.6}}
-\newlabel{s:reinforcement_learning}{{IV}{5}{}{section*.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces In the left hand panel, the syndromes associated with various error configurations are illustrated. Note that the error configurations in (a) and (b) lead to the same syndrome. Also, as can be seen in (c), note that continuous strings of errors result in violated stabilizers only at the endpoint of the string. In the right hand panel a typical decoding cycle is illustrated, for the simplified faulty measurements scenario in which one imagines each time step consisting of an initial physical error process generating errors on the data qubits, followed by a second measurement error process which corrupts the true syndrome. The decoding algorithm then has access to a sequence of potentially faulty syndromes.}}{4}{figure.3}}
+\newlabel{f:decoding_problem}{{3}{4}{In the left hand panel, the syndromes associated with various error configurations are illustrated. Note that the error configurations in (a) and (b) lead to the same syndrome. Also, as can be seen in (c), note that continuous strings of errors result in violated stabilizers only at the endpoint of the string. In the right hand panel a typical decoding cycle is illustrated, for the simplified faulty measurements scenario in which one imagines each time step consisting of an initial physical error process generating errors on the data qubits, followed by a second measurement error process which corrupts the true syndrome. The decoding algorithm then has access to a sequence of potentially faulty syndromes}{figure.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {IV}Reinforcement Learning and Q-Functions}{4}{section*.6}}
+\newlabel{s:reinforcement_learning}{{IV}{4}{}{section*.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces An illustration of the signals passed between an agent and the environment through the duration of the sequential turn based episodes we consider here.}}{4}{figure.4}}
+\newlabel{f:agent_environment}{{4}{4}{An illustration of the signals passed between an agent and the environment through the duration of the sequential turn based episodes we consider here}{figure.4}{}}
 \bibdata{dq_decodingNotes,dq}
 \bibcite{Terhal15}{{1}{2015}{{Terhal}}{{}}}
 \bibcite{Campbell17}{{2}{2017}{{Campbell\ \emph  {et~al.}}}{{Campbell, Terhal,\ and\ Vuillot}}}
 \bibcite{Kitaev03}{{3}{2003}{{Kitaev}}{{}}}
+\newlabel{e:fixed_point}{{5}{5}{}{equation.4.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {V}Decoding as a Reinforcement Learning Problem}{5}{section*.7}}
+\newlabel{s:decoding_as_rl}{{V}{5}{}{section*.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {VI}Results}{5}{section*.8}}
+\newlabel{s:results}{{VI}{5}{}{section*.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {VII}Conclusion}{5}{section*.9}}
+\newlabel{s:conclusions}{{VII}{5}{}{section*.9}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {}Acknowledgments}{5}{section*.10}}
+\@writefile{toc}{\contentsline {section}{\numberline {}References}{5}{section*.11}}
 \bibcite{Dennis02}{{4}{2002}{{Dennis\ \emph  {et~al.}}}{{Dennis, Kitaev, Landahl,\ and\ Preskill}}}
 \bibcite{Preskill17lectures}{{5}{2017}{{Preskill}}{{}}}
 \bibcite{Nayak08}{{6}{2008}{{Nayak\ \emph  {et~al.}}}{{Nayak, Simon, Stern, Freedman,\ and\ Sarma}}}
-\@writefile{toc}{\contentsline {section}{\numberline {V}Decoding as a Reinforcement Learning Problem}{6}{section*.7}}
-\newlabel{s:decoding_as_rl}{{V}{6}{}{section*.7}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {VI}Results}{6}{section*.8}}
-\newlabel{s:results}{{VI}{6}{}{section*.8}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {VII}Conclusion}{6}{section*.9}}
-\newlabel{s:conclusions}{{VII}{6}{}{section*.9}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {}Acknowledgments}{6}{section*.10}}
-\@writefile{toc}{\contentsline {section}{\numberline {}References}{6}{section*.11}}
 \bibcite{Pachos12}{{7}{2012}{{Pachos}}{{}}}
 \bibcite{Brown16}{{8}{2016}{{Brown\ \emph  {et~al.}}}{{Brown, Loss, Pachos, Self,\ and\ Wootton}}}
 \bibcite{Reed12}{{9}{2012}{{Reed\ \emph  {et~al.}}}{{Reed, DiCarlo, Nigg, Sun, Frunzio, Girvin,\ and\ Schoelkopf}}}
@@ -77,11 +81,11 @@
 \bibcite{Baireuther18a}{{23}{2018{}}{{Baireuther\ \emph  {et~al.}}}{{Baireuther, O'Brien, Tarasinski,\ and\ Beenakker}}}
 \bibcite{Baireuther18b}{{24}{2018{}}{{Baireuther\ \emph  {et~al.}}}{{Baireuther, Caio, Criger, Beenakker,\ and\ O'Brien}}}
 \bibcite{Ni18}{{25}{2018}{{Ni}}{{}}}
-\bibcite{Mnih13}{{26}{2013}{{Mnih\ \emph  {et~al.}}}{{Mnih, Kavukcuoglu, Silver, Graves, Antonoglou, Wierstra,\ and\ Riedmiller}}}
+\bibcite{Mnih15}{{26}{2015}{{Mnih\ \emph  {et~al.}}}{{Mnih, Kavukcuoglu, Silver, Rusu, Veness, Bellemare, Graves, Riedmiller, Fidjeland, Ostrovski \emph  {et~al.}}}}
 \bibcite{Silver17a}{{27}{2017{}}{{Silver\ \emph  {et~al.}}}{{Silver, Hubert, Schrittwieser, Antonoglou, Lai, Guez, Lanctot, Sifre, Kumaran, Graepel \emph  {et~al.}}}}
 \bibcite{Silver17b}{{28}{2017{}}{{Silver\ \emph  {et~al.}}}{{Silver, Schrittwieser, Simonyan, Antonoglou, Huang, Guez, Hubert, Baker, Lai, Bolton \emph  {et~al.}}}}
 \bibstyle{apsrev4-1}
 \citation{REVTEX41Control}
 \citation{apsrev41Control}
-\newlabel{LastBibItem}{{28}{7}{}{section*.11}{}}
-\newlabel{LastPage}{{}{7}{}{}{}}
+\newlabel{LastBibItem}{{28}{6}{}{section*.11}{}}
+\newlabel{LastPage}{{}{6}{}{}{}}

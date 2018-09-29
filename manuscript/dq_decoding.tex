@@ -140,7 +140,7 @@
 
     \begin{figure*}
       \centering
-      \includegraphics[width=0.65\textwidth]{figures/decoding_problem.pdf}
+      \includegraphics[width=0.6\textwidth]{figures/decoding_problem.pdf}
       \caption{A typical decoding cycle is illustrated for the simplified faulty measurements scenario in which one imagines each time step consisting of an initial physical error process generating errors on the data qubits, followed by a second measurement error process which corrupts the true syndrome. The decoding algorithm then has access to a sequence of potentially faulty syndromes.}\label{f:decoding_problem}
     \end{figure*}
 
@@ -165,8 +165,8 @@
     As single syndromes are no longer reliable, decoding within the setting of faulty syndromes typically requires providing the decoding algorithm with multiple sequential syndromes.
 
     Finally, in the context of surface code based fault tolerant quantum computing, all logical gates are implemented either via protocols which also involve an inherent decoding procedure or do not spread errors. 
-    To be specific, it is sufficient to be able to implement both Clifford and $T$ gates.
-    In contemporary proposals for surface code based quantum computing protocols are known for implementing Clifford gates transversally, via code deformation or via lattice surgery.
+    To be specific, it is sufficient for universal quantum computing to be able to implement both Clifford and $T$ gates.
+    In contemporary proposals for surface code based quantum computing protocols are known for implementing Clifford gates either transversally, via code deformation or via lattice surgery.
     While transversal gates do not spread errors, code deformation and lattice surgery require decoding cycles.
     Non-Clifford gates, such as the $T$ gate, can be performed fault tolerantly via gate teleportation using magic states. 
     High quality magic states can be obtained via magic state distillation, which requires only Clifford gates and initially faulty magic states.
@@ -199,7 +199,7 @@
     \end{equation}
     $\forall S_t \in \mathcal{S}$, where $G_t$ is the discounted return (discounted cumulative reward), with discount factor $0 \leq \gamma \leq 1$, and in practice the infinite sum terminates whenever state $S_{t+k+1}$ is a terminal state. 
     We call $v$ the \textit{state-value function}, which provides the expected discounted cumulative reward the agent would obtain when following policy $\pi$ from state $s$. 
-    It is an important conceptual point to note that by using the metric of the discounted cumulative reward the value of any given state depends not only on the immediate rewards an agent would obtain from following a specific policy, and hence strategies which involve some element of successful future planning may lead to higher state values. 
+    It is an important conceptual point to note that by using the metric of the discounted cumulative reward the value of any given state depends \textit{not} only on the immediate reward an agent would obtain from following a specific policy, and hence strategies which involve some element of successful future planning may lead to higher state values. 
     As such, we see that the value of a state with respect to a given policy reflects accurately the ability of an agent to achieve its long-term goals when following that policy from that state. 
     Similarly, we can define the \textit{action-value function}  (referred to as the $q$-function) for policy $\pi$ via:
 
@@ -207,7 +207,7 @@
         q_{\pi}(s,a) &= \mathbb{E}_{\pi}[G_t|S_t = s, A_t = a]  \\
         & = \mathbb{E}_{\pi} \Big[\sum_{k = 0}^{\infty}\gamma^k R_{t+k+1}\Big| S_t = s, A_t = a \Big]
     \end{align}
-    Clearly, the $q$ function with respect to a given policy is conceptually similar to the value function, except that it provides the value (expected discounted cumulative reward) associated with following a given policy after taking a certain action from a certain state. 
+    Clearly, the $q$-function with respect to a given policy is conceptually similar to the value function, except that it provides the value (expected discounted cumulative reward) associated with following a given policy after taking a certain action from a certain state. 
     Importantly, value functions allow us to place an order over policies, i.e. $\pi > \pi' \iff v_{\pi}(s) > v_{\pi'}(s)\quad \forall s \in \mathcal{S} $. 
     Given such an ordering we can then define an optimal policy $\pi^*$, with respect to which the action-value function will be the unique solution of the following system of equations:
 
@@ -223,7 +223,7 @@
     Note that given the optimal $q$-function it is easy to obtain the optimal strategy; When in a given state $s$ simply choose the action $a = \mathrm{argmax}_{a'}[q_*(s,a')]$.
 
     It is now possible to introduce the idea of iterative $q$-learning as a tool for obtaining optimal $q$-functions via experience gained from interaction with a given environment. 
-    Starting from an arbitrary initial $q$-function, the idea is to use Eqn. \eqref{e:fixed_point} as the basis for an update method, via which the $q$-function is updated while an agent uses this $q$-function (possibly in conjunction with additional exploratory strategies) to interact with the environment. 
+    Starting from an arbitrary initial $q$-function, the idea is to use Eqn. \eqref{e:fixed_point} as the basis for an update method, via which the $q$-function is updated, while an agent uses this $q$-function (possibly in conjunction with additional exploratory strategies) to interact with the environment. 
     The goal is that this $q$ function will eventually converge to $q_*$, which is a stationary point of Eqn. \eqref{e:fixed_point}. 
     Under certain conditions, it can in fact be proven that this will be the case.
 
@@ -241,8 +241,68 @@
     which, by comparison with \eqref{e:fixed_point}, will be 0 only for the optimal policy. Unfortunately, despite the simplicity of the idea, in practice a variety of tricks - such as batched experience replay, separate active and target $q$-networks, double-$q$ learning and dueling networks - are required to achieve stable $q$-learning. We refer to the relevant references, or to the associated code repository, for details.
 
 
-
 \section{Decoding as a Reinforcement Learning Problem}\label{s:decoding_as_rl}
+
+    At this stage we are able to present the primary conceptual contribution of this work, which is a reframing of the decoding problem for idling logical qubits, within the context of a fault tolerant quantum computation, as a sequence of interactions between a decoding agent and a code environment.
+    In particular, as we will see in Section \ref{s:results}, the advantage of this reframing is that it allows for the methods and techniques of reinforcement learning to be applied to this problem, as a tool for obtaining decoding agents for this setting. 
+    In order to present all the required elements, as discussed in Section \ref{s:reinforcement_learning}, we will describe in detail a single episode, as illustrated in Fig. \ref{f:single_episode}.
+
+    \begin{figure*}
+      \centering
+      \includegraphics[width=0.6\textwidth]{figures/decoding_as_rl.pdf}
+      \caption{A typical decoding cycle is illustrated for the simplified faulty measurements scenario in which one imagines each time step consisting of an initial physical error process generating errors on the data qubits, followed by a second measurement error process which corrupts the true syndrome. The decoding algorithm then has access to a sequence of potentially faulty syndromes.}\label{f:single_episode}
+    \end{figure*}
+
+    In particular, as shown in Fig \ref{f:single_episode} (a), the first step ($t=0$) of any episode consists of the following sub-steps, which generate the initial state $S_1$, scalar reward $R_1$ and boolean terminal state (or ``game over") indicator $T_1$;
+    Firstly, the state of the system, which we will refer to as the \textit{hidden state} of the environment, is initialized to some logical state $|\psi_0\rangle \in \mathcal{H_\mathrm{sc}}$, which is the state we are trying to preserve.
+    As this state is in the code space it can be simply represented as an empty list representing a code lattice on which no Pauli flips have been applied to any physical data qubits.
+    Then, a sequence of faulty syndromes is extracted from this state.
+    We will utilize the two-stage error process involving separated physical and measurement errors, as described in Fig. \ref{s:the_decoding_problem}, however in principle a circuit model for syndrome extraction could also be simulated.
+    The errors on physical data qubits which were generated during the syndrome extraction protocol are then added to the hidden state of the environment.
+    Note that at any stage during an episode this hidden state is a list containing all errors and corrections applied to the physical data qubits throughout the course of the episode.
+    We can think of this hidden state list as representing the underlying error-plus-corrections configuration of the underlying code lattice, however at any point the current state of the system $|\psi\rangle$ could be obtained by applying all operations listed in the hidden state of the environment to the initial state $|\psi_0\rangle$.
+    In later steps of the episode this hidden state will be used to determine rewards and terminal states, however the agent will never have direct access to this state.
+    The visible state of the environment $S_{E,1}$ is then constructed from the extracted sequence of faulty syndromes, illustrated by the green slices in Fig. \ref{f:single_episode}, which we refer to as the \textit {syndrome volume}.
+    In addition to the syndrome volume, the total state received by the agent at any time step also contains a list of the actions taken by the agent since the last new syndrome volume was received, which we illustrate in Fig. \ref{f:single_episode} with the yellow slices and refer to as the action history $h$.
+    As a new syndrome volume was just extracted, the action history of the agent is reset - i.e. $h_1$ is some representation of an empty list -  and this reset action history is combined with the syndrome volume and provided to the agent as the total output state of the environment - i.e. $S_1 = (S_{E,1},h_1)$.
+    Furthermore, as the agent has not yet taken any actions we set the reward $R_1 =0$, and the terminal state indicator to false - i.e. $T_1=0$.
+
+    After this initial step, we now need to perform step $t=1$. 
+    In general, as illustrated in Fig. \ref{f:agent_environment}, given the state $S_t$, the agent needs to choose an action $A_t$ to apply to the environment, after which the environment needs to respond with the tuple $(S_{t+1}, R_{t+1}, T_{t+1})$, where $S_{t+1}=(S_{E,{t+1}},h_{t+1})$.
+    In any time step we allow the agent to perform a single qubit Pauli $X$ or $Z$ flip on any one physical data qubit, or to perform an identity action, which is used as a signal to request a new syndrome volume.
+    Within the context of a reinforcement learning algorithm the agent typically chooses this action via an annealed exploratory policy, such as an $\epsilon$-greedy strategy.
+    Depending on the action chosen by the agent, the environment can respond in one of two ways, illustrated in Fig. \ref{f:single_episode} (c, e) and (g) respectively.
+
+    In particular, as shown in Fig. \ref{f:single_episode} (c) and (e), if the agent chooses a non-trivial action that it has not already chosen - i.e. any action besides the identity action - then this step of the episode continues via the following process; 
+    Firstly, given the chosen non-trivial action $A_t$, the first step is to apply this action to the code lattice - i.e. the agents chosen action is added to the hidden state of the environment, which is now a combination of all actions and errors on physical data qubits.
+    The environment now needs to determine the reward $R_{t+1}$ the agent should receive for its action, and whether the agent is "dead" or "alive" - i.e. whether or not the new hidden state of the environment is a terminal state.
+    As was discussed in Section \ref{f:decoding_problem}, within the context of surface code based fault tolerant quantum computation the goal of the decoding process for idling logical qubits should be to suppress errors to the extent that future logical operations (which either involve decoding cycles of their own or do not spread errors) can succeed with high probability.
+    As such, if after application of the agents chosen action the current state of the system $|\psi\rangle$ (obtained by applying all the errors plus actions listed in the hidden state) is equal to the original state $|\psi_0\rangle$ - or equivalently, if all errors have been corrected without implementing a logical operation - we give the agent a reward of $+1$, i.e. $R_{t+1} = +1$.
+    In all other cases we set $R_{t+1} = 0$, giving the agent no reward.
+    Furthermore, in order to act as a proxy for future logical operations we introduce a \textit{referee decoder}.
+    This referee decoder should be a ``single-shot" decoder, which given a single perfect syndrome suggests corrections which always move the current state back into the code space, but may fail by inadvertently performing a logical operation.
+    After the hidden state of the environment is updated to include the agents chosen action, this referee decoder is then given a perfect syndrome extracted from the state $|\psi\rangle$ corresponding to the current hidden state.
+    If the referee decoder is able to correctly decode this perfect syndrome we say that the agent is still alive and we set $T_{t+1} = 0$, and if the agent is not able to correctly decode this perfect syndrome, then we say that the agent is dead and we set $T_{t+1}=1$, which indicates the end of the episode.
+    In order to construct the output state $S_{t+1}$ we first update the action history $h_{t+1}$ by appending $A_t$ to $h_t$.
+    Then, as the agent has not requested a new syndrome volume via the identity action, we do not extract a new syndrome volume, and set $S_{E,{t+1}} = S_{E,t}$.
+    Finally, we concatenate the non-updated syndrome volume with the updated action history to obtain the total output state $S_{t+1} = (S_{E,t+1},h_{t+1}) = (S_{E,t},h_{t+1})$.
+
+    However, if the agent chooses either the identity action or an action it has already chosen (which has the effect of performing the identity on a single physical data qubit when past actions are taken into account), then the environment responds via the following procedure, as illustrated in Fig. \ref{f:single_episode} (g).
+    If the action is not the identity action, but an action that has already been performed, then the first step is to apply the action to the code lattice by appending the action to the hidden state. 
+    In this case, the reward $R_{t+1}$ and terminal state indicator $T_{t+1}$ are determined by the procedure already described above, as in steps in which a non-trivial action was taken.
+    If the chosen action was the identity, then this hidden state update is not necessary, and given that the previous hidden state could not have been a terminal state we set $T_{t+1} = 0$, before determining $R_{t+1}$ via the criterion already discussed, which will necessarily be the same as the reward $R_t$ received from the environment in the previous step. 
+    Now, we interpret the performing of an identity by the agent as a request for a new syndrome, and as such a syndrome extraction procedure is performed.
+    Similarly to the initial step of the episode, the hidden state is then updated to include the errors on physical data qubits introduced via this syndrome extraction.
+    Additionally, the action history $h_{t+1}$ is once again reset to an empty list, while the visible state is $S_{E,t+1}$ updated to reflect the newly extracted syndrome volume.
+    Finally, the total output state $S_{t+1} = (S_{E,t+1},h_{t+1})$ is returned to the agent.
+
+
+
+
+
+
+
+
 \section{Results}\label{s:results}
 \section{Conclusion}\label{s:conclusions}
 

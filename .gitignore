@@ -112,7 +112,7 @@ ENV/
 # these rules might exclude image files for figures etc.
 # *.ps
 # *.eps
-*decoding.pdf
+# decoding.pdf
 
 
 ## Bibliography auxiliary files (bibtex/biblatex/biber):

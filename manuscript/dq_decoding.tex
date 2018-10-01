@@ -1,5 +1,5 @@
-\documentclass[twocolumn,preprintnumbers,amsmath,amssymb,notitlepage,nofootinbib,longbibliography,superscriptaddress,aps,pra,10pt]{revtex4-1}
-%\documentclass[preprint,showpacs,preprintnumbers,amsmath,amssymb]{revtex4}
+% \documentclass[twocolumn,preprintnumbers,amsmath,amssymb,notitlepage,nofootinbib,longbibliography,superscriptaddress,aps,pra,10pt]{revtex4-1}
+\documentclass[a4paper,twocolumn,superscriptaddress,amsmath,amssymb,longbibliography,10pt]{quantumarticle}
 
 % Packages and custom commands
 	\usepackage{natbib}
@@ -7,24 +7,25 @@
 	\usepackage{dcolumn}
 	\usepackage{dsfont}
 	\usepackage{bm}
+	\usepackage{amsmath}
 	%\usepackage{float}
 
 	\usepackage[usenames, dvipsnames]{color}
 	\usepackage{url}
 	\usepackage[colorlinks=true,breaklinks=true,allcolors=blue]{hyperref}
+	% \usepackage{hyperref}
 	\usepackage{microtype}
-	\DeclareMathOperator{\dist}{\text{dist}}
 
 	\newtheorem{theorem}{Theorem}
 	\newtheorem{lemma}{Lemma}
 
-	\newcommand{\ryan}[1]{\textcolor{Cyan}{RS: #1}}
+	\newcommand{\ryan}[1]{\textcolor{cyan}{RS: #1}}
 
-	\newcommand{\mk}[1]{\textcolor{Cyan}{MK: #1}}
+	\newcommand{\mk}[1]{\textcolor{cyan}{MK: #1}}
 
-	\newcommand{\en}[1]{\textcolor{Cyan}{EN: #1}}
+	\newcommand{\en}[1]{\textcolor{cyan}{EN: #1}}
 
-	\newcommand{\je}[1]{\textcolor{Cyan}{JE: #1}}
+	\newcommand{\je}[1]{\textcolor{cyan}{JE: #1}}
 
 \begin{document}
 
@@ -474,6 +475,8 @@
 
 \section{Agent Hyperparameters and Learning Curves}\label{A:parameters}
 
-\bibliography{dq}
+% Bibliography
+	\bibliographystyle{apsrev4-1mod}
+	\bibliography{dq}
 
 \end{document}

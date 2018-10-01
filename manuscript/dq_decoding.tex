@@ -1,58 +1,57 @@
 \documentclass[twocolumn,preprintnumbers,amsmath,amssymb,notitlepage,nofootinbib,longbibliography,superscriptaddress,aps,pra,10pt]{revtex4-1}
 %\documentclass[preprint,showpacs,preprintnumbers,amsmath,amssymb]{revtex4}
 
-\usepackage{natbib}
-\usepackage{graphicx}
-\usepackage{dcolumn}
-\usepackage{dsfont}
-\usepackage{bm}
-%\usepackage{float}
+% Packages and custom commands
+	\usepackage{natbib}
+	\usepackage{graphicx}
+	\usepackage{dcolumn}
+	\usepackage{dsfont}
+	\usepackage{bm}
+	%\usepackage{float}
 
-\usepackage[usenames, dvipsnames]{color}
-\usepackage{url}
-\usepackage[colorlinks=true,breaklinks=true,allcolors=blue]{hyperref}
-\usepackage{microtype}
-\DeclareMathOperator{\dist}{\text{dist}}
+	\usepackage[usenames, dvipsnames]{color}
+	\usepackage{url}
+	\usepackage[colorlinks=true,breaklinks=true,allcolors=blue]{hyperref}
+	\usepackage{microtype}
+	\DeclareMathOperator{\dist}{\text{dist}}
 
-\newtheorem{theorem}{Theorem}
-\newtheorem{lemma}{Lemma}
+	\newtheorem{theorem}{Theorem}
+	\newtheorem{lemma}{Lemma}
 
-\newcommand{\ryan}[1]{\textcolor{Cyan}{RS: #1}}
+	\newcommand{\ryan}[1]{\textcolor{Cyan}{RS: #1}}
 
-\newcommand{\mk}[1]{\textcolor{Cyan}{MK: #1}}
+	\newcommand{\mk}[1]{\textcolor{Cyan}{MK: #1}}
 
-\newcommand{\en}[1]{\textcolor{Cyan}{EN: #1}}
+	\newcommand{\en}[1]{\textcolor{Cyan}{EN: #1}}
 
-\newcommand{\je}[1]{\textcolor{Cyan}{JE: #1}}
-
-
+	\newcommand{\je}[1]{\textcolor{Cyan}{JE: #1}}
 
 \begin{document}
 
-\title{DeepQ Decoding for Fault Tolerant Quantum Computation}
+% Title page
+	\title{DeepQ Decoding for Fault Tolerant Quantum Computation}
 
-\author{Ryan Sweke}
-\affiliation{\mbox{Dahlem Center for Complex Quantum Systems, Freie Universit\"{a}t Berlin, 14195 Berlin, Germany}}
-\author{Markus S. Kesselring}
-\affiliation{\mbox{Dahlem Center for Complex Quantum Systems, Freie Universit\"{a}t Berlin, 14195 Berlin, Germany}}
-\author{Evert P.L. van Nieuwenburg}
-\affiliation{\mbox{Institute for Quantum Information and Matter, Caltech, Pasadena, CA 91125, USA}}
-\author{Jens Eisert}
-\affiliation{\mbox{Dahlem Center for Complex Quantum Systems, Freie Universit\"{a}t Berlin, 14195 Berlin, Germany}}
-
-
-\date{\today}
+	\author{Ryan Sweke}
+	\affiliation{\mbox{Dahlem Center for Complex Quantum Systems, Freie Universit\"{a}t Berlin, 14195 Berlin, Germany}}
+	\author{Markus S. Kesselring}
+	\affiliation{\mbox{Dahlem Center for Complex Quantum Systems, Freie Universit\"{a}t Berlin, 14195 Berlin, Germany}}
+	\author{Evert P.L. van Nieuwenburg}
+	\affiliation{\mbox{Institute for Quantum Information and Matter, Caltech, Pasadena, CA 91125, USA}}
+	\author{Jens Eisert}
+	\affiliation{\mbox{Dahlem Center for Complex Quantum Systems, Freie Universit\"{a}t Berlin, 14195 Berlin, Germany}}
 
 
-\begin{abstract}
-	Topological error correcting codes, and particularly the surface code, currently provide the most feasible roadmap towards large-scale fault tolerant quantum computation.
-	As such, obtaining fast and flexible decoding algorithms for these codes, within the experimentally relevant context of faulty syndrome measurements, is of critical importance.
-	In this work we show that the problem of decoding such codes, in the full fault tolerant setting, can be naturally reformulated as a process of repeated interactions between a decoding agent and a code environment, to which the machinery of reinforcement learning can be applied to obtain decoding agents.
-	As a demonstration, by using deepQ learning, we obtain fast decoding agents for the surface code, for a variety of noise-models, within the fully fault tolerant setting.
-\end{abstract}
+	\date{\today}
+
+% Abstract
+	\begin{abstract}
+		Topological error correcting codes, and particularly the surface code, currently provide the most feasible roadmap towards large-scale fault tolerant quantum computation.
+		As such, obtaining fast and flexible decoding algorithms for these codes, within the experimentally relevant context of faulty syndrome measurements, is of critical importance.
+		In this work we show that the problem of decoding such codes, in the full fault tolerant setting, can be naturally reformulated as a process of repeated interactions between a decoding agent and a code environment, to which the machinery of reinforcement learning can be applied to obtain decoding agents.
+		As a demonstration, by using deepQ learning, we obtain fast decoding agents for the surface code, for a variety of noise-models, within the fully fault tolerant setting.
+	\end{abstract}
 
 \maketitle
-
 
 \section{Introduction}\label{s:introduction}
 
@@ -151,7 +150,6 @@
 		\label{f:surface_code_examples}
 	\end{figure}
 
-
 \section{The Decoding Problem}\label{s:the_decoding_problem}
 
 	Given the foundations from the previous section, we are able to succinctly state a simple preliminary version of the decoding problem: \newline
@@ -197,7 +195,6 @@
 	As such the goal of decoding idling logical qubits within a quantum computation should be to suppress errors to the extent that any of the above procedures can succeed with high probability.
 	Therefore, we can relax the requirement that the decoding process should return the post-error state to the initial state in the code space.
 	In Section~\ref{s:decoding_as_rl} we discuss a proxy criterion for decoding success within this framework.
-
 
 \section{Reinforcement Learning and q-Functions}\label{s:reinforcement_learning}
 
@@ -269,7 +266,6 @@
 	which, by comparison with Eq.~\eqref{e:fixed_point}, will be 0 only for the optimal policy.
 	Unfortunately, despite the simplicity of the idea, in practice a variety of tricks - such as batched experience replay, separate active and target $q$-networks, double-$q$ learning and dueling networks - are required to achieve stable $q$-learning.
 	We refer to the relevant references, or to the associated code repository, for details.
-
 
 \section{Decoding as a Reinforcement Learning Problem}\label{s:decoding_as_rl}
 
@@ -417,15 +413,14 @@
 	Finally, the deepQ network we utilize is completed by stacking a feed forward neural network on top of multiple convolutional layers.
 	In particular, the final layer of this network has $|\mathcal{A}|$ activations, each of which encodes $q(S_t,a)$ for an action $a$.
 
-
 \section{Results}\label{s:results}
 
-	As a proof-of-principal, we utilized deepQ learning within the framework presented in Section~\ref{s:decoding_as_rl}, to obtain deepQ decoding agents for both bitflip and depolarizing noise, for a $d=5$ surface code lattice.
+	As a proof-of-principal, we utilized deepQ learning within the framework presented in Section~\ref{s:decoding_as_rl}, to obtain deepQ decoding agents for both bit-flip and depolarizing noise, for a $d=5$ surface code lattice.
 	All the code utilized to obtain these agents is supplied in the corresponding \textit{DeepQ-Decoding} code repository, and as such we will provide only an overview of the details here.
 	In particular, for a single fixed set of hyper-parameters, we used the original deepQ algorithm with annealed $\epsilon$-greedy exploration, implemented via the keras-RL library and incorporating doubleQ updates and dueling networks.
 	In addition we used a custom training procedure, described in Appendix~\ref{A:training}, for sequentially iterating through increasing error rates, while simultaneously performing a hyper-parameter grid search at each error-rate iteration.
 	For both error models we utilized a convolutional deepQ network, as illustrated in Fig.~\ref{f:agent}, consisting of three convolutional layers, followed by a single feed-forward layer before the final output layer.
-	Specifically, if we describe a single convolutional layer with a three-tuple $[n,w,s]$, where $n$ is the number of filters, $w$ is the filter width and $s$ is the stride, and a single feed forward layer via a two-tuple $[n,d]$, where $n$ is the number of neurons and $d$ is the output dropout rate, then from input to output our deepQ networks had the structure,
+	Specifically, if we describe a single convolutional layer with a three-tuple $[n,w,s]$, where $n$ is the number of filters, $w$ is the filter width and $s$ is the stride, and a single feed forward layer via a two-tuple $[n,d]$, where $n$ is the number of neurons and $d$ is the output drop-out rate, then from input to output our deepQ networks had the structure,
 
 	\begin{figure}
 		\centering
@@ -437,17 +432,17 @@
 	\end{figure}
 
 	\begin{equation}
-		[[64,3,2],[32,2,1],[32,2,1],[512,0.2], [|\mathcal{A}|, 0]].
+		[[64,3,2],~[32,2,1],~[32,2,1],~[512,0.2],~[|\mathcal{A}|, 0]].
 	\end{equation}
 	All other additional hyper-parameters used to obtain each decoding agent, along with histories of each training procedure, are provided in Appendix~\ref{A:parameters}.
 
-	We then considered both bitflip and depolarizing noise.
+	We then considered both bit-flip and depolarizing noise.
 	For both error models we considered the measurement of a single syndrome to consist of two separate error channels, as illustrated in Fig.~\ref{f:decoding_problem}.
-	For bitflip noise, in the first error channel - the physical error channel - a Pauli $X$ flip was applied to each physical data qubit with probability $p_{\mathrm{phys}}$.
+	For bit-flip noise, in the first error channel - the physical error channel - a Pauli $X$ flip was applied to each physical data qubit with probability $p_{\mathrm{phys}}$.
 	For depolarising noise, the physical error channel acted by applying to each physical data qubit, with probability $p_{\mathrm{phys}}$, either a Pauli $X$, $Y$ or $Z$ flip, with equal probability.
 	For both noise models, after the physical error channel, the true syndrome was calculated, after which the second measurement error channel was applied, in which the value of each stabilizer measurement was flipped with probability $p_{\mathrm{meas}}$.
 	For all simulations we set $p \equiv p_{\mathrm{phys}} = p_{\mathrm{meas}}$.
-	Also, note that for bitflip noise, as only $X$ corrections were necessary, we had $|\mathcal{A}| = d^2 + 1$ - i.e. the agent could perform either the identity or a single qubit $X$ flip on any individual physical data qubit.
+	Also, note that for bit-flip noise, as only $X$ corrections were necessary, we had $|\mathcal{A}| = d^2 + 1$ - i.e. the agent could perform either the identity or a single qubit $X$ flip on any individual physical data qubit.
 	For depolarising noise, we restricted the agent to only $X$ and $Z$ flips (as $Y$ errors can be corrected via both an $X$ flip and a $Z$ flip), such that $|\mathcal{A}| = 2d^2 + 1$.
 
 	To evaluate the performance of our trained decoders we used the procedure described in Fig.~\ref{agent_decoding}, where the agent selected actions via the final $q$-function in a purely greedy manner, and with identities or repeated actions triggering new syndrome volumes.
@@ -455,26 +450,28 @@
 	The qubit survival time of a single episode was then reported as the number of individual syndromes seen by the agent (i.e. the number of times the two-fold error channel was applied) before a terminal state was reached.
 	Using the optimally trained decoder for each error rate, the results in Fig.~\ref{f:results} were then obtained by averaging over $10^3$ decoding episodes (each of which contained at least 100 decoding cycles on average).
 	As can be seen in Fig.~\ref{f:results}, the average lifetime of the logical qubit was then compared with the average lifetime of a single faulty qubit.
-	For bitflip (depolarising) noise we find that for approximately $p < 7\times 10^{-3}$  $(p < 5\times 10^{-3})$ the decoded logical qubit outlasts a single faulty qubit on average.
+	For bit-flip (depolarising) noise we find that for approximately $p < 7\times 10^{-3}$  $(p < 5\times 10^{-3})$ the decoded logical qubit outlasts a single faulty qubit on average.
 
-	\ryan{TO DO:} There needs to be a more informed rigorous discussion of the "threshold" - i.e why we dont bother to calculate it precisely, how it compares to known results, and why we believe the results can be made significantly better.
+	\ryan{TO DO:} There needs to be a more informed rigorous discussion of the "threshold" - i.e why we don't bother to calculate it precisely, how it compares to known results, and why we believe the results can be made significantly better.
 	i.e. we need to really motivate that this is only a proof of principal, and that we believe it can be scaled in many directions.
 	There also needs to an informed discussion of why we think these agents are ``fast'' - i.e. on dedicated hardware (asics or TPU's) how fast can you actually implement such a small neural network?
 
 \section{Conclusion}\label{s:conclusions}
 
-
-\begin{acknowledgments}
-	The authors gratefully acknowledge helpful and insightful discussions with Daniel Litinski, Nicolas Delfosse, Paul Baireuther, and Hendrik Poulsen Nautrup.
-	Additionally, the authors would like to thank J\"{o}rg Behrmann for incredible technical support, without which this work would not have been possible.
-	RS\ acknowledges the financial support of the Alexander von Humboldt foundation.
-	MSK\ is supported by the DFG (CRC183, project B02).
-	EvN\ is supported by ...
-	JE\ is supported by DFG (CRC 183, EI 519/14-1, and EI 519/7-1), the ERC (TAQ), the Templeton Foundation, and the BMBF (Q.com).
-\end{acknowledgments}
+% Acknowledgments
+	\begin{acknowledgments}
+		The authors gratefully acknowledge helpful and insightful discussions with Daniel Litinski, Nicolas Delfosse, Paul Baireuther, and Hendrik Poulsen Nautrup.
+		Additionally, the authors would like to thank J\"{o}rg Behrmann for incredible technical support, without which this work would not have been possible.
+		RS\ acknowledges the financial support of the Alexander von Humboldt foundation.
+		MSK\ is supported by the DFG (CRC183, project B02).
+		EvN\ is supported by ...
+		JE\ is supported by DFG (CRC 183, EI 519/14-1, and EI 519/7-1), the ERC (TAQ), the Templeton Foundation, and the BMBF (Q.com).
+	\end{acknowledgments}
 
 \appendix
+
 \section{Distributed Iterative Training with Simultaneous Hyper-Parameter Optimization}\label{A:training}
+
 \section{Agent Hyperparameters and Learning Curves}\label{A:parameters}
 
 \bibliography{dq}

@@ -7,6 +7,7 @@
 	\usepackage{dcolumn}
 	\usepackage{dsfont}
 	\usepackage{bm}
+	\usepackage{times}
 	%\usepackage{float}
 
 
@@ -51,7 +52,7 @@
 		As such, obtaining fast and flexible decoding algorithms for these codes, within the experimentally relevant context 
 		of faulty syndrome measurements, is of critical importance.
 		In this work we show that the problem of decoding such codes, in the full fault tolerant setting, can be naturally reformulated as a process of repeated interactions between a decoding agent and a code environment, to which the machinery of reinforcement learning can be applied to obtain decoding agents.
-		As a demonstration, by using deepQ learning, we obtain fast decoding agents for the surface code, for a variety of noise-models, within the fully fault tolerant setting.
+		As a demonstration, by using deepQ learning, we obtain fast decoding agents for the surface code, for a variety of noise-models, within the fully fault tolerant setting. We argue that this problem is specifically suitable to be tackled with notions of reinforcement learning.
 	\end{abstract}
 
 \maketitle
@@ -65,7 +66,7 @@
 
 	Within any such code based strategy for fault tolerant quantum computation, decoding algorithms play a critical role.
 	At a high level, throughout the course of a computation these algorithms take as input the outcome of diagnostic syndrome measurements and should provide as output suggested corrections for any errors which might have occurred, which can then be tracked through the computation and later used to apply corrections to any obtained results.
-	It is particularly important to note that in any physically realistic setting the required syndrome measurements are themselves obtained via small quantum circuits, and are therefore also generically faulty.
+	It is particularly important to note that in any physically realistic setting the required syndrome measurements are themselves obtained via small quantum circuits, and are therefore  generically faulty themselves.
 	As such, while the setting of perfect syndrome measurements provides a good test-bed for the development of decoding algorithms, any decoding algorithm which aims to be experimentally feasible should also be capable of dealing with such faulty syndrome measurements.
 	Additionally, such algorithms should also be capable of dealing with experimentally relevant noise models, as well as be fast enough to not present a bottleneck to the execution of computations, even as the size of the code scales to larger code distances.
 
@@ -73,12 +74,13 @@
 	Perhaps most prominent are algorithms based on minimum-weight perfect matching subroutines~\cite{Fowler13}, however alternative approaches based on techniques such as the renormalization group~\cite{Duclos2010} and locally operating cellular automata~\cite{Herold15} have also been put forward.
 	Recently, techniques from classical machine learning have begun to find application in diverse areas of quantum physics - such as in the efficient representation of many-body quantum states, the identification of phase transitions, and the autonomous design of novel experimental set-ups - and various neural-network based decoders have also been proposed~\cite{Torlai10, Varsamopoulos17, Krastanov17, Breuckmann18, Baireuther18a, Baireuther18b, Ni18}.
 	However, despite the diversity of decoding algorithms now available, there is not as of yet an algorithm which clearly satisfies all the required criteria, or a clear consensus as to which technique would be the most experimentally feasible in any given experimental context.
-	\mk{
+	\mk{[
 		I think this is a bit to harsh towards MWPM/blossom, which I would say still is the best candidate and probably will one day be used for really large codes.
 		I think we should rather say: for near term realisations of quantum error correction codes, until MWPM gets faster, a flexible and fast decoder is needed.
 		We put forward RL decoding as one candidate.
-		(This also does not put us in too tight a spot on delivering ideas how to tackle larger code distances.)
+		(This also does not put us in too tight a spot on delivering ideas how to tackle larger code distances.)]
 	}
+	\je{[Yes, this is too harsh, better we state the advantages in a more neutral fashion.]}
 	In particular, while the so-far proposed neural network decoders promise extremely fast decoding times, flexibility with respect to the underlying noise model and the potential to scale to large code distances, all such decoders are so far restricted either to the setting of perfect syndrome measurements, or to the setting in which one is trying to store a logical qubit as long as possible, without the requirement of performing a subsequent logical gate.
 	As such, while this approach seems promising, there remains room for improvement and generalization.
 

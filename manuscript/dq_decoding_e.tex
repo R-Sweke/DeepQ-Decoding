@@ -504,12 +504,14 @@
 
 \section{A deepQ Decoding Agent}\label{s:dq_agent}
 
-	As discussed in the previous section, many different reinforcement learning algorithms could now be applied within the framework presented here.
-	However, in order to provide a concrete example and proof-of-principle, we will specialize to deepQ learning, which has been previously utilized to obtain agents capable of human-level control in domains such as Atari.
-	As mentioned briefly in Section~\ref{s:reinforcement_learning}, a variety of now standard tricks are required to get deepQ learning to work in practice, and we will not present these details here, referring the reader to the relevant references or associated code repository.
-	However, there are various details concerning the construction of the deepQ agent which may be useful for applying alternative deep reinforcement learning algorithms within this framework, and as such we will present these details in this section.
+	As discussed previously, many different reinforcement learning agents can now be trained to interact with the environment introduced in the last section.
+	However, in order to provide a concrete example we will consider to deepQ learning, which has been previously utilized to obtain agents capable of human-level control in domains such as Atari video games.
+	As mentioned briefly in Section~\ref{s:reinforcement_learning}, a variety of standard tricks are required to get deepQ learning to work in practice, and we will not present these details here,
+	instead referring the reader to the relevant references or associated code repository~\cite{}.
+	There are various details concerning the construction of the deepQ agent which may be useful also for other types of agents, and we highlight them below.
 
-	In particular, in Section~\ref{s:decoding_as_rl} we described how at the beginning of any time step $t$ the agent is supplied with the state $S_{t}=(S_{E,{t}},h_{t})$, where $S_{E,{t}}$ needs to be constructed from a faulty syndrome volume, and $h_{t}$ is a representation of the agents action history.
+	In particular, in Section~\ref{s:decoding_as_rl} we described how at the beginning of any time step $t$ the agent is supplied with the state $S_{t}=(S_{E,{t}},h_{t})$,
+	where $S_{E,{t}}$ needs to be constructed from a faulty syndrome volume, and $h_{t}$ is a representation of the agent's action history.
 	In deepQ learning, and in many other deep reinforcement learning algorithms, this state $S_t$ needs to be provided as the input to a deep neural network.
 	For example, in the case of deepQ learning, the state $S_t$ is the input to the deepQ network parametrizing the $q$-function from which the agent is partially deriving its policy.
 	As such, utilizing an appropriate encoding of $S_t$, which allows for the use of appropriate neural networks, is important.
@@ -525,7 +527,7 @@
 
 \section{Results}\label{s:results}
 
-	As a proof-of-principle, we utilized deepQ learning within the framework presented in Section~\ref{s:decoding_as_rl}, to obtain deepQ decoding agents for both bit-flip and depolarizing noise, for a $d=5$ surface code lattice.
+	As a demonstration, we utilized deepQ learning within the framework presented in Section~\ref{s:decoding_as_rl}, to obtain deepQ decoding agents for both bit-flip and depolarizing noise, for a $d=5$ surface code lattice.
 	All the code utilized to obtain these agents is supplied in the corresponding \textit{DeepQ-Decoding} code repository, and as such we will provide only an overview of the details here.
 	In particular, for a single fixed set of hyper-parameters, we used the original deepQ algorithm with annealed $\epsilon$-greedy exploration, implemented via the keras-RL library and incorporating doubleQ updates and dueling networks.
 	In addition we used a custom training procedure, described in Appendix~\ref{A:training}, for sequentially iterating through increasing error rates, while simultaneously performing a hyper-parameter grid search at each error-rate iteration.

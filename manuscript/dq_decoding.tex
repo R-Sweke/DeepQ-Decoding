@@ -126,7 +126,7 @@
 		\includegraphics[width=0.8\linewidth]{figures/surface_code.pdf}
 		\caption{
 			An overview of the $5 \times 5$ surface code.
-			(a) We consider square lattices, with a data qubit on each vertex of the lattice.
+			(a) We consider square lattices, with a physical data qubit on each vertex.
 			The coloured plaquettes indicate stabilizer operators as defined in Eq.~\eqref{e:stabilizer_definition}.
 			(b) Logical $X_L$ and $Z_L$ operators for the surface code are given by continuous strings of single qubit $X$ or $Z$ operators connecting the top and bottom or left and right boundaries of the code respectively.
 		}
@@ -155,7 +155,7 @@
 
 \section{The Decoding Problem}\label{s:the_decoding_problem}
 
-	Given the foundations from the previous section, we are able to succinctly state a simple preliminary version of the decoding problem: \newline
+	With the foundations from the previous section, we can now formulate a simple preliminary version of the decoding problem: \newline
 
 	\noindent\textit{Assume that at} $t=0$  \textit{one is given a state} $|\psi\rangle = \alpha |0_L\rangle + \beta |1_L\rangle \in \mathcal{H}_{\mathrm{sc}}.$ \textit{At some time }$t_1>0$ \textit{a syndrome measurement is performed which indicates that one or more stabilizers are violated - i.e. some errors have occurred on physical data qubits. From the given syndrome, determine a set of corrections which should be applied to the code lattice such that the subsequent state} $|\psi'\rangle$ \textit{is equal to the initial state} $|\psi\rangle.$ \newline
 
@@ -171,30 +171,36 @@
 
 	\noindent Before proceeding to discuss more subtle and technical versions of the decoding problem, let's examine why even the above problem is indeed potentially difficult.
 	The most important observation is that the map from error configurations to syndromes is many-to-one, i.e. many different sets of errors can lead to the same syndrome.
-	As an example, consider the error configurations illustrated in lattices (b), (c) and (d) of Fig.~\ref{f:surface_code_examples}, all of which lead to the same syndrome.
-	If the probability of an error on a single physical data qubit is low, given such a syndrome one might reasonably assume that the error in lattice (c) occurred, as one error on a single qubit is a more likely event than errors on multiple qubits.
+	As an example, consider the error configurations illustrated in Fig.~\ref{f:surface_code_examples}~(b-d), all of which lead to the same syndrome.
+	If the probability of an error on a single physical data qubit is low, given such a syndrome one might reasonably assume that the error shown in (c) occurred, as one error on a single qubit is a more likely event than errors on multiple qubits.
 	Given this reasoning, one might then suggest to correct by applying an $X$ flip on the physical data qubit in the third row and fourth column.
-	If indeed the error in lattice (c) occurred then this would be the correct operation.
-	However, if the error in lattice (d) occurred, then the combination of the original error with the correction would implement a stabilizer.
-	As the original state was a simultaneous $+1$ eigenstate of all the stabilizers, stabilizer operators act trivially on logical states, and hence the proposed correction preserves the initial logical state.
-	Finally, if the error in lattice (b) occurred, then the combination of the original error with the correction would implement the logical $X_L$ gate.
-	As a result, even though the post-correction state is back in the code space, it will be in a different state to the original state and the information we were trying to preserve would have been corrupted.
-	From this simple example one can see that most often solving the decoding problem as stated above involves deciding, given an inherently ambiguous syndrome and (possibly imperfect) knowledge of the underlying error model, which error configuration was most likely to have occurred.
+	If indeed the error shown in (c) occurred, the post-correction state would be error-free, thus preserving the initial state.
+	However, if the error pattern shown in (d) occurred, this set of errors combined with the applied $X$ flip would implement a stabilizer.
+	Since the original state was a simultaneous $+1$ eigenstate of all the stabilizers, and stabilizers act trivially on logical states, the proposed correction indeed preserves the initial logical state.
+	Finally, if the error in (b) occurred, then the combination of the original error with the correction would implement the logical $X_L$ operator.
+	As a result, even though the post-correction state is back in the code space, it will be in a different logical state.
+	Thus, the information we were trying to preserve would have been corrupted.
+	From this simple example one can see that most often solving the decoding problem as stated above involves deciding, given an inherently ambiguous syndrome and (possibly imperfect) knowledge of the underlying error model, which error configuration most likely occurred.
 
-	In addition to the inherent difficulty resulting from syndrome ambiguity, in experimental settings the process of extracting the syndrome is also subject to noise, and as such the syndrome one receives may also contain errors.
-	In practice, each stabilizer is associated with a physical ancilla qubit, and the syndrome value for that particular stabilizer is obtained by first executing a small quantum circuit which entangles the ancilla with each of the physical data qubits on which the corresponding stabilizer is supported, before extracting the syndrome value via a measurement of the ancilla qubit.
-	In order to fully account for errors during the process of syndrome extraction one should therefore model this entire circuit, in which errors can occur on both the data qubits and ancilla qubits at each time step, and importantly, errors on the ancilla qubits can propagate onto the data qubits via the required entangling gates.
-	However, the essential aspect of the additional difficulty from faulty syndrome measurements can be phenomenologically modelled by imagining each time step as consisting of two distinct error processes, as illustrated in Fig.~\ref{f:decoding_problem}.
+	In addition to the inherent difficulty resulting from syndrome ambiguity, in experimental settings the process of extracting the syndrome is also subject to noise, and hence the syndrome itself may be faulty.
+	In practice, each stabilizer is associated with a physical ancilla qubit.
+	The syndrome value for that particular stabilizer is obtained by first executing a small quantum circuit which entangles the ancilla with each of the physical data qubits on which the corresponding stabilizer is supported.
+	The syndrome value is then extracted via a measurement of the ancilla qubit.
+	In order to fully account for errors during the process of syndrome extraction one should therefore model this entire circuit, in which errors can occur on both the data qubits and ancilla qubits at each time step.
+	Moreover, errors on the ancilla qubits can propagate onto the data qubits via the required entangling gates.
+
+	The essential aspect of the additional difficulty from faulty syndrome measurements can be phenomenologically modelled by imagining each time step as consisting of two distinct error processes, as illustrated in Fig.~\ref{f:decoding_problem}.
 	In the first error process, an error occurs on each data qubit with some probability.
 	One then imagines extracting the perfect syndrome before a second error process occurs, in which with a given probability an error occurs on each stabilizer measurement outcome.
-	As single syndromes are no longer reliable, decoding within the setting of faulty syndromes typically requires providing the decoding algorithm with multiple sequential syndromes.
+	In this scenario, single syndrome measurements are hence no longer reliable.
+	Decoding in the fault tolerant setting therefore typically requires providing a set of sequential syndrome measurements.
 
 	Finally, in the context of surface code based fault tolerant quantum computing, all logical gates are implemented either via protocols which also involve an inherent decoding procedure or do not spread errors.
 	To be specific, it is sufficient for universal quantum computing to be able to implement both Clifford and $T$ gates.
 	In contemporary proposals for surface code based quantum computing protocols are known for implementing Clifford gates either transversally, via code deformation or via lattice surgery.
 	While transversal gates do not spread errors, code deformation and lattice surgery require decoding cycles.
 	Non-Clifford gates, such as the $T$ gate, can be performed fault tolerantly via gate teleportation using magic states.
-	High quality magic states can be obtained via magic state distillation, which requires only Clifford gates and initially faulty magic states.
+	High quality magic states can be obtained via magic state distillation, which requires only Clifford gates and faulty magic states.
 	As such the goal of decoding idling logical qubits within a quantum computation should be to suppress errors to the extent that any of the above procedures can succeed with high probability.
 	Therefore, we can relax the requirement that the decoding process should return the post-error state to the initial state in the code space.
 	In Section~\ref{s:decoding_as_rl} we discuss a proxy criterion for decoding success within this framework.

@@ -307,11 +307,11 @@
 	As a new syndrome volume was just extracted, the action history of the agent is reset - i.e. $h_1$ is some representation of an empty list -  and this reset action history is combined with the syndrome volume and provided to the agent as the total output state of the environment - i.e. $S_1 = (S_{E,1},h_1)$.
 	Furthermore, as the agent has not yet taken any actions we set the reward $R_1 =0$, and the terminal state indicator to false - i.e. $T_1=0$.
 
-    After this initial step, we now need to perform step $t=1$.
-    In general, as illustrated in Fig.~\ref{f:agent_environment}, given the state $S_t$, the agent needs to choose an action $A_t$ to apply to the environment, after which the environment needs to respond with the tuple $(S_{t+1}, R_{t+1}, T_{t+1})$, where $S_{t+1}=(S_{E,{t+1}},h_{t+1})$.
-    In any time step we allow the agent to perform a single qubit Pauli $X$ or $Z$ flip on any one physical data qubit, or to perform an identity action, which is used as a signal to request a new syndrome volume.
-    Within the context of a reinforcement learning algorithm the agent typically chooses this action via an annealed exploratory policy, such as an $\epsilon$-greedy strategy.
-    Depending on the action chosen by the agent, the environment can respond in one of two ways, illustrated in Fig.~\ref{f:single_episode} (c) and (e) respectively.
+	After this initial step, we now need to perform step $t=1$.
+	In general, as illustrated in Fig.~\ref{f:agent_environment}, given the state $S_t$, the agent needs to choose an action $A_t$ to apply to the environment, after which the environment needs to respond with the tuple $(S_{t+1}, R_{t+1}, T_{t+1})$, where $S_{t+1}=(S_{E,{t+1}},h_{t+1})$.
+	In any time step we allow the agent to perform a single qubit Pauli $X$ or $Z$ flip on any one physical data qubit, or to perform an identity action, which is used as a signal to request a new syndrome volume.
+	Within the context of a reinforcement learning algorithm the agent typically chooses this action via an annealed exploratory policy, such as an $\epsilon$-greedy strategy.
+	Depending on the action chosen by the agent, the environment can respond in one of two ways, illustrated in Fig.~\ref{f:single_episode} (c) and (e) respectively.
 
 	\begin{figure*}
 		\centering

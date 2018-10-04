@@ -1,5 +1,5 @@
-% \documentclass[twocolumn,preprintnumbers,amsmath,amssymb,notitlepage,nofootinbib,longbibliography,superscriptaddress,aps,pra,10pt]{revtex4-1}
-\documentclass[a4paper,twocolumn,superscriptaddress,amsmath,amssymb,longbibliography,10pt]{quantumarticle}
+\documentclass[twocolumn,preprintnumbers,amsmath,amssymb,notitlepage,nofootinbib,longbibliography,superscriptaddress,aps,pra,10pt]{revtex4-1}
+% \documentclass[a4paper,twocolumn,superscriptaddress,amsmath,amssymb,longbibliography,10pt]{quantumarticle}
 
 % Packages and custom commands
 	\usepackage{natbib}
@@ -59,51 +59,49 @@
 
 \section{Introduction}\label{s:introduction}
 
-	In order to implement large scale quantum algorithms it is necessary to be able to store and manipulate quantum information in a manner that is robust with respect to the unavoidable errors introduced through the interaction of physical qubits with a noisy environment.
-	A typical strategy for achieving such robustness is to encode a single logical qubit into the state of many physical qubits, via a quantum error correcting code, from which it may be possible to actively diagnose and correct errors that might occur~\cite{Terhal15,Campbell17}.
-	While many quantum error correcting codes exist, topological quantum codes~\cite{Kitaev03, Dennis02, Preskill17lectures, Nayak08, Pachos12, Terhal15, Brown16, Campbell17} in which only local operations are required to diagnose and correct errors, are of particular interest as a result of their experimental feasibility~\cite{Reed12, Barends14, Nigg14, Corcoles15, Albrecht16, Takita16, Linke17}.
-	Recently the surface code has emerged as an especially promising code for large scale fault tolerant quantum computation, due to the combination of its comparatively low overhead and locality requirements, coupled with the availability of convenient strategies for the implementation of all required logical gates.
+	In order to implement large scale quantum algorithms it is necessary to be able to store and manipulate quantum information in a manner that is robust to the unavoidable errors introduced through interaction of the physical qubits with a noisy environment.
+	A useful strategy for achieving such robustness is to encode a single logical qubit into the state of many physical qubits, via a quantum error correcting code, from which it may be possible to actively diagnose and correct errors that may occur~\cite{Terhal15,Campbell17}.
+	While many quantum error correcting codes exist, topological quantum codes~\cite{Kitaev03, Dennis02, Preskill17lectures, Nayak08, Pachos12, Terhal15, Brown16, Campbell17}, in which only local operations are required to diagnose and correct errors, are of particular interest as a result of their experimental feasibility~\cite{Reed12, Barends14, Nigg14, Corcoles15, Albrecht16, Takita16, Linke17}.
+	Recently the surface code has emerged as an especially promising candidate for large-scale fault-tolerant quantum computation, due to the combination of its comparatively low overhead and locality requirements, coupled with the availability of convenient strategies for the implementation of all required logical gates.
 
-	Within any such code based strategy for fault tolerant quantum computation, decoding algorithms play a critical role.
-	At a high level, throughout the course of a computation these algorithms take as input the outcome of diagnostic syndrome measurements and should provide as output suggested corrections for any errors which might have occurred, which can then be tracked through the computation and later used to apply corrections to any obtained results.
-	It is particularly important to note that in any physically realistic setting the required syndrome measurements are themselves obtained via small quantum circuits, and are therefore also generically faulty.
-	As such, while the setting of perfect syndrome measurements provides a good test-bed for the development of decoding algorithms, any decoding algorithm which aims to be experimentally feasible should also be capable of dealing with such faulty syndrome measurements.
-	Additionally, such algorithms should also be capable of dealing with experimentally relevant noise models, as well as be fast enough to not present a bottleneck to the execution of computations, even as the size of the code scales to larger code distances.
+	In any code-based strategy for fault tolerant quantum computation, decoding algorithms play a critical role.
+	At a high level, these algorithms take as input the outcomes of syndrome measurements (which provide a diagnosis of errors that occurred on the physical qubits), and provide as output a suggestion of corrections for any errors that may have occurred during the computation.
 
-	Due to the importance of decoding algorithms for fault tolerant quantum computation, many different approaches have been developed, each of which tries to satisfy as many of the experimentally required criterion as possible.
-	Perhaps most prominent are algorithms based on minimum-weight perfect matching subroutines~\cite{Fowler13}, however alternative approaches based on techniques such as the renormalization group~\cite{Duclos2010} and locally operating cellular automata~\cite{Herold15} have also been put forward.
-	Recently, techniques from classical machine learning have begun to find application in diverse areas of quantum physics - such as in the efficient representation of many-body quantum states, the identification of phase transitions, and the autonomous design of novel experimental set-ups - and various neural-network based decoders have also been proposed~\cite{Torlai10, Varsamopoulos17, Krastanov17, Breuckmann18, Baireuther18a, Baireuther18b, Ni18}.
-	However, despite the diversity of decoding algorithms now available, there is not as of yet an algorithm which clearly satisfies all the required criteria, or a clear consensus as to which technique would be the most experimentally feasible in any given experimental context.
-	\mk{
-		I think this is a bit to harsh towards MWPM/blossom, which I would say still is the best candidate and probably will one day be used for really large codes.
-		I think we should rather say: for near term realisations of quantum error correction codes, until MWPM gets faster, a flexible and fast decoder is needed.
-		We put forward RL decoding as one candidate.
-		(This also does not put us in too tight a spot on delivering ideas how to tackle larger code distances.)
-	}
-	In particular, while the so-far proposed neural network decoders promise extremely fast decoding times, flexibility with respect to the underlying noise model and the potential to scale to large code distances, all such decoders are so far restricted either to the setting of perfect syndrome measurements, or to the setting in which one is trying to store a logical qubit as long as possible, without the requirement of performing a subsequent logical gate.
-	As such, while this approach seems promising, there remains room for improvement and generalization.
+	It is particularly important to note that in any physically realistic setting the required syndrome measurements are obtained via small quantum circuits, and are therefore also generically faulty.
+	As such, while the setting of perfect syndrome measurements provides a good test-bed for the development of decoding algorithms, any decoding algorithm which aims to be experimentally useful should also be capable of dealing with such faulty syndrome measurements.
+	Additionally, such algorithms should also be capable of dealing with experimentally relevant noise models, as well as be fast enough to not present a bottleneck to the execution of computations, even as the size of the system (i.e. the code distance) grows.
 
-	Simultaneously, the last few years have also seen extremely impressive advances in the development of deep reinforcement learning algorithms, which have allowed for the training of neural network based agents capable of obtaining super-human performance in domains such as Atari~\cite{Mnih15}, Chess~\cite{Silver17a} and Go~\cite{Silver17b}.
+	Due to the importance of decoding algorithms for fault tolerant quantum computation, many different approaches have been developed, each of which tries to satisfy as many of the experimentally required criteria as possible.
+	Perhaps most prominent are algorithms based on minimum-weight perfect matching subroutines~\cite{Fowler13}, although alternative approaches based on techniques such as the renormalization group~\cite{Duclos2010} and locally operating cellular automata~\cite{Herold15} have also been put forward.
+
+	Recently, techniques from machine learning have begun to find application in diverse areas of quantum physics - such as in the efficient representation of many-body quantum states, the identification of phase transitions, and the autonomous design of novel experimental set-ups - and various neural-network based decoders have also been proposed~\cite{Torlai10, Varsamopoulos17, Krastanov17, Breuckmann18, Baireuther18a, Baireuther18b, Ni18}.
+	Despite this diversity of proposed decoding algorithms, there is as of yet no algorithm which clearly satisfies all the required experimental criteria listed above.
+	While previously proposed neural network decoders promise extremely fast decoding times, flexibility with respect to the underlying code and noise model and the potential to scale to large code distances, most neural network decoders are so far restricted to the setting of perfect syndrome measurements.
+	Neural network decoders taking faulty syndrome measurements into account~\cite{Baireuther18a,Baireuther18b} currently restrict themselves to the setting of preserving a logical qubit for as long as possible, without the requirement of performing a subsequent logical gate.
+	As such, while neural network based approaches to decoding seem promising, there remains room for improvement and new techniques.
+
+	Simultaneously, the last few years have also seen impressive advances in the development of deep reinforcement learning algorithms, which have allowed for the training of neural network based agents capable of obtaining super-human performance in domains such as Atari~\cite{Mnih15}, Chess~\cite{Silver17a} and Go~\cite{Silver17b}.
 	These techniques are particularly powerful in situations where it is necessary to learn strategies for complex sequential decision making, involving consideration of the future effects of ones actions.
-	The problem of decoding within the context of fault-tolerant quantum computation seems like exactly such a setting and as such it natural to ask to what extent reinforcement learning techniques could be used to obtain decoding agents, and what advantages such agents might have over existing approaches.
-	In this work we set out to provide answers to these questions.
+	In this work we demonstrate that decoding in the context of fault-tolerant quantum computing provides a natural setting for the application of reinforcement learning methods.
+	We will discuss the advantages of such an approach over the previously proposed neural network decoders.
 
-	In particular, we reformulate the problem of decoding within the setting of fault-tolerant quantum computation as a process of sequential competitive interaction between a decoding agent and a code environment.
-	This reframing provides a conceptual framework which allows for the application of various deep reinforcement learning algorithms to obtain neural network based decoding agents.
-	As a proof-of-principle, we then utilize to deepQ learning to obtain fast surface code decoders, for a variety of noise models, within the fully fault-tolerant setting.
-	These results then provide a foundation for extension via both more sophisticated reinforcement learning techniques and more sophisticated neural network models.
+	In particular, we interpret the decoder as an agent performing discrete, sequential actions on an environment which is defined by a quantum error correction code.
+	This conceptual framework allows for the application of various deep reinforcement learning algorithms to obtain neural network based decoding agents.
+	As a demonstration, we then utilize to deepQ learning to obtain fast surface code decoders, for a variety of noise models, in the fully fault-tolerant setting.
+	These results provide a foundation for extension via both more sophisticated reinforcement learning techniques and neural network models.
 
 	In this work we begin by providing an introductory overview of the surface code in Section~\ref{s:the_surface_code}, before presenting a description of the decoding problem for fault-tolerant quantum computation in Section~\ref{s:the_decoding_problem}.
-	After a brief introduction to the formalism of reinforcement learning and $Q$-functions in Section~\ref{s:reinforcement_learning} we are then able to provide the conceptual reframing of decoding as a reinforcement learning problem in Section~\ref{s:decoding_as_rl}, which is one of the primary results of this work.
-	In Section~\ref{s:results} we then present deepQ surface code decoders for a variety of noise models, before finally in Section~\ref{s:conclusions} discussing both the advantages and disadvantages of the approach presented here, along with various potential strategies for building upon the results presented in this work.
+	After a brief introduction to the formalism of reinforcement learning and $Q$-functions in Section~\ref{s:reinforcement_learning} we are then able to provide the conceptual reframing of decoding as a reinforcement learning problem in Section~\ref{s:decoding_as_rl}, representing one of the primary results of this work.
+	In Section~\ref{s:results} we then present deepQ surface code decoders for a variety of noise models, before finally in Section~\ref{s:conclusions} we discuss both the advantages and disadvantages of the approach presented here, along with various potential strategies for building upon the results presented in this work.
 
 \section{The Surface Code}\label{s:the_surface_code}
 
 	We begin by providing a brief description of the surface code.
-	The framework and methods presented in this work are not restricted to the surface code, and could be applied to any stabilizer code, but we choose to restrict ourselves to this code here for both simplicity of presentation and experimental relevance.
-	We will focus on presenting the elements of the surface code necessary for understanding the decoding problem, in the process omitting many details, for a more detailed treatment refer to refs \textit{a,b, and c}.
+	The framework and methods presented in this work are not restricted to the surface code however, and may be applied to any stabilizer code.
+	The restriction to the surface code is made both for simplicity of presentation and experimental relevance.
+	We will focus on presenting the essential elements of the surface code and refer to more complete treatments for details.
 
-	We will consider $d\times d$ lattices with a \textit{physical data qubit} on each vertex $v$, as illustrated in Fig.~\ref{f:surface_code} where $d=5$.
+	We will consider $d\times d$ lattices with a \textit{physical} data qubit on each vertex $v$, as illustrated in Fig.~\ref{f:surface_code} for $d=5$.
 	The collective state of all qubits on the lattice is an element of the Hilbert space $\mathcal{H} = \mathbb{C}^{2^{(d\times d)}}$.
 	We associate stabilizer operators with each coloured plaquette of the lattice.
 	Stabilizers on blue (orange) plaquettes are operators which apply Pauli $X$ ($Z$) flips to all qubits on the vertices of the plaquette.
@@ -117,10 +115,11 @@
 		\end{cases}
 	\end{equation}
 	All stabilizers are mutually commuting and have eigenvalues $\pm 1$.
-	If we define the Hamiltonian $H = -\sum_p S_p$, then the surface code $\mathcal{H}_\mathrm{sc} \subset \mathcal{H}$ is the ground state space of this Hamiltonian, which is the space consisting only of simultaneous $+1$ eigenstates of all the stabilizer operators.
-	This subspace is two dimensional, i.e. $\mathcal{H}_\mathrm{sc} \simeq \mathbb{C}^2$, and as a result we can encode a single \textit{logical qubit} into this code space.
-	Logical operators are operators which preserve the code space and manipulate the state of the logical qubit.
-	As shown in Fig.~\ref{f:surface_code}, logical $X$ ($Z$) operators, denoted $X_L$ ($Z_L$), are continuous strings of single vertex $X$ ($Z$) operators which connect the top and bottom (left and right) boundary of the lattice.
+	This allows for the introduction of a  Hamiltonian $H = -\sum_p S_p$ from which the surface code $\mathcal{H}_\mathrm{sc} \subset \mathcal{H}$ is defined to be the ground state space of $H$.
+	Alternatively, this space consists of all simultaneous $+1$ eigenstates of all stabilizers.
+	This subspace is two dimensional, i.e. $\mathcal{H}_\mathrm{sc} \simeq \mathbb{C}^2$, and hence can encode a single \textit{logical} qubit.
+	Logical operators are operators which preserve the code space, and can therefore be used to manipulate the state of the logical qubit.
+	Fig.~\ref{f:surface_code} shows logical $X$ ($Z$) operators, denoted $X_L$ ($Z_L$), which are continuous strings of single vertex $X$ ($Z$) operators connecting the top and bottom (left and right) boundaries of the lattice.
 
 	\begin{figure}
 		\centering
@@ -135,11 +134,11 @@
 	\end{figure}
 
 	To illustrate the motivation behind such an encoding, let's examine the consequences of a single qubit Pauli flip on a physical data qubit.
-	If we assume that the initial state $|\psi\rangle \in \mathcal{H}_\mathrm{sc}$ is an element of the code space, then the subsequent state $|\psi'\rangle \not \in \mathcal{H}_\mathrm{sc}b$ will no longer be an element of the code space.
-	In particular $|\psi'\rangle$ will be an eigenstate with eigenvalue $-1$ of at least one stabilizer.
+	If we assume that the initial state $|\psi\rangle \in \mathcal{H}_\mathrm{sc}$ is an element of the code space, then the subsequent state $|\psi'\rangle \not \in \mathcal{H}_\mathrm{sc}$ will no longer be an element of the code space.
+	In particular, $|\psi'\rangle$ will be an eigenstate with eigenvalue $-1$ of at least one stabilizer.
 	We say that $|\psi'\rangle$ violates these stabilizers, as illustrated by red circles in Fig.~\ref{f:surface_code_examples}~(a).
-	The \textit{syndrome} of a state is the string encoding the outcomes of a simultaneous measurement of all the stabilizers, each of which takes the value $\pm 1$.
-	As such, unlike a truly single qubit encoding of a quantum state, if a Pauli flip error occurs on a single physical data qubit, we may be able to identify and correct this error, in the process conserving the logical qubit state, by examining the syndrome of the post-error state. 
+	The \textit{syndrome} of a state is a list of the outcomes of a simultaneous measurement of all the stabilizers, each of which takes the value $\pm 1$.
+	Given that a single Pauli flip occurred on a single physical data qubit, by analysing the syndrome we may be able to identify and correct this error, in the process conserving the logical qubit state. 
 	This process of \textit{decoding} is discussed in the next section.
 
 	\begin{figure}

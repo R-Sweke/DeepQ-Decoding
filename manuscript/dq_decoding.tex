@@ -456,7 +456,7 @@
 
 \section{Results}\label{s:results}
 
-	As a proof-of-principal, we utilized deepQ learning within the framework presented in Section~\ref{s:decoding_as_rl}, to obtain deepQ decoding agents for both bit-flip and depolarizing noise, for a $d=5$ surface code lattice.
+	As a demonstration, we utilized deepQ learning within the framework presented in Section~\ref{s:decoding_as_rl}, to obtain deepQ decoding agents for both bit-flip and depolarizing noise with faulty syndromes, for a $d=5$ surface code lattice.
 	All the code utilized to obtain these agents is supplied in the corresponding \textit{DeepQ-Decoding} code repository, and as such we will provide only an overview of the details here.
 	In particular, for a single fixed set of hyper-parameters, we used the original deepQ algorithm with annealed $\epsilon$-greedy exploration, implemented via the keras-RL library and incorporating doubleQ updates and dueling networks.
 	In addition we used a custom training procedure, described in Appendix~\ref{A:training}, for sequentially iterating through increasing error rates, while simultaneously performing a hyper-parameter grid search at each error-rate iteration.
@@ -473,8 +473,9 @@
 	\end{figure}
 
 	\begin{equation}
-		[[64,3,2],~[32,2,1],~[32,2,1],~[512,0.2],~[|\mathcal{A}|, 0]].
+		[[64,3,2],~[32,2,1],~[32,2,1],~[512,0.2],~[|\mathcal{A}|, 0]],
 	\end{equation}
+	where $|\mathcal{A}|$ is the size of the action space.
 	All other additional hyper-parameters used to obtain each decoding agent, along with histories of each training procedure, are provided in Appendix~\ref{A:parameters}.
 
 	We then considered both bit-flip and depolarizing noise.
@@ -501,11 +502,11 @@
 
 % Acknowledgments
 	\begin{acknowledgments}
-		The authors gratefully acknowledge helpful and insightful discussions with Daniel Litinski, Nicolas Delfosse, Paul Baireuther, and Hendrik Poulsen Nautrup.
+		The authors gratefully acknowledge helpful and insightful discussions with Daniel Litinski, Nicolas Delfosse, Aleksander Kubica, Thomas Jochym-O'Connor, Paul Baireuther, and Hendrik Poulsen Nautrup.
 		Additionally, the authors would like to thank J\"{o}rg Behrmann for incredible technical support, without which this work would not have been possible.
 		RS\ acknowledges the financial support of the Alexander von Humboldt foundation.
 		MSK\ is supported by the DFG (CRC183, project B02).
-		EvN\ is supported by ...
+		EvN\ is supported by the Swiss National Science Foundation through grant P2EZP2-172185.
 		JE\ is supported by DFG (CRC 183, EI 519/14-1, and EI 519/7-1), the ERC (TAQ), the Templeton Foundation, and the BMBF (Q.com).
 	\end{acknowledgments}
 

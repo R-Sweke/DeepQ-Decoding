@@ -207,22 +207,8 @@
 
 \section{Reinforcement Learning and q-Functions}\label{s:reinforcement_learning}
 
-<<<<<<< HEAD
-	In this section we shift focus and introduce some of the fundamental concepts of reinforcement learning and $q$-functions, which will be essential to our reformulation of the decoding problem in Section~\ref{s:decoding_as_rl}.
-	We will constrain ourselves to the basics and refer to Ref. for a complete treatment.
-
-	As illustrated in Fig.~\ref{f:agent_environment}, we imagine an agent interacting with some environment in discrete time steps.
-	In each time step $t$ the agent is in some state $S_t$, which is generically a combination of its knowledge of the environment $S_{E,t}$, its memory of its own previous actions, and possibly the state of additional internal variables.
-	From this state the agent must then choose some valid action $A_t$, which it applies to the environment.
-	In response to this action, via some process which is typically not directly known by the agent, the environment updates and provides the agent with a potentially reduced description of its new state $S_{E,t+1}$ (i.e. a description of the part of the environment which is \textit{visible} to the agent), along with a a scalar reward $R_{t+1}$ and a boolean signal which indicates whether the game is over - i.e. whether the agent has failed, died or lost.
-	In principal it is also possible to imagine settings in which the sequence of interactions can carry on indefinitely, but we will consider here only episodic actions, which end once the environment is placed into a terminal state (which may not be unique) by the actions of the agent.
-	Generically, we consider to goal of the agent to be to avoid dying, while accumulating as much reward as possible.
-=======
 	In this section we shift focus and introduce some of the fundamental concepts of reinforcement learning and $q$-functions, which will be essential to our rephrasing of the decoding problem in Section \ref{s:decoding_as_rl}.
 	Again, we will constrain ourselves to the basics and refer to Refs XXX for a complete treatment.
->>>>>>> cdbd3cf88afb61cabb05e5d909e08a845e4db190
-
-
 	A generic reinforcement learning problem considers an agent interacting with an environment, as is illustrated in Fig. \ref{f:agent_environment}.
 	The agent can act on and observe (parts) of the environment, and is tasked with achieving a problem-specific goal by performing a sequence of actions. 
 	We typically consider discrete problems, in  which at each step time step $t$ the environment can be described by a state $S_t \in \mathcal{S}$, where $S$ is referred to as the state space.

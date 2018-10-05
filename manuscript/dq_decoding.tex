@@ -292,11 +292,11 @@
 	We now turn to describing the main topic of this work. 
 	Namely, we formulate the problem of decoding within the context of \emph{fault-tolerant} quantum computation as a reinforcement learning problem.
 	The advantage of this formulation is that it allows for all the methods and techniques of reinforcement learning to be brought to bear on this problem, thereby providing a new toolbox for obtaining diverse \emph{decoding agents}, a novel class of decoding algorithms.
+	To present this formulation, we will describe a single episode, as illustrated in Fig. \ref{f:single_episode}.
 
-
-	At this stage we are able to present the primary conceptual contribution of this work, which is a reframing of the decoding problem for idling logical qubits, within the context of a fault tolerant quantum computation, as a sequence of interactions between a decoding agent and a code environment.
-	In particular, as we will see in Section~\ref{s:results}, the advantage of this reframing is that it allows for the methods and techniques of reinforcement learning to be applied to this problem, as a tool for obtaining decoding agents for this setting.
-	In order to present all the required elements, as discussed in Section~\ref{s:reinforcement_learning}, we will describe in detail a single episode, as illustrated in Fig.~\ref{f:single_episode}.
+	At a high level, the environment is constructed from the surface code and the action space of the agent consists of all single qubit Pauli $X$ or $Z$ flips, along with an identity action. 
+	A single episode starts with the extraction of a sequence of faulty syndromes and ends whenever errors have accumulated to the extent that a subsequent logical operation is likely to fail, in a sense that will be made precise below.
+	Specifically, as shown in Fig. \ref{f:single_episode} (a),  the initial step ($t=0$) of any episode, in which the initial state $S_1$, reward $R_1$ and terminal state indicator $T_1$ are generated, proceeds according to the following steps;
 
 	\begin{figure*}
 		\centering
@@ -318,104 +318,120 @@
 		\label{f:single_episode}
 	\end{figure*}
 
-	In particular, as shown in Fig.~\ref{f:single_episode} (a), the first step ($t=0$) of any episode consists of the following sub-steps, which generate the initial state $S_1$, scalar reward $R_1$ and boolean terminal state (or ``game over") indicator $T_1$;
-	Firstly, the state of the system, which we will refer to as the \textit{hidden state} of the environment, is initialized to some logical state $|\psi_0\rangle \in \mathcal{H_\mathrm{sc}}$, which is the state we are trying to preserve.
-	As this state is in the code space it can be simply represented as an empty list representing a code lattice on which no Pauli flips have been applied to any physical data qubits.
-	Then, a sequence of faulty syndromes is extracted from this state.
-	We will utilize the two-stage error process involving separated physical and measurement errors, as described in Fig.~\ref{s:the_decoding_problem}, however in principle a circuit model for syndrome extraction could also be simulated.
-	The errors on physical data qubits which were generated during the syndrome extraction protocol are then added to the hidden state of the environment.
-	Note that at any stage during an episode this hidden state is a list containing all errors and corrections applied to the physical data qubits throughout the course of the episode.
-	We can think of this hidden state list as representing the underlying error-plus-corrections configuration of the underlying code lattice, however at any point the current state of the system $|\psi\rangle$ could be obtained by applying all operations listed in the hidden state of the environment to the initial state $|\psi_0\rangle$.
-	In later steps of the episode this hidden state will be used to determine rewards and terminal states, however the agent will never have direct access to this state.
-	The visible state of the environment $S_{E,1}$ is then constructed from the extracted sequence of faulty syndromes, illustrated by the green slices in Fig.~\ref{f:single_episode}, which we refer to as the \textit {syndrome volume}.
-	In addition to the syndrome volume, the total state received by the agent at any time step also contains a list of the actions taken by the agent since the last new syndrome volume was received, which we illustrate in Fig.~\ref{f:single_episode} with the yellow slices and refer to as the action history $h$.
-	As a new syndrome volume was just extracted, the action history of the agent is reset - i.e. $h_1$ is some representation of an empty list -  and this reset action history is combined with the syndrome volume and provided to the agent as the total output state of the environment - i.e. $S_1 = (S_{E,1},h_1)$.
-	Furthermore, as the agent has not yet taken any actions we set the reward $R_1 =0$, and the terminal state indicator to false - i.e. $T_1=0$.
+	\begin{enumerate}
+		\item First, the state of the system (consisting of physical data qubits), which we will refer to as the \textit{hidden state} of the environment, is initialized to some logical state $|\psi_0\rangle \in \mathcal{H_\mathrm{sc}}$.
+		The agent's task will be to preserve this state.
+		Since this state is in the code space by construction, it can be simply represented as an empty list representing a code lattice on which no Pauli flips have been applied to any physical data qubits.
+		\item Then an initial sequence of faulty syndromes is generated.
+		We utilize the two-stage error process involving separated physical and measurement errors, as described in Fig.~\ref{s:the_decoding_problem}.
+		We wish to emphasise however that in principle a circuit model for syndrome extraction could also be simulated.
+		The errors on physical data qubits which were generated during the syndrome extraction protocol are then added to the hidden state of the environment, since we will need them later to evaluate the agent's choice of actions. 
+		The agent has no knowledge of, or direct access to, this hidden state.
+		\item The visible aspect of the environment, which the agent can observe, is then constructed from the sequence of faulty syndromes, illustrated by the green slices in Fig.~\ref{f:single_episode}.
+		We will refer to this sequence of faulty syndromes as the \emph{syndrome volume}, denoted $S_{E,1}$.
+		In addition to the syndrome volume, the total state received by the agent at any time step also contains a list of the actions taken by the agent since the last new syndrome volume was received, which we illustrate in Fig.~\ref{f:single_episode} with the yellow slices and refer to as the action history $h$.
+		Since for this first step a new syndrome volume was just extracted, the action history of the agent is reset - i.e. $h_1$ is an empty list -  and this reset action history is combined with the syndrome volume and provided to the agent as the total output state of the environment - i.e. $S_1 = (S_{E,1},h_1)$.
+		\item The agent has not yet taken any actions, so the reward for this first step is $R_1 =0$. 
+		Additionally, in order to allow the episode to continue the terminal state indicator to false - i.e. $T_1=0$.
+	\end{enumerate}
 
 	After this initial step, we now need to perform step $t=1$.
 	In general, as illustrated in Fig.~\ref{f:agent_environment}, given the state $S_t$, the agent needs to choose an action $A_t$ to apply to the environment, after which the environment needs to respond with the tuple $(S_{t+1}, R_{t+1}, T_{t+1})$, where $S_{t+1}=(S_{E,{t+1}},h_{t+1})$.
-	In any time step we allow the agent to perform a single qubit Pauli $X$ or $Z$ flip on any one physical data qubit, or to perform an identity action, which is used as a signal to request a new syndrome volume.
-	Within the context of a reinforcement learning algorithm the agent typically chooses this action via an annealed exploratory policy, such as an $\epsilon$-greedy strategy.
 	Depending on the action chosen by the agent, the environment can respond in one of two ways, illustrated in Fig.~\ref{f:single_episode} (c) and (e) respectively.
 
-	\begin{figure*}
-		\centering
-		\includegraphics[width=0.6\textwidth]{figures/agent_decoding.pdf}
-		\caption{
-			The procedure for decoding with a trained agent.
-			(a) Given a faulty syndrome volume generated by some experiment, this volume is concatenated with an empty action history to produce a suitable input state for the decoding agent.
-			(b) The decoding agent takes in the combined faulty syndrome volume and action history and chooses an action.
-			This action is simultaneously (c) added to a list of accumulated corrections and (d) used to update only the action history component of the input state to the agent.
-			This updated input state is then given to the agent and procedures (b-d) continue until the agent (e) repeats an action or chooses the identity.
-			(f) At this stage the corrections could be applied to the lattice state, although in practice they would be tracked through the entire computation.
-		}
-		\label{agent_decoding}
-	\end{figure*}
+	\subsection{Non-identity and non-repeated actions}
 
-	In particular, as shown in Fig.~\ref{f:single_episode} (c), if the agent chooses any non-trivial action that it is not already in the action history list then this step of the episode continues via the following process; 
-	Firstly, given the chosen non-trivial action $A_t$, the first step is to apply this action to the code lattice - i.e. the agents chosen action is added to the hidden state of the environment, which is now a combination of all actions and errors on physical data qubits.
-	The environment now needs to determine the reward $R_{t+1}$ the agent should receive for its action, and whether the agent is "dead" or "alive" - i.e. whether or not the new hidden state of the environment is a terminal state.
-	As was discussed in Section~\ref{f:decoding_problem}, within the context of surface code based fault tolerant quantum computation the goal of the decoding process for idling logical qubits should be to suppress errors to the extent that future logical operations (which either involve decoding cycles of their own or do not spread errors) can succeed with high probability.
-	As such, if after application of the agents chosen action the current state of the system $|\psi\rangle$ (obtained by applying all the errors plus actions listed in the hidden state) is equal to the original state $|\psi_0\rangle$ - or equivalently, if all errors have been corrected without implementing a logical operation - we give the agent a reward of $+1$, i.e. $R_{t+1} = +1$.
-	In all other cases we set $R_{t+1} = 0$, giving the agent no reward.
-	Furthermore, in order to act as a proxy for future logical operations we introduce a \textit{referee decoder}.
-	This referee decoder should be a ``single-shot" decoder, which given a single perfect syndrome suggests corrections which always move the current state back into the code space, but may fail by inadvertently performing a logical operation.
-	After the hidden state of the environment is updated to include the agents chosen action, this referee decoder is then given a perfect syndrome extracted from the state $|\psi\rangle$ corresponding to the current hidden state.
-	If the referee decoder is able to correctly decode this perfect syndrome we say that the agent is still alive and we set $T_{t+1} = 0$, and if the agent is not able to correctly decode this perfect syndrome, then we say that the agent is dead and we set $T_{t+1}=1$, which indicates the end of the episode.
-	In order to construct the output state $S_{t+1}$ we first update the action history $h_{t+1}$ by appending $A_t$ to $h_t$.
-	Then, as the agent has not requested a new syndrome volume via the identity action, we do not extract a new syndrome volume, and rather set $S_{E,{t+1}} = S_{E,t}$.
-	Finally, we concatenate the non-updated syndrome volume with the updated action history to obtain the total output state $S_{t+1} = (S_{E,t+1},h_{t+1}) = (S_{E,t},h_{t+1})$.
+		If, as shown in Fig. \ref{f:single_episode} (c), the agent chooses any non-identity action that is not already an element of the action history list $h_t$, then this step of the episode continues via the following process;
 
-	\begin{figure*}
-		\centering
-		\includegraphics[width=0.9\textwidth]{figures/agent.pdf}
-		\caption{
-			Details of a deepQ decoding agent for a $d\times d$ code lattice.
-			(a) A single faulty syndrome is embedded into a $(2d +1)\times(2d+1)$ binary matrix, where by default all entries are initially set to $0$.
-			Entries indicate by orange (blue) circles are then used to indicate violated $Z$ ($X$) stabilizers on the corresponding plaquette.
-			Entries indicated by black circles are set to $+1$ as a way of differentiating different types of stabilizers.
-			(b) Using the same embedding, the action history for $Z$ ($X$) flips can be encoded by indicating a previous flip on a specific vertex qubit via the entry corresponding to that vertex.
-			(c) By stacking the syndrome and action history slices, the total state $S_t$ can be constructed in a form suitable for input to a convolutional neural network.
-			(d) To complete the deepQ network, we stack a feed forward neural network on top of the convolutional layers.
-			In particular, the final layer of this network has $|\mathcal{A}|$ activations, each of which encodes $q(S_t,a)$ for an action $a$.
-		}
-		\label{f:agent}
-	\end{figure*}
+		\begin{figure*}
+			\centering
+			\includegraphics[width=0.6\textwidth]{figures/agent_decoding.pdf}
+			\caption{
+				The procedure for decoding with a trained agent.
+				(a) Given a faulty syndrome volume generated by some experiment, this volume is concatenated with an empty action history to produce a suitable input state for the decoding agent.
+				(b) The decoding agent takes in the combined faulty syndrome volume and action history and chooses an action.
+				This action is simultaneously (c) added to a list of accumulated corrections and (d) used to update only the action history component of the input state to the agent.
+				This updated input state is then given to the agent and procedures (b-d) continue until the agent (e) repeats an action or chooses the identity.
+				(f) At this stage the corrections could be applied to the lattice state, although in practice they would be tracked through the entire computation.
+			}
+			\label{agent_decoding}
+		\end{figure*}
 
-	However, if the agent chooses either the identity action or an action it has already chosen (which has the effect of undoing this previously chosen correction), then the environment responds via the following procedure, as illustrated in Fig.~\ref{f:single_episode} (e).
-	If the action is not the identity action, but an action that has already been performed, then the first step is to apply the action to the code lattice by appending the action to the hidden state.
-	In this case, the reward $R_{t+1}$ and terminal state indicator $T_{t+1}$ are determined by the procedure already described above, as in steps in which a non-trivial action was taken.
-	If the chosen action was the identity, then this hidden state update is not necessary, and given that the previous hidden state could not have been a terminal state we set $T_{t+1} = 0$, before determining $R_{t+1}$ via the criterion already discussed, which will necessarily be the same as the reward $R_t$ received from the environment in the previous step. 
-	Now, we interpret the performing of an identity (either explicitly via the identity action or implicitly by repeating a correction twice) by the agent as a request for a new syndrome, and as such a syndrome extraction procedure is performed.
-	Similarly to the initial step of the episode, the hidden state is then updated to include the errors on physical data qubits introduced via this syndrome extraction.
-	Additionally, the action history $h_{t+1}$ is once again reset to an empty list, while the visible state is $S_{E,t+1}$ updated to reflect the newly extracted syndrome volume.
-	Finally, the total output state $S_{t+1} = (S_{E,t+1},h_{t+1})$ is returned to the agent.
+		\begin{enumerate}
+			\item Firstly, given the chosen non-trivial action $A_t$, the first step is to apply this action to the code lattice - i.e. the agents chosen action is added to the hidden state of the environment, which is now a combination of all actions and errors on physical data qubits.
+			\item The environment now needs to determine the reward $R_{t+1}$ the agent should receive for its action, and whether resulting hidden state is a terminal state.
+			As was discussed in Section~\ref{f:decoding_problem}, within the context of surface code based fault tolerant quantum computation the goal of the decoding process for idling logical qubits should be to suppress errors to the extent that future logical operations (which either involve decoding cycles of their own or do not spread errors) can succeed with high probability.
+			As such, if after application of the agent's chosen action the current state of the system $|\psi\rangle$ is equal to the original state $|\psi_0\rangle$ - or equivalently, if all errors have been corrected without implementing a logical operation - we give the agent a reward of $+1$, i.e. $R_{t+1} = +1$.
+			In all other cases we set $R_{t+1} = 0$, giving the agent no reward.
+			\item In addition to the above, we introduce a separate \emph{referee} decoder to act as a proxy for future logical operations.
+			This referee decoder should be a ``single-shot" decoder which, given a single perfect syndrome, suggests corrections which always move the current state back into the code space.
+			However, this referee decoder may fail by inadvertently performing a logical operation.
+			After the hidden state of the environment is updated to include the agents chosen action, this referee decoder is then given a perfect syndrome extracted from the state $|\psi\rangle$ corresponding to the current hidden state.
+			If the referee decoder is able to correctly decode this perfect syndrome then the hidden state is not a terminal state, and $T_{t+1} = 0$.
+			If on the other hand the referee decoder is not able to correctly decode this perfect syndrome, then we set $T_{t+1}=1$, which indicates the end of the episode.
+			\item Finally, the new total state of the environment,  $S_{t+1} = (S_{E,t+1},h_{t+1})$, is constructed as follows;
+			Firstly, the action history $h_{t+1}$ is obtained by appending $A_t$ to $h_t$.
+			Then, as no new syndrome volume was generated in this step, we set $S_{E,{t+1}} = S_{E,t}$.
+		\end{enumerate}
+		
+	\subsection{Identity or repeated actions}
+
+		If on the other hand the agent chooses either the identity action or an action it has already chosen, then the environment responds via the following procedure, as illustrated in Fig.~\ref{f:single_episode} (e).
+	
+		\begin{figure*}
+			\centering
+			\includegraphics[width=0.9\textwidth]{figures/agent.pdf}
+			\caption{
+				Details of a deepQ decoding agent for a $d\times d$ code lattice.
+				(a) A single faulty syndrome is embedded into a $(2d +1)\times(2d+1)$ binary matrix, where by default all entries are initially set to $0$.
+				Entries indicate by orange (blue) circles are then used to indicate violated $Z$ ($X$) stabilizers on the corresponding plaquette.
+				Entries indicated by black circles are set to $+1$ as a way of differentiating different types of stabilizers.
+				(b) Using the same embedding, the action history for $Z$ ($X$) flips can be encoded by indicating a previous flip on a specific vertex qubit via the entry corresponding to that vertex.
+				(c) By stacking the syndrome and action history slices, the total state $S_t$ can be constructed in a form suitable for input to a convolutional neural network.
+				(d) To complete the deepQ network, we stack a feed forward neural network on top of the convolutional layers.
+				In particular, the final layer of this network has $|\mathcal{A}|$ activations, each of which encodes $q(S_t,a)$ for an action $a$.
+			}
+			\label{f:agent}
+		\end{figure*}
+
+		\begin{enumerate}
+			\item If the action $A_t$ is a non-identity action which is already in the action history - i.e. $A_t \in h_t$, then the first step is to apply the action to the code lattice by appending the action to the hidden state. In this case, the reward $R_{t+1}$ and terminal state indicator $T_{t+1}$ are then determined by the procedure already described above, as in steps in which a non-identity action was taken.
+			\item If the chosen action was the identity however, then this hidden state update is not necessary, and given that the previous hidden state could not have been a terminal state we set $T_{t+1} = 0$, before setting $R_{t+1} = R_t$, as the hidden state has not changed.
+			\item Now, we interpret the performing of an identity (either explicitly via the identity action or implicitly by repeating a correction twice) by the agent as a request for a new syndrome, and hence a new syndrome volume is generated.
+			Similarly to the initial step of the episode, the hidden state is then updated to include the errors on physical data qubits introduced via this syndrome extraction.
+			Additionally, the action history $h_{t+1}$ is once again reset to an empty list, while the visible state $S_{E,t+1}$ is updated to reflect the newly extracted syndrome volume.
+			Finally, the total output state $S_{t+1} = (S_{E,t+1},h_{t+1})$ is returned to the agent.
+		\end{enumerate}
+	
 
 	At this stage we have all the ingredients required to obtain decoding agents through the application of a variety of reinforcement learning algorithms.
-	In order to provide a proof-of-principle, in Section~\ref{s:dq_agent} we will present a detailed construction for a deepQ agent, that allows us to apply deepQ learning and obtain decoding agents whose
+	In Section~\ref{s:dq_agent} we will present a detailed construction for a deepQ agent, that allows us to apply deepQ learning and obtain decoding agents whose
 	performance is shown in Section~\ref{s:results}.
-	However, before proceeding it is worthwhile to emphasize a few points;
-	Firstly, it is important to note that the above agent-interaction framework is both code and error model agnostic, provided you have access to a referee decoder, capable of single-shot decoding with perfect syndromes.
-	From this perspective, one might view the framework presented here as a tool for leveraging single-shot decoding algorithms, capable of dealing only with perfect syndromes, into decoding algorithms for the fully fault-tolerant setting.
+	Before proceeding however it is worthwhile to emphasize a few points;
+
+	First, it is important to note that the above agent-interaction framework is both code and error model agnostic, provided one has access to a referee decoder, capable of single-shot decoding on perfect syndromes.
+	From this perspective, one might view the framework presented here as a tool for leveraging single-shot, perfect-syndrome decoding algorithms, into decoding algorithms for the fully fault-tolerant setting.
 	Additionally, it should be clear from the rules via which rewards are assigned, that the agent will only accumulate reward provided it can learn to consistently correct any errors that might occur on physical data qubits, without implementing logical operations.
 	However, the agent is \textit{not} constrained to return the state back into the code space between successive syndrome measurements.
 	In particular, because typical reinforcement learning algorithms take into account not only immediate rewards, but rather discounted cumulative rewards, the agent may learn strategies involving actions whose benefit may not be immediate.
 	For example, if a rare event occurs and multiple measurement errors occur within the extraction of a syndrome volume, creating a highly ambiguous and difficult to decode input state, the agent may choose to only partially decode before requesting a new syndrome volume, in which hopefully less measurement errors will occur and the underlying error configuration may be less ambiguous.
-	As such, the decoding agents obtained via this framework may have access to truly novel decoding strategies, not currently available to alternative decoding algorithms.
+	As such, the decoding agents obtained via this framework may have access to truly novel decoding strategies, that are not currently available to alternative decoding algorithms.
 
-	Furthermore, it is useful to note that in practice it is possible to speed-up learning by utilizing various tricks.
-	Firstly, when choosing exploratory actions, we can restrict the action space to a reduced set of potentially valid corrections.
-	In particular, actions on vertices either involved in a violated stabilizer or adjacent to vertices which have already been acted on.
+	It is also useful to note that in practice it is possible to speed-up learning by utilizing various improvements.
+	First of all, when choosing exploratory actions, we can restrict the action space to a reduced set of potentially valid corrections.
+	In particular, the agent need only consider actions on vertices either involved in a violated stabilizer or adjacent to vertices which have already been acted on.
 	This restriction effectively increases the probability of the agent discovering useful actions, and therefore the effectiveness of any exploration phase.
-	Secondly, in order to only generate useful experience tuples, if a newly extracted syndrome is trivial, in the sense that it contains no violated stabilizers, then rather than passing this to the agent via the visible state we can repeat the syndrome extraction until a non-trivial syndrome volume is obtained.
-	Once again, this allows any experience memory required by the learning algorithm to consist of only useful memories.
+	Second, when generating new syndrome volumes, we discard those cases in which the syndrome is trivial.
+	In these cases, the agent does not need to act and hence no useful experience tuple would be generated.
+	This allows any experience memory required by the learning algorithm to consist of only useful memories.
 
-	Finally, although we have now thoroughly addressed a framework to which reinforcement learning algorithms could be applied to \textit{train} an agent, we have not yet explicitly discussed how one could use a trained decoding agent to decode within an experimental setting.
-	As illustrated in Fig.~\ref{agent_decoding}, given a trained agent this can be done quite simply.
-	In particular, given a faulty syndrome volume from an experiment, we initialize an empty action history list and combine this with the faulty syndrome volume as an initial input to the decoding agent.
-	Given this input, the agent then uses its learned decoding strategy to choose an initial correction.
-	This chosen correction is then added to a list of accumulated corrections, while simultaneously used to update \textit{only} the action history element of the previous input state.
-	This updated input state, containing the original syndrome volume and the subsequently performed corrections is then given to the agent, from which it can choose another correction, and the process is repeated until the agent either repeats a correction or chooses the identity, which should be taken as a signal to perform another round of syndrome measurements.
+	Finally, although we have now thoroughly addressed a framework to which reinforcement learning algorithms could be applied to \textit{train} an agent, we have not yet explicitly discussed the implementation of our $q$-function based agent and how it may be used to decode within an experimental setting.
+	As illustrated in Fig.~\ref{agent_decoding}, the latter problem is straightforwardly addressed.
+	Given a faulty syndrome volume from an experiment, we initialize an empty action history list and combine this with the faulty syndrome volume as an initial input to the decoding agent.
+	The trained agent can then be asked directly for an initial correction, which is added to a list of accumulated corrections.
+	Simultaneously \textit{only} the action history element of the previous input state is updated.
+	This updated input state, containing the original syndrome volume and the subsequently performed corrections, is then given again to the agent as input.
+	This process is iterated until the agent either repeats a correction or chooses the identity, which should be taken as a signal to perform another round of syndrome measurements.
 
 \section{A deepQ Decoding Agent}\label{s:dq_agent}
 

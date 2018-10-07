@@ -141,33 +141,11 @@
 	Given that a single Pauli flip occurred on a single physical data qubit, by analysing the syndrome we may be able to identify and correct this error, in the process conserving the logical qubit state. 
 	This process of \textit{decoding} is discussed in the next section.
 
-	\begin{figure}
-		\centering
-		\includegraphics[width=1\linewidth]{figures/surface_code_examples.pdf}
-		\caption{
-			(a) Single qubit Pauli flips violate surrounding stabilizers.
-			(b-d) Strings of Pauli flips only violate stabilizers at the endpoint of the string.
-			Multiple error configurations can give rise to the same syndrome.
-			They can differ by stabilizers, as for example in (c) and (d), or by logical operators, see (b) and (c).
-		}
-		\label{f:surface_code_examples}
-	\end{figure}
-
 \section{The Decoding Problem}\label{s:the_decoding_problem}
 
 	With the foundations from the previous section, we can now formulate a simple preliminary version of the decoding problem: \newline
 
 	\noindent\textit{Assume that at} $t=0$  \textit{one is given a state} $|\psi\rangle = \alpha |0_L\rangle + \beta |1_L\rangle \in \mathcal{H}_{\mathrm{sc}}.$ \textit{At some time }$t_1>0$ \textit{a syndrome measurement is performed which indicates that one or more stabilizers are violated - i.e. some errors have occurred on physical data qubits. From the given syndrome, determine a set of corrections which should be applied to the code lattice such that the subsequent state} $|\psi'\rangle$ \textit{is equal to the initial state} $|\psi\rangle.$ \newline
-
-	\begin{figure*}
-		\centering
-		\includegraphics[width=0.6\textwidth]{figures/decoding_problem.pdf}
-		\caption{
-			A typical decoding cycle is illustrated for the simplified faulty measurements scenario in which one imagines each time step consisting of an initial physical error process generating errors on the data qubits, followed by a second measurement error process which corrupts the true syndrome.
-			The decoding algorithm then has access to a sequence of potentially faulty syndromes.
-		}
-		\label{f:decoding_problem}
-	\end{figure*}
 
 	\noindent Before proceeding to discuss more subtle and technical versions of the decoding problem, let's examine why even the above problem is indeed potentially difficult.
 	The most important observation is that the map from error configurations to syndromes is many-to-one, i.e. many different sets of errors can lead to the same syndrome.
@@ -182,12 +160,30 @@
 	Thus, the information we were trying to preserve would have been corrupted.
 	From this simple example one can see that most often solving the decoding problem as stated above involves deciding, given an inherently ambiguous syndrome and (possibly imperfect) knowledge of the underlying error model, which error configuration most likely occurred.
 
+	\begin{figure}
+	\centering
+	\includegraphics[width=1\linewidth]{figures/surface_code_examples.pdf}
+	\caption{
+		(a) Single qubit Pauli flips violate surrounding stabilizers.
+		(b-d) Strings of Pauli flips only violate stabilizers at the endpoint of the string.
+		Multiple error configurations can give rise to the same syndrome.
+		They can differ by stabilizers, as for example in (c) and (d), or by logical operators, see (b) and (c).}
+		\label{f:surface_code_examples}
+	\end{figure}
 	In addition to the inherent difficulty resulting from syndrome ambiguity, in experimental settings the process of extracting the syndrome is also subject to noise, and hence the syndrome itself may be faulty.
 	In practice, each stabilizer is associated with a physical ancilla qubit.
 	The syndrome value for that particular stabilizer is obtained by first executing a small quantum circuit which entangles the ancilla with each of the physical data qubits on which the corresponding stabilizer is supported.
 	The syndrome value is then extracted via a measurement of the ancilla qubit.
 	In order to fully account for errors during the process of syndrome extraction one should therefore model this entire circuit, in which errors can occur on both the data qubits and ancilla qubits at each time step.
 	Moreover, errors on the ancilla qubits can propagate onto the data qubits via the required entangling gates.
+
+	\begin{figure*}
+	\centering
+	\includegraphics[width=0.6\textwidth]{figures/decoding_problem.pdf}
+	\caption{
+		A typical decoding cycle is illustrated for the simplified faulty measurements scenario in which one imagines each time step consisting of an initial physical error process generating errors on the data qubits, followed by a second measurement error process which corrupts the true syndrome.
+		The decoding algorithm then has access to a sequence of potentially faulty syndromes.}\label{f:decoding_problem}
+	\end{figure*}
 
 	The essential aspect of the additional difficulty from faulty syndrome measurements can be phenomenologically modelled by imagining each time step as consisting of two distinct error processes, as illustrated in Fig.~\ref{f:decoding_problem}.
 	In the first error process, an error occurs on each data qubit with some probability.
@@ -343,20 +339,6 @@
 
 		If, as shown in Fig. \ref{f:single_episode} (c), the agent chooses any non-identity action that is not already an element of the action history list $h_t$, then this step of the episode continues via the following process;
 
-		\begin{figure*}
-			\centering
-			\includegraphics[width=0.6\textwidth]{figures/agent_decoding.pdf}
-			\caption{
-				The procedure for decoding with a trained agent.
-				(a) Given a faulty syndrome volume generated by some experiment, this volume is concatenated with an empty action history to produce a suitable input state for the decoding agent.
-				(b) The decoding agent takes in the combined faulty syndrome volume and action history and chooses an action.
-				This action is simultaneously (c) added to a list of accumulated corrections and (d) used to update only the action history component of the input state to the agent.
-				This updated input state is then given to the agent and procedures (b-d) continue until the agent (e) repeats an action or chooses the identity.
-				(f) At this stage the corrections could be applied to the lattice state, although in practice they would be tracked through the entire computation.
-			}
-			\label{agent_decoding}
-		\end{figure*}
-
 		\begin{enumerate}
 			\item Firstly, given the chosen non-trivial action $A_t$, the first step is to apply this action to the code lattice - i.e. the agents chosen action is added to the hidden state of the environment, which is now a combination of all actions and errors on physical data qubits.
 			\item The environment now needs to determine the reward $R_{t+1}$ the agent should receive for its action, and whether resulting hidden state is a terminal state.
@@ -377,22 +359,6 @@
 	\subsection{Identity or repeated actions}
 
 		If on the other hand the agent chooses either the identity action or an action it has already chosen, then the environment responds via the following procedure, as illustrated in Fig.~\ref{f:single_episode} (e).
-	
-		\begin{figure*}
-			\centering
-			\includegraphics[width=0.9\textwidth]{figures/agent.pdf}
-			\caption{
-				Details of a deepQ decoding agent for a $d\times d$ code lattice.
-				(a) A single faulty syndrome is embedded into a $(2d +1)\times(2d+1)$ binary matrix, where by default all entries are initially set to $0$.
-				Entries indicate by orange (blue) circles are then used to indicate violated $Z$ ($X$) stabilizers on the corresponding plaquette.
-				Entries indicated by black circles are set to $+1$ as a way of differentiating different types of stabilizers.
-				(b) Using the same embedding, the action history for $Z$ ($X$) flips can be encoded by indicating a previous flip on a specific vertex qubit via the entry corresponding to that vertex.
-				(c) By stacking the syndrome and action history slices, the total state $S_t$ can be constructed in a form suitable for input to a convolutional neural network.
-				(d) To complete the deepQ network, we stack a feed forward neural network on top of the convolutional layers.
-				In particular, the final layer of this network has $|\mathcal{A}|$ activations, each of which encodes $q(S_t,a)$ for an action $a$.
-			}
-			\label{f:agent}
-		\end{figure*}
 
 		\begin{enumerate}
 			\item If the action $A_t$ is a non-identity action which is already in the action history - i.e. $A_t \in h_t$, then the first step is to apply the action to the code lattice by appending the action to the hidden state. In this case, the reward $R_{t+1}$ and terminal state indicator $T_{t+1}$ are then determined by the procedure already described above, as in steps in which a non-identity action was taken.
@@ -408,6 +374,19 @@
 	In Section~\ref{s:dq_agent} we will present a detailed construction for a deepQ agent, that allows us to apply deepQ learning and obtain decoding agents whose
 	performance is shown in Section~\ref{s:results}.
 	Before proceeding however it is worthwhile to emphasize a few points;
+
+	\begin{figure*}
+	\centering
+	\includegraphics[width=0.6\textwidth]{figures/agent_decoding.pdf}
+	\caption{The procedure for decoding with a trained agent.
+			(a) Given a faulty syndrome volume generated by some experiment, this volume is concatenated with an empty action history to produce a suitable input state for the decoding agent.
+			(b) The decoding agent takes in the combined faulty syndrome volume and action history and chooses an action.
+			This action is simultaneously (c) added to a list of accumulated corrections and (d) used to update only the action history component of the input state to the agent.
+			This updated input state is then given to the agent and procedures (b-d) continue until the agent (e) repeats an action or chooses the identity.
+			(f) At this stage the corrections could be applied to the lattice state, although in practice they would be tracked through the entire computation.
+		}
+		\label{agent_decoding}
+	\end{figure*}
 
 	First, it is important to note that the above agent-interaction framework is both code and error model agnostic, provided one has access to a referee decoder, capable of single-shot decoding on perfect syndromes.
 	From this perspective, one might view the framework presented here as a tool for leveraging single-shot, perfect-syndrome decoding algorithms, into decoding algorithms for the fully fault-tolerant setting.
@@ -435,6 +414,22 @@
 
 \section{A deepQ Decoding Agent}\label{s:dq_agent}
 
+	\begin{figure*}
+		\centering
+		\includegraphics[width=0.9\textwidth]{figures/agent.pdf}
+		\caption{
+			Details of a deepQ decoding agent for a $d\times d$ code lattice.
+			(a) A single faulty syndrome is embedded into a $(2d +1)\times(2d+1)$ binary matrix, where by default all entries are initially set to $0$.
+			Entries indicate by orange (blue) circles are then used to indicate violated $Z$ ($X$) stabilizers on the corresponding plaquette.
+			Entries indicated by black circles are set to $+1$ as a way of differentiating different types of stabilizers.
+			(b) Using the same embedding, the action history for $Z$ ($X$) flips can be encoded by indicating a previous flip on a specific vertex qubit via the entry corresponding to that vertex.
+			(c) By stacking the syndrome and action history slices, the total state $S_t$ can be constructed in a form suitable for input to a convolutional neural network.
+			(d) To complete the deepQ network, we stack a feed forward neural network on top of the convolutional layers.
+			In particular, the final layer of this network has $|\mathcal{A}|$ activations, each of which encodes $q(S_t,a)$ for an action $a$.
+		}
+		\label{f:agent}
+	\end{figure*}
+
 	As discussed in the previous section, many different reinforcement learning algorithms could now be applied within the framework presented here. 
 	However, in order to provide a concrete example and proof-of-principle, we will specialize to deepQ learning, which has been previously utilized to obtain agents capable of human-level control in domains such as Atari.
 	As mentioned briefly in Section~\ref{s:reinforcement_learning}, a variety of now standard tricks are required to get deepQ learning to work in practice, and we will not present these details here, referring the reader to the relevant references or associated code repository.
@@ -456,27 +451,25 @@
 
 \section{Results}\label{s:results}
 
-	As a demonstration, we utilized deepQ learning within the framework presented in Section~\ref{s:decoding_as_rl}, to obtain deepQ decoding agents for both bit-flip and depolarizing noise with faulty syndromes, for a $d=5$ surface code lattice.
+	As a demonstration, we utilized deepQ learning within the framework presented in Section~\ref{s:decoding_as_rl}, to obtain deepQ decoding agents for both bit-flip and depolarizing noise, with faulty syndromes, for a $d=5$ surface code lattice.
 	All the code utilized to obtain these agents is supplied in the corresponding \textit{DeepQ-Decoding} code repository, and as such we will provide only an overview of the details here.
 	In particular, for a single fixed set of hyper-parameters, we used the original deepQ algorithm with annealed $\epsilon$-greedy exploration, implemented via the keras-RL library and incorporating doubleQ updates and dueling networks.
 	In addition we used a custom training procedure, described in Appendix~\ref{A:training}, for sequentially iterating through increasing error rates, while simultaneously performing a hyper-parameter grid search at each error-rate iteration.
 	For both error models we utilized a convolutional deepQ network, as illustrated in Fig.~\ref{f:agent}, consisting of three convolutional layers, followed by a single feed-forward layer before the final output layer.
 	Specifically, if we describe a single convolutional layer with a three-tuple $[n,w,s]$, where $n$ is the number of filters, $w$ is the filter width and $s$ is the stride, and a single feed forward layer via a two-tuple $[n,d]$, where $n$ is the number of neurons and $d$ is the output drop-out rate, then from input to output our deepQ networks had the structure,
 
-	\begin{figure}
-		\centering
-		\includegraphics[width=0.8\linewidth]{figures/results.png}
-		\caption{
-			These are the results.
-		}
-		\label{f:results}
-	\end{figure}
 
 	\begin{equation}
 		[[64,3,2],~[32,2,1],~[32,2,1],~[512,0.2],~[|\mathcal{A}|, 0]],
 	\end{equation}
 	where $|\mathcal{A}|$ is the size of the action space.
 	All other additional hyper-parameters used to obtain each decoding agent, along with histories of each training procedure, are provided in Appendix~\ref{A:parameters}.
+
+	\begin{figure*}
+		\centering
+		\includegraphics[width=0.95\linewidth]{figures/results.png}
+		\caption{(a,b) Performance of all agents obtained during the iterative training procedure. Each agent was evaluated at increasing error rates, until the average lifetime of the logical qubit actively decoded by the agent became less than the average lifetime of a single faulty qubit. (c,d) Results obtained by using the optimal decoding agent for each error rate.}\label{f:results}
+	\end{figure*}
 
 	We then considered both bit-flip and depolarizing noise.
 	For both error models we considered the measurement of a single syndrome to consist of two separate error channels, as illustrated in Fig.~\ref{f:decoding_problem}.
@@ -487,18 +480,38 @@
 	Also, note that for bit-flip noise, as only $X$ corrections were necessary, we had $|\mathcal{A}| = d^2 + 1$ - i.e. the agent could perform either the identity or a single qubit $X$ flip on any individual physical data qubit.
 	For depolarising noise, we restricted the agent to only $X$ and $Z$ flips (as $Y$ errors can be corrected via both an $X$ flip and a $Z$ flip), such that $|\mathcal{A}| = 2d^2 + 1$.
 
-	To evaluate the performance of our trained decoders we used the procedure described in Fig.~\ref{agent_decoding}, where the agent selected actions via the final $q$-function in a purely greedy manner, and with identities or repeated actions triggering new syndrome volumes.
-	Importantly, we used the referee decoder to check after every action of the agent whether or not a terminal state had been reached.
-	The qubit survival time of a single episode was then reported as the number of individual syndromes seen by the agent (i.e. the number of times the two-fold error channel was applied) before a terminal state was reached.
-	Using the optimally trained decoder for each error rate, the results in Fig.~\ref{f:results} were then obtained by averaging over $10^3$ decoding episodes (each of which contained at least 100 decoding cycles on average).
-	As can be seen in Fig.~\ref{f:results}, the average lifetime of the logical qubit was then compared with the average lifetime of a single faulty qubit.
-	For bit-flip (depolarising) noise we find that for approximately $p < 7\times 10^{-3}$  $(p < 5\times 10^{-3})$ the decoded logical qubit outlasts a single faulty qubit on average.
+	To evaluate the performance of our trained decoders we used the procedure described in Fig.~\ref{agent_decoding}, where the agent selected actions via the final $q$-function in a purely greedy manner, with identity or repeated actions triggering new syndrome volumes.
+	The referee decoder was used to check after every action of the agent whether or not a terminal state had been reached, and the length of a single episode was reported as the number of individual syndromes seen by the agent (i.e. the number of times the two-fold error channel was applied) before a terminal state was reached.
+	For each error rate, the average lifetime of the actively decoded logical qubit was determined by the average episode length, over a number of episodes that guaranteed at least $10^6$ syndromes were seen by the decoding agent.
+	This average logical qubit lifetime was then compared with the average lifetime of a single faulty qubit.
 
-	\ryan{TO DO:} There needs to be a more informed rigorous discussion of the "threshold" - i.e why we don't bother to calculate it precisely, how it compares to known results, and why we believe the results can be made significantly better.
-	i.e. we need to really motivate that this is only a proof of principal, and that we believe it can be scaled in many directions.
-	There also needs to an informed discussion of why we think these agents are ``fast'' - i.e. on dedicated hardware (asics or TPU's) how fast can you actually implement such a small neural network?
+	The final results are then shown in Fig. \ref{f:results}.
+	In particular, Fig. \ref{f:results} (a, b) shows the performance of all decoding agents obtained during the iterative training procedure (as described in Appendix \ref{A:training}), while Fig. \ref{f:results} (c, d) shows the results obtained by the using the optimal decoding agent for each error rate.
+	For bit-flip (depolarising) noise we find that for approximately $p < 1.4\times 10^{-2}$  $(p < 1\times 10^{-2})$ there is a decoding agent for which the average lifetime of the actively decoded logical qubit is longer than the average lifetime of a single faulty qubit.
+	These results are however by no means rigorous thresholds, and are meant as a demonstration and proof-of-principle. 
+	In this regard there are various points worth emphasising.
+
+	Firstly, both the neural network architecture and reinforcement learning algorithm used here are comparatively simple with respect to the current state-of-the-art, and were chosen to allow for the execution of the required training procedure with the available computational resources.
+	As such, it is expected that utilization of either more sophisticated neural network architectures or learning algorithms, coupled with the computational resources required for implementing the required training procedures, could allow one to obtain significantly better results.
+	Furthermore, as discussed in ref. XXX, using dedicated hardware it is expected that the forward pass time of various applicable neural network architectures (including the architecture used here) can be brought below the time-scales necessary for near-term experiments. 
+	This, coupled with the ability to straightforwardly apply the techniques here to circuit-level noise, renders decoding agents such as the ones shown here promising candidates for near-term fault-tolerant experiments.
 
 \section{Conclusion}\label{s:conclusions}
+
+	We have shown that the problem of decoding within the setting of fault-tolerant quantum computation can be naturally reformulated as a reinforcement learning problem.
+	In particular, we have provided an agent-environment framework which allows for the application of diverse reinforcement learning algorithms, and provided a proof-of-principle demonstration by training deepQ decoding agents for the $d=5$ surface code, for both bit-flip and depolarizing noise, with faulty syndrome measurements.
+	However, this framework is both code and error model agnostic, and as such could be used to obtain decoding agents, a novel class of flexible decoding algorithms, for a wide variety of experimentally relevant settings.
+	Additionally, the recent use of more sophisticated reinforcement learning techniques and neural network architectures to demonstrate super-human performance in complex domains such as Chess and Go, strongly indicate that the initial results presented here, via deepQ learning with small neural networks, could be successfully improved and extended, given the required computational resources for training.
+	This, coupled with the development of dedicated special purpose hardware for the fast implementation of neural networks, suggest that decoding agents could indeed provide a practical solution for decoding in near-term fully fault-tolerant quantum computation.
+
+	As a result, there are various natural avenues for extension of this work. 
+	First and foremost it would be of interest to explore the performance of alternative decoding agents, obtained via different reinforcement learning algorithms, for a wider class of codes and error models.
+	Simultaneously, in the perfect-measurements setting, recent effort has focused on developing techniques to allow for the scaling of neural network decoders to larger code distances.
+	As such, it would be natural to explore the extent to which these developments could be utilized within the framework presented here, to facilitate obtaining decoding agents for significantly larger code distances.
+	Finally, due to the inherent design of the procedure via which these decoding agents are obtained, in which discounted future performance is valued over immediate rewards, these agents have the potential to learn decoding strategies not available to alternative decoding algorithms.
+	Hence, it may be possible that analysis of the strategies learned by decoding agents could aid the development of other new decoding algorithms.
+	
+
 
 % Acknowledgments
 	\begin{acknowledgments}

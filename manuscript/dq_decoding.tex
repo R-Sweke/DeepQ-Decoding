@@ -77,18 +77,24 @@
 	While many quantum error correcting codes exist, topological quantum codes~\cite{Kitaev03, Dennis02, Preskill17lectures, Nayak08, Pachos12, Terhal15, Brown16, Campbell17}, in which only local operations are required to diagnose and correct errors, are of particular interest as a result of their experimental feasibility~\cite{Reed12, Barends14, Nigg14, Corcoles15, Albrecht16, Takita16, Linke17}.
 	%Recently 
 	\je{In particular,} the surface code has emerged as an especially promising candidate for large-scale fault-tolerant quantum computation, due to the combination of its comparatively low overhead and locality requirements, coupled with the availability of convenient strategies for the implementation of all required logical gates \cite{Fowler18,Litinski18b}. \je{In fact, road maps towards realizing robust quantum computing focus on achieving this goal based on such surface codes as the 
-	most feasible way forward known}.
+	most feasible way forward  (see, e.g., Ref.~\cite{Roadmap})}.
 
-	\je{The known realistic topological quantum error correcting codes are not self-correcting, however, a feature which comes at a price: They are not robust
+	\je{The known realistic topological quantum error correcting codes are not self-correcting, however, a feature which comes at a heavy price: They are not robust
 	to natural thermal noise. For this reason one has to actively correct for errors following sophisticated prescriptions. That is to say,} in any code-based strategy for fault tolerant quantum computation, decoding algorithms play a critical role.
 	At a high level, these algorithms take as input the outcomes of syndrome measurements (which provide a diagnosis of errors that \je{have} occurred on the physical qubits), and provide as output a suggestion of corrections for any errors that may have occurred during the computation. \je{They have to be extremely 
-	fast -- faster than the quantum noise can act -- and reliable,
-	and as such constitute a serious bottleneck in the realization of fault tolerant quantum computers.}
+	fast -- faster than the quantum noise can act -- and reliable.
+	As such they constitute a serious bottleneck in the realization of fault tolerant quantum computers and are key to the understanding of quantum
+	computing in realistic regimes.}
 
-	It is particularly important to note that in any physically realistic setting, the required syndrome measurements are obtained via small quantum circuits, and are therefore also generically faulty 
-	As such, while the setting of perfect syndrome measurements provides a good test-bed for the development of decoding algorithms, any decoding algorithm which aims to be experimentally useful should also be capable of dealing with such faulty syndrome measurements.
+	It is particularly important to note that in any physically realistic setting, the required syndrome measurements are obtained via small quantum circuits, and are therefore also generically faulty. 
+	\je{For this reason}, while the setting of perfect syndrome measurements provides a \je{paradigmatic} 
+	test-bed for the development of decoding algorithms, any decoding algorithm which aims to be experimentally useful 
+	\je{must necessarily} 
+	%should also 
+	be capable of dealing with such faulty syndrome measurements.
 	Additionally, such algorithms should also be capable of dealing with experimentally relevant noise models, as well as be fast enough to not present a bottleneck to the execution of computations, even as the size of the system (i.e. the code distance) grows.
 
+	\je{It turns out that it is precisely the development of decoders applicable to the fault tolerant setting that constitutes a particular challenge.} 
 	Due to the importance of decoding algorithms for fault tolerant quantum computation, many different approaches have been developed, each of which tries to satisfy as many of the experimentally required criteria as possible.
 	Perhaps most prominent are algorithms based on minimum-weight perfect matching subroutines~\cite{Fowler13}, although alternative approaches based on techniques such as the renormalization group~\cite{Duclos2010} and locally operating cellular automata~\cite{Herold15,herold2017cellular,Kubica2018} have also been put forward.
 

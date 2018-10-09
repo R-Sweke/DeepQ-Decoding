@@ -485,7 +485,7 @@
 
 	\begin{figure*}
 		\centering
-		\includegraphics[width=\linewidth]{figures/final_results.png}
+		\includegraphics[width=\linewidth]{figures/final_results.pdf}
 		\caption{(a,b) Performance of all agents obtained during the iterative training procedure. Each agent was evaluated at increasing error rates, until the average lifetime of the logical qubit actively decoded by the agent became less than the average lifetime of a single faulty qubit. (c,d) Results obtained by using the optimal decoding agent for each error rate.}\label{f:results}
 	\end{figure*}
 
@@ -564,15 +564,15 @@
 
 \section{Agent Hyperparameters and Learning Curves}\label{A:parameters}
 
-	We implemented the distributed iterative training procedure described in Appendix \ref{A:training}, for both bit-flip and depolarising noise (all utilized code can be found in the \emph{DeepQ-Decoding} repository).
+	We implemented the distributed iterative training procedure described in Appendix \ref{A:training}, for both bit-flip and depolarising noise (all utilized code can be found in the \emph{DeepQ-Decoding} repository \cite{DeepQDecoding}).
 	In particular, the initial error rate was set to $p_1 = p_{\mathrm{phys}} = p_{\mathrm{meas}} = 1\times10^{-3}$, and incremented by $2\times10^{-3}$ in each iteration. 
 	The neural network architecture was as described in Section \ref{s:results}.
-	All agents were trained via the original deepQ algorithm \cite{RLMnih15}, implemented via the keras-RL library \cite{plappert2016kerasrl}, with annealed $\epsilon$-greedy exploration, doubleQ updates and dueling networks \cite{RLvan2016deep}.
-	Both fixed and variable hyper-parameter grids are specified in Table. \ref{t:hyper_parameters}.
-	Figs. \ref{f:training_results_dp} and \ref{f:training_results_x} show the training history of the optimal decoding agent at each error rate, as well as the associated variable hyper-parameters.
+	All agents were trained via the original deepQ algorithm \cite{RLMnih15}, implemented via the keras-RL library \cite{plappert2016kerasrl}, with annealed $\epsilon$-greedy exploration, doubleQ updates \cite{RLvan2016deep} and dueling networks \cite{RLvan2016deep}.
+	Both the fixed hyper-parameters and variable hyper-parameter grids utilized during the training procedure are specified in Table. \ref{t:hyper_parameters}.
+	Figs. \ref{f:training_results_dp} and \ref{f:training_results_x} then show the training history of the optimal decoding agent at each error rate, while the associated values for the variable hyper-parameters are given in Table \ref{t:agent_hyper_parameters}.
 
-	\begin{table}[h!]
-	\begin{center}\caption{Hyper-Parameters}\label{t:hyper_parameters}
+	\begin{table}
+	\begin{center}
 	  \begin{tabular}{| c | c | }
 	    \hline
 	    \multicolumn{2}{|c|}{Fixed Hyper-Parameters} \\
@@ -593,23 +593,51 @@
 	    Learning rate (LR)& $\{10,5,1,0.5\}\times10^{-5}$  \\ 
 	    Target network update frequency & $\{2500, 5000\}$ \\ 
 	    \hline
-	  \end{tabular}
+	  \end{tabular}\caption{Training Hyper-Parameters}\label{t:hyper_parameters}
 	\end{center}
 	\end{table}
 
-	\begin{figure}[ht!]
+	\begin{table}
+	\begin{center}
+	  \begin{tabular}{| c | c | }
+	    \hline
+	    \multicolumn{2}{|c|}{Bitflip Noise} \\
+	    \hline
+	    0.001 & $[2\times10^5,1,0.02,1\times10^{-5},5000]$  \\ 
+	    0.003 & $[2\times10^5,1,0.02,1\times10^{-5},5000]$  \\ 
+	    0.005 & $[1\times10^5,0.25,0.001,1\times10^{-5},2500]$  \\ 
+	    0.007 & $[1\times10^5,1,0.02,1\times10^{-5},5000]$  \\ 
+	    0.009 & $[1\times10^5,0.5,0.04,1\times10^{-5},5000]$  \\ 
+	    0.011 & $[2\times10^5,0.5,0.04,1\times10^{-5},2500]$  \\ 
+	    0.013 & $[1\times10^5,0.5,0.001,1\times10^{-5},5000]$  \\ 
+	    0.015 & $[2\times10^5,0.25,0.04,1\times10^{-5},2500]$  \\ 
+	    \hline
+	    \multicolumn{2}{|c|}{Depolarising Noise} \\
+	    \hline
+	    0.001 & $[2\times10^5,1,0.001,5\times10^{-5},5000]$  \\ 
+	    0.003 & $[1\times10^5,0.25,0.02,1\times10^{-5},5000]$  \\ 
+	    0.005 & $[2\times10^5,0.5,0.001,1\times10^{-5},5000]$  \\ 
+	    0.007 & $[1\times10^5,1,0.02,1\times10^{-5},5000]$  \\ 
+	    0.009 & $[2\times10^5,1,0.02,1\times10^{-5},2500]$  \\ 
+	    0.011 & $[2\times10^5,1,0.02,5\times10^{-6},2500]$  \\ 
+	    \hline
+	  \end{tabular}\caption{Hyper-parameters for optimal agents at each error rate, in the form [\textit{number of exploration steps, initial} $\epsilon$ \textit{, final} $\epsilon$\textit{, learning rate, target network update frequency}]}\label{t:agent_hyper_parameters}
+	\end{center}
+	\end{table}
+
+	\begin{figure}
 		\centering
-		\includegraphics[width=\linewidth]{figures/depolarising_training.png}
-		\caption{Training histories and variable hyper-parameter values for optimal depolarising noise agents. Hyper-parameters are given as a list [Number of exploration steps, initial $\epsilon$, final $\epsilon$, learning rate, target network update frequency].}\label{f:training_results_dp}
+		\includegraphics[width=\linewidth]{figures/depolarising_histories.pdf}
+		\caption{Training histories for optimal depolarising noise agents. The $x$-axis shows the number of episodes, and the $y$-axis shows the rolling average of the decoded qubit lifetime. Hyper-parameters for each agent are given in Table \ref{t:agent_hyper_parameters}.}\label{f:training_results_dp}
 	\end{figure}
 
-	\begin{figure}[ht!]
-		\centering
-		\includegraphics[width=\linewidth]{figures/bitflip_training.png}
-		\caption{Training histories and variable hyper-parameter values for optimal bitflip noise agents. Hyper-parameters are listed as per Fig. \ref{f:training_results_dp}.}\label{f:training_results_x}
+	\begin{figure}
+		\centering{}
+		\includegraphics[width=\linewidth]{figures/bitflip_histories.pdf}
+		\caption{Training histories for optimal bitflip noise agents. The $x$-axis shows the number of episodes, and the $y$-axis shows the rolling average of the decoded qubit lifetime. Hyper-parameters for each agent are given in Table \ref{t:agent_hyper_parameters}.}\label{f:training_results_x}
 	\end{figure}
 
-\newpage
+\clearpage
 \bibliographystyle{apsrev4-1mod}
 \bibliography{dq}
 

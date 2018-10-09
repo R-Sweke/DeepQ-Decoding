@@ -92,13 +92,18 @@
 	\je{must necessarily} 
 	%should also 
 	be capable of dealing with such faulty syndrome measurements.
-	Additionally, such algorithms should also be capable of dealing with experimentally relevant noise models, as well as be fast enough to not present a bottleneck to the execution of computations, even as the size of the system (i.e. the code distance) grows.
+	Additionally, such algorithms should also be capable of dealing with experimentally relevant noise models, as well as be fast enough to not present a bottleneck to the execution of computations, even as the size of the system (i.e. the code distance) grows. \je{This, in particular, gives rise to the most daunting desideratum.}
 
 	\je{It turns out that it is precisely the development of decoders applicable to the fault tolerant setting that constitutes a particular challenge.} 
-	Due to the importance of decoding algorithms for fault tolerant quantum computation, many different approaches have been developed, each of which tries to satisfy as many of the experimentally required criteria as possible.
+	Due to the importance of decoding algorithms for fault tolerant quantum computation, 
+	%many 
+	\je{several}
+	%different 
+	approaches have been developed, each of which tries to satisfy as many of the experimentally required criteria as possible.
 	Perhaps most prominent are algorithms based on minimum-weight perfect matching subroutines~\cite{Fowler13}, although alternative approaches based on techniques such as the renormalization group~\cite{Duclos2010} and locally operating cellular automata~\cite{Herold15,herold2017cellular,Kubica2018} have also been put forward.
+	\je{These algorithms solve the problem in principle, but may well be too slow in realistic settings.}
 
-	Recently, techniques from machine learning have begun to find application in diverse areas of quantum physics - such as in the efficient representation of many-body quantum states \cite{WFcarleo2017solving,WFcarleo2018constructing,WFgao2017efficient}, the identification of phase transitions \cite{PTvan2017learning,PTPhysRevB.97.134109,PTcarrasquilla2017machine}, and the autonomous design of novel experimental set-ups \cite{melnikov2018active} - and various neural-network based decoders have also been proposed~\cite{Torlai10, Varsamopoulos17, Krastanov17, Breuckmann18, Baireuther18a, Baireuther18b, Ni18, chamberland2018deep}.
+	\je{To tackle the issue of being fast,} recently, techniques from machine learning have begun to find application in diverse areas of quantum physics - such as in the efficient representation of many-body quantum states \cite{WFcarleo2017solving,WFcarleo2018constructing,WFgao2017efficient}, the identification of phase transitions \cite{PTvan2017learning,PTPhysRevB.97.134109,PTcarrasquilla2017machine}, and the autonomous design of novel experimental set-ups \cite{melnikov2018active} - and various neural-network based decoders have also been proposed~\cite{Torlai10, Varsamopoulos17, Krastanov17, Breuckmann18, Baireuther18a, Baireuther18b, Ni18, chamberland2018deep}.
 	Despite this diversity of proposed decoding algorithms, there is as of yet no algorithm which clearly satisfies all the required experimental criteria listed above.
 	While previously proposed neural network decoders promise extremely fast decoding times \cite{chamberland2018deep}, flexibility with respect to the underlying code and noise model \cite{chamberland2018deep, Breuckmann18} and the potential to scale to large code distances \cite{Ni18}, most neural network decoders are so far restricted to the setting of perfect syndrome measurements.
 	Neural network decoders taking faulty syndrome measurements into account~\cite{Baireuther18a,Baireuther18b} currently restrict themselves to the setting of preserving a logical qubit for as long as possible, without the requirement of performing a subsequent logical gate.

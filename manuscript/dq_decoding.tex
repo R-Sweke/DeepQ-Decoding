@@ -432,7 +432,7 @@
 	In particular, every episode starts with a resetting of the environment.
 	Specifically, as shown in Fig \ref{f:single_episode} (a), given an initial logical state $|\psi_0\rangle \in \mathcal{H}_{\mathrm{sc}}$, represented by a hidden state $S_{\mathrm{hidden},0}$ which is just an empty list, the \emph{request new syndrome} action is applied to the environment to obtain the initial tuple $[S_{1} = \{S_{\mathrm{sv},1},h_{1}\},R_{1},T_{1}]$. 
 	Now, in any step $t$, given $[S_{t},R_{t},T_{1}]$ the agent needs to decide on an action $A_t$, which is applied to the environment.
-	Using the rules described above the environment then generates the tuple $[S_{t+1},R_{t},T_{1}]$, and the process continues until $T_{t+1} = 1$, i.e. until $S_{t+1} in \mathcal{S}_\mathrm{terminal}$.
+	Using the rules described above the environment then generates the tuple $[S_{t+1},R_{t},T_{1}]$, and the process continues until $T_{t+1} = 1$, i.e. until $S_{t+1} \in \mathcal{S}_\mathrm{terminal}$.
 	From the construction above one can see that in order to maximise long term discounted cumulative reward, a decoding agent needs to learn how to choose actions that suppress errors, preserving as closely as possible the initial logical state $|\psi_0\rangle$. 
 	If however, the agent chooses incorrect actions, then errors will accumulate and the referee decoder will no longer be able to correctly decode, indicating the probable failure of subsequent logical gates involving the logical qubit.
 

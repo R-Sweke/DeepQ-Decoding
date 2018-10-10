@@ -16,14 +16,13 @@
 	\usepackage{amsmath}
 
 	%\usepackage{float}
-\newtheorem{theorem}{Theorem}%[section]
-\newtheorem{problem}{Problem}%[section]
 
 	\usepackage[usenames, dvipsnames]{color}
 	\usepackage{url}
 	\usepackage[colorlinks=true,breaklinks=true,allcolors=blue]{hyperref}
 	% \usepackage{hyperref}
 	\usepackage{microtype}
+	
 
 	\newtheorem{theorem}{Theorem}
 	\newtheorem{lemma}{Lemma}
@@ -37,6 +36,8 @@
 	\newcommand{\je}[1]{\textcolor{cyan}{#1}}
 
 \begin{document}
+
+\newtheorem{problem}{Problem}%[section]
 
 % Title page
 	\title{DeepQ \je{machine learning} decoding for fault tolerant quantum computation}
@@ -171,7 +172,7 @@
 		\label{f:surface_code}
 	\end{figure}
 
-	To illustrate the motivation behind such an encoding, let's examine the consequences of a single qubit Pauli flip on a physical data qubit.
+	To illustrate the motivation behind such an encoding, \je{let us} examine the consequences of a single qubit Pauli flip on a physical data qubit.
 	If we assume that the initial state $|\psi\rangle \in \mathcal{H}_\mathrm{sc}$ is an element of the code space, then the subsequent state $|\psi'\rangle \not \in \mathcal{H}_\mathrm{sc}$ will no longer be an element of the code space.
 	In particular, $|\psi'\rangle$ will be an eigenstate with eigenvalue $-1$ of at least one stabilizer.
 	We say that $|\psi'\rangle$ violates these stabilizers, as illustrated by red circles in Fig.~\ref{f:surface_code_examples}~(a).
@@ -181,12 +182,12 @@
 
 \section{The Decoding Problem}\label{s:the_decoding_problem}
 
-	With the foundations from the previous section, we can now formulate a simple preliminary version of the decoding problem: \newline
+	With the foundations from the previous section, we can now formulate a simple preliminary version of the decoding problem.
 
-	\begin{problem}[Decoding problem}]Assume that at $t=0$  \textit{one is given a state} $|\psi\rangle = \alpha |0_L\rangle + \beta |1_L\rangle \in \mathcal{H}_{\mathrm{sc}}.$ \textit{At some time }$t_1>0$ \textit{a syndrome measurement is performed which indicates that one or more stabilizers are violated - i.e. some errors have occurred on physical data qubits. From the given syndrome, determine a set of corrections which should be applied to the code lattice such that the subsequent state} $|\psi'\rangle$ \textit{is equal to the initial state} $|\psi\rangle.$ 
+	\begin{problem}[\je{Decoding problem}]Assume that at $t=0$ one is given a state \je{vector} $|\psi\rangle = \alpha |0_L\rangle + \beta |1_L\rangle \in \mathcal{H}_{\mathrm{sc}}.$ \textit{At some time }$t_1>0$ \textit{a syndrome measurement is performed which indicates that one or more stabilizers are violated - i.e. some errors have occurred on physical data qubits. From the given syndrome, determine a set of corrections which should be applied to the code lattice such that the subsequent state} $|\psi'\rangle$ \textit{is equal to the initial state} $|\psi\rangle.$ 
 	\end{problem}
 	
-	\noindent Before proceeding to discuss more subtle and technical versions of the decoding problem, let's examine why even the above problem is indeed potentially difficult.
+	\noindent Before proceeding to discuss more subtle and technical versions of the decoding problem, \je{let us} examine why even the above problem is indeed potentially difficult.
 	The most important observation is that the map from error configurations to syndromes is many-to-one, i.e. many different sets of errors can lead to the same syndrome.
 	As an example, consider the error configurations illustrated in Fig.~\ref{f:surface_code_examples}~(b-d), all of which lead to the same syndrome.
 	If the probability of an error on a single physical data qubit is low, given such a syndrome one might reasonably assume that the error shown in (c) occurred, as one error on a single qubit is a more likely event than errors on multiple qubits.
@@ -243,7 +244,7 @@
 \section{Reinforcement Learning and q-Functions}\label{s:reinforcement_learning}
 
 	In this section we shift focus and introduce some of the fundamental concepts of reinforcement learning and $q$-functions, which will be essential to our rephrasing of the decoding problem in Section \ref{s:decoding_as_rl}.
-	Again, we will constrain ourselves to the basics and refer to Ref. \cite{RLSutton18} for a complete treatment.
+	Again, we will constrain ourselves to the basics and refer to Ref.\ \cite{RLSutton18} for a complete treatment.
 	A generic reinforcement learning problem considers an agent interacting with an environment, as is illustrated in Fig. \ref{f:agent_environment}.
 	The agent can act on and observe (parts) of the environment, and is tasked with achieving a problem-specific goal by performing a sequence of actions. 
 	We typically consider discrete problems, in  which at each step time step $t$ the environment can be described by a state $S_t \in \mathcal{S}$, where $S$ is referred to as the state space.

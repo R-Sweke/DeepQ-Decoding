@@ -317,6 +317,7 @@
 	In particular, in order to generate such experience, the agent uses a policy derived from its $q$-function (possibly in addition to other explorative policies) to choose actions.
 	This $q$-function is then periodically updated using Eq. \eqref{e:fixed_point}, for which $q_*(s,a)$ is a stationary solution \cite{RLSutton18}.
 
+
 	The above describes concisely the elements of $q$-learning, however it does not address the general impracticality of storing this $q$-function.
 	In most real world applications, the number of valid state-action pairs can be impractically large (e.g. consider the number of possible chess configurations).
 	It is precisely to address this problem, and in effect to render $q$-learning applicable in practice, that \textit{deepQ} learning was introduced \cite{RLMnih15,RLvan2016deep,RLschaul2015prioritized}.

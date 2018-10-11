@@ -448,7 +448,7 @@
 
 	First, it is important to note that the above agent-interaction framework is both code and error model agnostic, provided one has access to a referee decoder, capable of single-shot decoding on perfect syndromes.
 	From this perspective, one might view the framework presented here as a tool for leveraging single-shot, perfect-syndrome decoding algorithms, into decoding algorithms for the fully fault-tolerant setting.
-	Additionally, it should be clear from the rules via which rewards are assigned, that the agent will only accumulate reward provided it can learn to consistently correct any errors that might occur on physical data qubits, without implementing logical operations.
+	Additionally, as mentioned above, the agent will only accumulate reward provided it can learn to consistently correct any errors that might occur on physical data qubits, without implementing logical operations.
 	However, the agent is \textit{not} constrained to return the state back into the code space between successive syndrome measurements.
 	In particular, because typical reinforcement learning algorithms take into account not only immediate rewards, but rather discounted cumulative rewards, the agent may learn strategies involving actions whose benefit may not be immediate.
 	For example, if a rare event occurs and multiple measurement errors occur within the extraction of a syndrome volume, creating a highly ambiguous and difficult to decode input state, the agent may choose to only partially decode before requesting a new syndrome volume, in which hopefully less measurement errors will occur and the underlying error configuration may be less ambiguous.
@@ -468,7 +468,7 @@
 	The trained agent can then be asked directly for an initial correction, which is added to a list of accumulated corrections.
 	Simultaneously \textit{only} the action history element of the previous input state is updated.
 	This updated input state, containing the original syndrome volume and the subsequently performed corrections, is then given again to the agent as input.
-	This process is iterated until the agent either repeats a correction or chooses the identity, which should be taken as a signal to perform another round of syndrome measurements.
+	This process is iterated until the agent either repeats a correction or requests a new syndrome volume.
 
 \section{A deepQ Decoding Agent}\label{s:dq_agent}
 
@@ -493,7 +493,7 @@
 	As mentioned briefly in Section~\ref{s:reinforcement_learning}, a variety of now standard tricks are required to get deepQ learning to work in practice, and we will not present these details here, referring the reader to the relevant references \cite{RLMnih15,RLvan2016deep,RLschaul2015prioritized,RLwang2015dueling} or associated code repository \cite{DeepQDecoding}.
 	However, there are various details concerning the construction of the deepQ agent which may be useful for applying alternative deep reinforcement learning algorithms within this framework, and as such we will present these details in this section.
 
-	In particular, in Section~\ref{s:decoding_as_rl} we described how at the beginning of any time step $t$ the agent is supplied with the state $S_{t}=(S_{E,{t}},h_{t})$, where $S_{E,{t}}$ needs to be constructed from a faulty syndrome volume, and $h_{t}$ is a representation of the agents action history.
+	In particular, in Section~\ref{s:decoding_as_rl} we described how at the beginning of any time step $t$ the agent is supplied with the state $S_{t}=\{S_{\mathrm{sv},{t}},h_{t}\}$, where $S_{\mathrm{sv},{t}}$ is a faulty syndrome volume, given as a list of violated stabilizers from successive syndrome measurements, and $h_{t}$ is the action history list.
 	In deepQ learning, and in many other deep reinforcement learning algorithms, this state $S_t$ needs to be provided as the input to a deep neural network.
 	For example, in the case of deepQ learning, the state $S_t$ is the input to the deepQ network parametrizing the $q$-function from which the agent is partially deriving its policy.
 	As such, utilizing an appropriate encoding of $S_t$, which allows for the use of appropriate neural networks, is important.
@@ -564,8 +564,18 @@
 
 	As a result, there are various natural avenues for extension of this work. 
 	First and foremost it would be of interest to explore the performance of alternative decoding agents, obtained via different reinforcement learning algorithms, for a wider class of codes and error models.
-	Simultaneously, in the perfect-measurements setting, recent effort has focused on developing techniques to allow for the scaling of neural network decoders to larger code distances \cite{Ni18}
-	As such, it would be natural to explore the extent to which these developments could be utilized within the framework presented here, to facilitate obtaining decoding agents for significantly larger code distances.
+	Simultaneously, in the perfect-measurements setting, recent effort has focused on developing techniques to allow for the scaling of neural network decoders to larger code distances \cite{Ni18}.
+	As such, it would be natural to explore the extent to which these developments could be utilized within the framework presented here, to facilitate obtaining decoding agents for significantly larger code distances. Alternatively, an interesting potential approach to scalability could involve multiple communicating decoding agents, acting simultaneously on overlapping patches of the total code lattice.
+	
+	Additionally, in this work we have focused on the decoding of idling logical qubits, encoded via surface code patches of fixed size. 
+	However, current surface code based approaches to large scale fault-tolerant quantum computing require decoding of surface code patches formed via lattice surgery and code deformation \cite{Litinski18b,Fowler18}.
+	As such, to provide a truly complete toolbox for fault tolerant quantum computing it is necessary to provide decoding algorithms which do not explicitly depend on the underlying code lattice, or alternatively in the case of decoding agents, do not have to be retrained for every different size surface code patch.
+	Once again, utilization of multiple communicating agents acting on fixed size sublattices could provide a promising approach to this problem.
+
+	Furthermore, the framework presented here relies on the availability of a referee decoder, with access to the state of the underlying physical data qubits. 
+	As a result, the framework given here can not be used to train decoding agents only on experimental data, and in practice one would be required to first estimate an error model for the experimental setup.
+	In order to remove this restriction it would be of interest to investigate modifications to the framework given here, which require only experimentally generated syndromes.
+
 	Finally, due to the inherent design of the procedure via which these decoding agents are obtained, in which discounted future performance is valued over immediate rewards, these agents have the potential to learn decoding strategies not available to alternative decoding algorithms.
 	Hence, it may be possible that analysis of the strategies learned by decoding agents could aid the development of other new decoding algorithms.
 	

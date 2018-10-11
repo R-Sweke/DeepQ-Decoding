@@ -27,6 +27,8 @@
 	\newtheorem{theorem}{Theorem}
 	\newtheorem{lemma}{Lemma}
 
+	\newcommand{\defeq}{\mathrel{\mathop:}=}
+
 	\newcommand{\ryan}[1]{\textcolor{cyan}{RS: #1}}
 
 	\newcommand{\mk}[1]{\textcolor{cyan}{MK: #1}}
@@ -280,7 +282,7 @@
 
 	In general, the agent's choice of action, the resulting state of the environment and the returned reward can all be stochastic. In the case of finite state and action spaces, the environment can then be formalized via a  \je{classical}  \emph{finite Markov decision process (FMDP)} \je{govered by the transition probabilities}
 	\begin{equation}
-		p(s',r|s,a)\je{ := }\mathrm{pr}(S_t = s',R_t = r|S_{t-1} = s, A_{t-1} = a).
+		p(s',r|s,a) \defeq \mathrm{pr}(S_t = s',R_t = r|S_{t-1} = s, A_{t-1} = a).
 	\end{equation}
 	To formalize the decision making process of the agent, we define an agent's \textit{policy} $\pi$, in essence the agent's strategy, as a mapping from states to probabilities of specific actions - i.e. $\pi(a|s)$ is the probability that agent chooses $A_t = a$, given that the environment is in state $S_t = s$.
 	For FMDP's we then define the \textit{value} of a state $s$ under policy $\pi$ as,

@@ -146,7 +146,6 @@
 	We associate stabilizer operators with each coloured plaquette of the lattice.
 	Stabilizers on blue (orange) plaquettes are operators which apply Pauli $X$ ($Z$) flips to all qubits on the vertices of the plaquette.
 	Specifically, denoting the set of all blue (orange) plaquettes as $B_p$ ($O_p$) we define the stabilizer $S_p$ on plaquette $p$ as,
-
 	\begin{equation}\label{e:stabilizer_definition}
 		S_p = \bigotimes_{v\in p} \sigma_v \quad \text{where }
 		\begin{cases}
@@ -160,6 +159,7 @@
 	This subspace is two dimensional, i.e. $\mathcal{H}_\mathrm{sc} \simeq \mathbb{C}^2$, and hence can encode a single \textit{logical} qubit.
 	Logical operators are operators which preserve the code space, and can therefore be used to manipulate the state of the logical qubit.
 	Fig.~\ref{f:surface_code} shows logical $X$ ($Z$) operators, denoted $X_L$ ($Z_L$), which are continuous strings of single vertex $X$ ($Z$) operators connecting the top and bottom (left and right) boundaries of the lattice.
+	
 
 	\begin{figure}
 		\centering
@@ -179,8 +179,16 @@
 	In particular, $|\psi'\rangle$ will be an eigenstate with eigenvalue $-1$ of at least one stabilizer.
 	We say that $|\psi'\rangle$ violates these stabilizers, as illustrated by red circles in Fig.~\ref{f:surface_code_examples}~(a).
 	The \textit{syndrome} of a state is a list of the outcomes of a simultaneous measurement of all the stabilizers, each of which takes the value $\pm 1$.
-	Given that a single Pauli flip occurred on a single physical data qubit, by analysing the syndrome we may be able to identify and correct this error, in the process conserving the logical qubit state. 
-	This process of \textit{decoding} is discussed in the next section.
+	Given that a single Pauli flip occurred on a single physical data qubit, by analysing the syndrome we may be able to identify and correct this error, in the process conserving the logical qubit state. 	This process of \textit{decoding} is discussed in the next section.
+	
+	 \je{In the terminology of \emph{quantum error correction}, such a surface code on a $d\times d$ lattice is a 
+	$[[d^2,1,d]]$ code. This means that $d^2$ physical qubits are involved, a single logical qubit is being encoded and the code distance is
+	$d$: The distance of a stabilizer code is the weight of the minimal-weight Pauli operator that preserves the code subspace and that 
+	acts nontrivially within the code subspace. This quantity characterizes the error correcting capabilities: If an encoded
+	quantum state is affected by the action of a Pauli operator the weight of which is less than half the code distance, 
+	then one can recover from the error successfully by applying that minimal weight Pauli operator to retuern tge 
+	altered state back to the code subspace.}
+
 
 \section{The Decoding Problem}\label{s:the_decoding_problem}
 

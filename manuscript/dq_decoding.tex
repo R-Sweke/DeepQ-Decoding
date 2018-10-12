@@ -180,7 +180,7 @@
 	\begin{problem}[Decoding problem]Assume that at $t=0$ one is given a state vector $|\psi\rangle = \alpha |0_L\rangle + \beta |1_L\rangle \in \mathcal{H}_{\mathrm{sc}}.$ \textit{At some time }$t_1>0$ \textit{a syndrome measurement is performed which indicates that one or more stabilizers are violated - i.e. some errors have occurred on physical data qubits. From the given syndrome, determine a set of corrections which should be applied to the code lattice such that the subsequent state} $|\psi'\rangle$ \textit{is equal to the initial state} $|\psi\rangle.$ 
 	\end{problem}
 	
-	\noindent Before proceeding to discuss more subtle and technical versions of the decoding problem, \je{let us} examine why even the above problem is indeed potentially difficult.
+	\noindent Before proceeding to discuss more subtle and technical versions of the decoding problem, let us examine why even the above problem is indeed potentially difficult.
 	The most important observation is that the map from error configurations to syndromes is many-to-one, i.e. many different sets of errors can lead to the same syndrome.
 	As an example, consider the error configurations illustrated in Fig.~\ref{f:surface_code_examples}~(b-d), all of which lead to the same syndrome.
 	If the probability of an error on a single physical data qubit is low, given such a syndrome one might reasonably assume that the error shown in (c) occurred, as one error on a single qubit is a more likely event than errors on multiple qubits.
@@ -192,11 +192,10 @@
 	As a result, even though the post-correction state is back in the code space, it will be in a different logical state.
 	Thus, the information we were trying to preserve would have been corrupted.
 	From this simple example one can see that most often solving the decoding problem as stated above involves deciding, given an inherently ambiguous syndrome and (possibly imperfect) knowledge of the underlying error model, which error configuration most likely occurred.
-\je{The mathematical structure underlying the decoding problem is that of homology, which provides a 
-	concise representation of the relationship between errors and syndromes (see, e.g., Ref.\ \cite{FastDecoders}). In this language,
+	The mathematical structure underlying the decoding problem is that of homology, which provides a 
+	concise representation of the relationship between errors and syndromes \cite{FastDecoders}. In this language,
 	a decoder determines the approximate relative likelihood of different homology classes -- equivalence classes of 
-	error patterns -- of given error configurations that are 
-	captured by the syndrome.}
+	error patterns -- of given error configurations that are captured by the syndrome.
 	\begin{figure}
 	\centering
 	\includegraphics[width=1\linewidth]{figures/surface_code_examples.pdf}
@@ -207,16 +206,11 @@
 		They can differ by stabilizers, as for example in (c) and (d), or by logical operators, see (b) and (c).}
 		\label{f:surface_code_examples}
 	\end{figure}
-	
-	
-	\je{It is key to the understanding of realistic quantum error correction}, 	
-	in addition to the inherent difficulty resulting from syndrome ambiguity, in experimental settings the process of extracting the syndrome is %also 
-	\je{it itself} subject to noise. \je{That is to say, one must reasonably assume that}
-	%and hence 
-	the syndrome itself may be faulty \cite{tomita2014low,stephens2014fault}.
-	In practice, each stabilizer %is 
-	\je{may be} 
-	associated with a physical ancilla qubit.
+
+	In addition to the inherent difficulty resulting from syndrome ambiguity, in experimental settings the process of extracting the syndrome is %also 
+	its itself subject to noise. 
+	That is to say, one must reasonably assume that the syndrome itself may be faulty \cite{tomita2014low,stephens2014fault}.
+	In practice, each stabilizer may be associated with a physical ancilla qubit.
 	The syndrome value for that particular stabilizer is obtained by first executing a small quantum circuit which entangles the ancilla with each of the physical data qubits on which the corresponding stabilizer is supported.
 	The syndrome value is then extracted via a measurement of the ancilla qubit.
 	In order to fully account for errors during the process of syndrome extraction one should therefore model this entire circuit, in which errors can occur on both the data qubits and ancilla qubits at each time step.
@@ -233,9 +227,8 @@
 	The essential aspect of the additional difficulty from faulty syndrome measurements can be phenomenologically modelled by imagining each time step as consisting of two distinct error processes \cite{stephens2014fault}, as illustrated in Fig.~\ref{f:decoding_problem}.
 	In the first error process, an error occurs on each data qubit with some probability.
 	One then imagines extracting the perfect syndrome before a second error process occurs, in which with a given probability an error occurs on each stabilizer measurement outcome.
-	In this \je{realistic} scenario, single syndrome measurements are hence no longer reliable.
-	Decoding in the fault tolerant setting therefore typically requires providing a set of sequential syndrome measurements.
-	\je{It should be clear at this point that including fault tolerance, the nature of the decoding problem changes substantially.}
+	In this realistic scenario, lacking only the propagation of errors during syndrome extraction, single syndrome measurements are hence no longer reliable.
+	Decoding in the fault tolerant setting therefore typically requires providing a set of sequential syndrome measurements, and it should be clear at this point that by including the requirement of fault tolerance, the nature of the decoding problem changes substantially.
 
 	Finally, in the context of surface code based fault tolerant quantum computing, all logical gates are implemented either via protocols which also involve an inherent decoding procedure or do not spread errors.
 	To be specific, it is sufficient for universal quantum computing to be able to implement both Clifford and $T$ gates~\cite{Nebe01,Bravyi05}.

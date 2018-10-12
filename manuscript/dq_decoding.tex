@@ -486,10 +486,10 @@
 
 	As a demonstration, we utilized deepQ learning within the framework presented in Section~\ref{s:decoding_as_rl}, to obtain deepQ decoding agents for both bit-flip and depolarizing noise, with faulty syndromes, for a $d=5$ surface code lattice.
 	All the code utilized to obtain these agents is supplied in the corresponding \textit{DeepQ-Decoding} code repository \cite{DeepQDecoding}, and as such we will provide only an overview of the details here.
-	In particular, for a single fixed set of hyper-parameters, we used the original deepQ algorithm \cite{RLMnih15}with annealed $\epsilon$-greedy exploration, implemented via the keras-RL library \cite{plappert2016kerasrl} and incorporating doubleQ updates \cite{RLvan2016deep} and dueling networks \cite{RLwang2015dueling}.
+	In particular, for a single fixed set of hyper-parameters, we used the original deepQ algorithm \cite{RLMnih15} with annealed $\epsilon$-greedy exploration, implemented via the keras-RL library \cite{plappert2016kerasrl} and incorporating doubleQ updates \cite{RLvan2016deep} and a dueling network architecture \cite{RLwang2015dueling}.
 	In addition we used a custom training procedure, described in Appendix~\ref{A:training}, for sequentially iterating through increasing error rates, while simultaneously performing a hyper-parameter grid search at each error-rate iteration.
 	For both error models we utilized a convolutional deepQ network, as illustrated in Fig.~\ref{f:agent}, consisting of three convolutional layers, followed by a single feed-forward layer before the final output layer.
-	Specifically, if we describe a single convolutional layer with a three-tuple $[n,w,s]$, where $n$ is the number of filters, $w$ is the filter width and $s$ is the stride, and a single feed forward layer via a two-tuple $[n,d]$, where $n$ is the number of neurons and $d$ is the output drop-out rate, then from input to output our deepQ networks had the structure,
+	Specifically, if we describe a single convolutional layer with a three-tuple $[n,w,s]$, where $n$ is the number of filters, $w$ is the filter width and $s$ is the stride, and a single feed forward layer via a two-tuple $[n,d]$, where $n$ is the number of neurons and $d$ is the output drop-out rate, then from input to output our deepQ networks had the base structure,
 
 
 	\begin{equation}
@@ -504,30 +504,32 @@
 		\caption{(a,b) Performance of all agents obtained during the iterative training procedure. Each agent was evaluated at increasing error rates, until the average lifetime of the logical qubit actively decoded by the agent became less than the average lifetime of a single faulty qubit. (c,d) Results obtained by using the optimal decoding agent for each error rate.}\label{f:results}
 	\end{figure*}
 
-	We then considered both bit-flip and depolarizing noise.
-	For both error models we considered the measurement of a single syndrome to consist of two separate error channels, as illustrated in Fig.~\ref{f:decoding_problem}.
+	We then considered both bit-flip and depolarizing noise models.
+	For both of these error models we considered the measurement of a single syndrome to consist of two separate error channels, as illustrated in Fig.~\ref{f:decoding_problem}.
 	For bit-flip noise, in the first error channel - the physical error channel - a Pauli $X$ flip was applied to each physical data qubit with probability $p_{\mathrm{phys}}$.
 	For depolarising noise, the physical error channel acted by applying to each physical data qubit, with probability $p_{\mathrm{phys}}$, either a Pauli $X$, $Y$ or $Z$ flip, with equal probability.
 	For both noise models, after the physical error channel, the true syndrome was calculated, after which the second measurement error channel was applied, in which the value of each stabilizer measurement was flipped with probability $p_{\mathrm{meas}}$.
 	For all simulations we set $p \equiv p_{\mathrm{phys}} = p_{\mathrm{meas}}$.
 	Also, note that for bit-flip noise, as only $X$ corrections were necessary, we had $|\mathcal{A}| = d^2 + 1$ - i.e. the agent could perform either the identity or a single qubit $X$ flip on any individual physical data qubit.
-	For depolarising noise, we restricted the agent to only $X$ and $Z$ flips (as $Y$ errors can be corrected via both an $X$ flip and a $Z$ flip), such that $|\mathcal{A}| = 2d^2 + 1$.
+	For depolarising noise, we restricted the agent to only $X$ and $Z$ flips (as $Y$ errors can be corrected via both an $X$ flip and a $Z$ flip), such that $|\mathcal{A}| = 2d^2 + 1$ rather than $|\mathcal{A}| = 3d^2 + 1$.
 
 	To evaluate the performance of our trained decoders we used the procedure described in Fig.~\ref{agent_decoding}, where the agent selected actions via the final $q$-function in a purely greedy manner, with identity or repeated actions triggering new syndrome volumes.
-	The referee decoder was used to check after every action of the agent whether or not a terminal state had been reached, and the length of a single episode was reported as the number of individual syndromes seen by the agent (i.e. the number of times the two-fold error channel was applied) before a terminal state was reached.
+	As referee decoders, we utilized fast feed-forward neural network based homology class predictors, trained in a supervised manner, as per \cite{Torlai10, Varsamopoulos17}. 
+	All utilized referee decoders are included in the DeepQ repository \cite{DeepQDecoding}.
+	In particular, the referee decoder was used to check after every action of the agent whether or not a terminal state had been reached, and the length of a single episode was reported as the number of individual syndromes seen by the agent (i.e. the number of times the two-fold error channel was applied) before a terminal state was reached.
 	For each error rate, the average lifetime of the actively decoded logical qubit was determined by the average episode length, over a number of episodes that guaranteed at least $10^6$ syndromes were seen by the decoding agent.
-	This average logical qubit lifetime was then compared with the average lifetime of a single faulty qubit.
+	This average logical qubit lifetime should be compared to the average lifetime of a single faulty qubit.
 
 	The final results are then shown in Fig.\ \ref{f:results}.
 	In particular, Fig.\ \ref{f:results} (a, b) shows the performance of all decoding agents obtained during the iterative training procedure (as described in Appendix \ref{A:training}), while Fig.\ \ref{f:results} (c, d) shows the results obtained by the using the optimal decoding agent for each error rate.
 	For bit-flip (depolarising) noise we find that for approximately $p < 1.3\times 10^{-2}$  $(p < 1.1\times 10^{-2})$ there is a decoding agent for which the average lifetime of the actively decoded logical qubit is longer than the average lifetime of a single faulty qubit.
-	These results are however by no means rigorous thresholds, and are meant as a demonstration and proof-of-principle. 
-	In this regard there are various points worth emphasising.
+	These results should not be interpreted as rigorous thresholds, but rather as a proof-of-principle and demonstration of the feasibility of using decoding agents, and in particular deepQ agents, as decoders for the fully fault-tolerant setting.
 
-	Firstly, both the neural network architecture and reinforcement learning algorithm used here are comparatively simple with respect to the current state-of-the-art \cite{RLmnih2016asynchronous,RLSilver17b,RLsilver2017mastering,RLSilver2016}, and were chosen to allow for the execution of the required training procedure with the available computational resources.
+	In this regard there are various points worth emphasising.
+	First, both the neural network architecture and reinforcement learning algorithm used here are comparatively simple with respect to the current state-of-the-art \cite{RLmnih2016asynchronous,RLSilver17b,RLsilver2017mastering,RLSilver2016}, and were chosen to allow for the execution of the required training procedure with the available computational resources.
 	As such, it is expected that utilization of either more sophisticated neural network architectures or learning algorithms, coupled with the computational resources required for implementing the required training procedures, could allow one to obtain significantly better results.
 	Furthermore, as discussed in ref. \cite{chamberland2018deep}, using dedicated hardware it is expected that the forward pass time of various applicable neural network architectures (including the architecture used here) can be brought below the time-scales necessary for near-term experiments. 
-	This, coupled with the ability to straightforwardly apply the techniques here to circuit-level noise, renders decoding agents such as the ones shown here promising candidates for near-term fault-tolerant experiments.
+	Factoring in the ability to straightforwardly apply the techniques here to circuit-level noise renders decoding agents promising candidates for near-term fault-tolerant experiments.
 
 \section{Conclusion}\label{s:conclusions}
 

@@ -534,34 +534,36 @@
 \section{Conclusion}\label{s:conclusions}
 
 	We have shown that the problem of decoding within the setting of fault-tolerant quantum computation can be naturally reformulated as a reinforcement learning problem.
-	In particular, we have provided an agent-environment framework which allows for the application of diverse reinforcement learning algorithms, and provided a proof-of-principle demonstration by training deepQ decoding agents for the $d=5$ surface code, for both bit-flip and depolarizing noise, with faulty syndrome measurements.
-	However, this framework is both code and error model agnostic, and as such could be used to obtain decoding agents, a novel class of flexible decoding algorithms, for a wide variety of experimentally relevant settings.
-	Additionally, the recent use of more sophisticated reinforcement learning techniques and neural network architectures to demonstrate super-human performance in complex domains such as Chess and Go \cite{RLSilver17b,RLsilver2017mastering,RLSilver2016}, strongly indicate that the initial results presented here, via deepQ learning with small neural networks, could be successfully improved and extended, given the required computational resources for training.
-	This, coupled with the development of dedicated special purpose hardware for the fast implementation of neural networks, suggest that decoding agents could indeed provide a practical solution for decoding in near-term fully fault-tolerant quantum computation.
+	In particular, we have provided an agent-environment framework which allows for the application of diverse reinforcement learning algorithms, and provided a proof-of-principle demonstration by training deepQ decoding agents for the $d=5$ surface code, for both bit-flip and depolarizing noise with faulty syndrome measurements.
+	However, this framework is both code and error model agnostic, and hence can be directly used to train decoding agents, a novel class of flexible decoding algorithms, for a wide variety of other experimentally relevant settings.
+	Additionally, the recent use of more sophisticated reinforcement learning techniques and neural network architectures to demonstrate super-human performance in complex domains such as Chess and Go \cite{RLSilver17b,RLsilver2017mastering,RLSilver2016}, strongly indicate that the initial results presented here could be successfully improved and extended upon (given appropriate computational resources).
+	With the development of dedicated special purpose hardware for the fast implementation of neural networks, decoding agents could indeed provide a practical solution for decoding in near-term fully fault-tolerant quantum computation.
 
-	As a result, there are various natural avenues for extension of this work. 
+	There are a plethora of natural and interesting ways of extending these initial results. 
 	First and foremost it would be of interest to explore the performance of alternative decoding agents, obtained via different reinforcement learning algorithms, for a wider class of codes and error models.
-	Simultaneously, in the perfect-measurements setting, recent effort has focused on developing techniques to allow for the scaling of neural network decoders to larger code distances \cite{Ni18}.
-	As such, it would be natural to explore the extent to which these developments could be utilized within the framework presented here, to facilitate obtaining decoding agents for significantly larger code distances. Alternatively, an interesting potential approach to scalability could involve multiple communicating decoding agents, acting simultaneously on overlapping patches of the total code lattice.
-	
-	Additionally, in this work we have focused on the decoding of idling logical qubits, encoded via surface code patches of fixed size. 
-	However, current surface code based approaches to large scale fault-tolerant quantum computing require decoding of surface code patches formed via lattice surgery and code deformation \cite{Litinski18b,Fowler18}.
-	As such, to provide a truly complete toolbox for fault tolerant quantum computing it is necessary to provide decoding algorithms which do not explicitly depend on the underlying code lattice, or alternatively in the case of decoding agents, do not have to be retrained for every different size surface code patch.
-	Once again, utilization of multiple communicating agents acting on fixed size sublattices could provide a promising approach to this problem.
+	Equally important is the consideration of techniques allowing for the scaling of neural network decoders to larger code distances.
+	In this work we have focused on the decoding of idling logical qubits, encoded via surface code patches of fixed size. 
+	For such a setting recent literature provides neural network architecture suggestions for scaling to larger code distances \cite{Ni18}, although an alternative method for future research could be found in the use of multiple communicating decoding agents, simultaneously decoding on overlapping sub-lattices of the total code.
+
+	However, current surface code based approaches to large scale fault-tolerant quantum computing require methods for decoding of irregularly shaped and constantly changing surface code patches, formed via lattice surgery and code deformation \cite{Litinski18b,Fowler18}.
+	Hence, to provide a truly complete toolbox for fault tolerant quantum computing it is necessary to provide decoding algorithms which do not explicitly depend on the underlying code lattice.
+	For the case of decoding agents, this would require the development of methods circumventing the requirement to retrain agents for different shape surface code patches.
+	The aforementioned approach of multiple communicating agents acting on fixed size sublattices could however provide a promising approach to this problem.
 
 	Furthermore, the framework presented here relies on the availability of a referee decoder, with access to the state of the underlying physical data qubits. 
 	As a result, the framework given here can not be used to train decoding agents only on experimental data, and in practice one would be required to first estimate an error model for the experimental setup.
 	In order to remove this restriction it would be of interest to investigate modifications to the framework given here, which require only experimentally generated syndromes.
+	One such modification would be to consider ``single-shot'' episodes, which terminate as soon as the agent has returned the current state into the code space.
 
 	Finally, due to the inherent design of the procedure via which these decoding agents are obtained, in which discounted future performance is valued over immediate rewards, these agents have the potential to learn decoding strategies not available to alternative decoding algorithms.
-	Hence, it may be possible that analysis of the strategies learned by decoding agents could aid the development of other new decoding algorithms.
+	It may therefore be insightful to construct test-cases (i.e. specific error volumes) to infer the learned strategy, and use this information in the design of model-tailored decoding algorithms.
 	
 
 
 
 % Acknowledgments
 	\begin{acknowledgments}
-		The authors gratefully acknowledge helpful and insightful discussions with Daniel Litinski, Nicolas Delfosse, Aleksander Kubica, Thomas Jochym-O'Connor, Paul Baireuther, and Hendrik Poulsen Nautrup.
+		The authors gratefully acknowledge helpful and insightful discussions with Daniel Litinski, Nicolas Delfosse, Aleksander Kubica, Thomas Jochym-O'Connor, Paul Baireuther, James Wooton and Hendrik Poulsen Nautrup.
 		Additionally, the authors would like to thank J\"{o}rg Behrmann for incredible technical support, without which this work would not have been possible.
 		RS\ acknowledges the financial support of the Alexander von Humboldt foundation.
 		MSK\ is supported by the DFG (CRC183, project B02).
@@ -601,7 +603,7 @@
 	Both the fixed hyper-parameters and variable hyper-parameter grids utilized during the training procedure are specified in Table. \ref{t:hyper_parameters}.
 	Figs. \ref{f:training_results_dp} and \ref{f:training_results_x} then show the training history of the optimal decoding agent at each error rate, while the associated values for the variable hyper-parameters are given in Table \ref{t:agent_hyper_parameters}.
 
-	\begin{table}
+	\begin{table}[hb]
 	\begin{center}
 	  \begin{tabular}{| c | c | }
 	    \hline
@@ -627,7 +629,7 @@
 	\end{center}
 	\end{table}
 
-	\begin{table}
+	\begin{table}[hb]
 	\begin{center}
 	  \begin{tabular}{| c | c | }
 	    \hline

@@ -78,7 +78,7 @@
 	Perhaps most prominent are algorithms based on minimum-weight perfect matching subroutines~\cite{Fowler13}, although alternative approaches based on techniques such as the renormalization group~\cite{Duclos2010} and locally operating cellular automata~\cite{Herold15,herold2017cellular,Kubica2018} have also been put forward.
 	These algorithms solve the problem in principle, but may well be too slow in realistic settings.
 
-	Recently, techniques from machine learning have begun to find application in diverse areas of quantum physics - such as in the efficient representation of many-body quantum states~\cite{WFcarleo2017solving,WFcarleo2018constructing,WFgao2017efficient}, the identification of phase transitions~\cite{PTvan2017learning,PTPhysRevB.97.134109,PTcarrasquilla2017machine}, and the autonomous design of novel experimental set-ups~\cite{melnikov2018active} - and in an attempt to tackle the issue of fast decoding various neural-network based decoders have also been proposed~\cite{Torlai10, Varsamopoulos17, Krastanov17, chamberland2018deep, Baireuther18a, Baireuther18b, Breuckmann18,Ni18}.
+	Recently, techniques from machine learning have begun to find application in diverse areas of quantum physics - such as in the efficient representation of many-body quantum states~\cite{WFcarleo2017solving,WFcarleo2018constructing,WFgao2017efficient}, the identification of phase transitions~\cite{PTvan2017learning,PTPhysRevB.97.134109,PTcarrasquilla2017machine}, and the autonomous design of novel experimental set-ups~\cite{melnikov2018active,fosel2018reinforcement} - and in an attempt to tackle the issue of fast decoding various neural-network based decoders have also been proposed~\cite{Torlai10, Varsamopoulos17, Krastanov17, chamberland2018deep, Baireuther18a, Baireuther18b, Breuckmann18,Ni18}.
 	In particular, previously proposed neural network decoders promise extremely fast decoding times~\cite{chamberland2018deep}, flexibility with respect to the underlying code and noise model~\cite{chamberland2018deep,Baireuther18a,Baireuther18b,Breuckmann18} and the potential to scale to large code distances~\cite{Ni18, Breuckmann18}.
 	However, despite this diversity of proposed decoding algorithms, and the clear potential of machine learning based approaches, there is as of yet no algorithm or technique which clearly satisfies all the required experimental criteria listed above.
 	As such, there remains room for improvement and new techniques, particularly within the fault-tolerant setting.
@@ -352,7 +352,7 @@
 	In particular, at any stage, the ability of the referee decoder to decode a \emph{perfect} syndrome generated from the current hidden state of the environment will be used as a proxy for the success of future logical operations, and an indicator of whether or not the current state is a terminal state.
 
 	Given these fundamental elements of the environment we define the action space $\mathcal{A}$ to consist of all Pauli $X$ and $Z$ flips on single physical data qubits, along with a special \emph{Request New Syndrome} action.
-	Note that Pauli $Y$ flips can be implemented via $X$ and $Z$ flips, and that in practice we all single qubit corrections suggested between successive syndrome measurements would be accumulated, either to be tracked through the computation, or applied simultaneously, as illustrated in Fig.~\ref{agent_decoding}.
+	Note that Pauli $Y$ flips can be implemented via $X$ and $Z$ flips, and that in practice we imagine all single qubit corrections suggested between successive syndrome measurements would be accumulated, either to be tracked through the computation, or applied simultaneously, as illustrated in Fig.~\ref{agent_decoding}.
 	In addition, we define the state space $\mathcal{S}$ to consist of all possible states of the form $S_{t} = \{S_{\mathrm{sv},t},h_t\}$, where $S_{\mathrm{sv},t}$ is a faulty syndrome volume and $h_t$ is the \emph{action history}, a list of all the actions performed by the agent since the syndrome volume $S_{\mathrm{sv},t}$ was generated.
 
 	Finally, we have all the ingredients necessary to describe the rules, illustrated in Fig.~\ref{f:single_episode}, via which the environment generates the tuple $[S_{t+1} = \{S_{\mathrm{sv},t+1},h_{t+1}\},R_{t+1},T_{t+1}]$ when acted upon with action $A_t$.
@@ -360,7 +360,7 @@
 
 	\subsection{Non-Repeated Pauli Flips}\label{s:non-repeated}
 
-	If, as shown in Fi{}g.~\ref{f:single_episode} (c), the action $A_t$ chosen by the agent is any Pauli flip that is not already an element of the action history list $h_t$, then the environment responds as follows;
+	If, as shown in Fig.~\ref{f:single_episode} (c), the action $A_t$ chosen by the agent is any Pauli flip that is not already an element of the action history list $h_t$, then the environment responds as follows;
 
 	\begin{enumerate}
 		\item The hidden state of the environment $S_{\mathrm{hidden},t+1}$ is obtained by appending $A_t$ to $S_{\mathrm{hidden},t}$.
@@ -403,7 +403,7 @@
 			(a) Given a faulty syndrome volume generated by some experiment, this volume is concatenated with an empty action history to produce a suitable input state for the decoding agent.
 			(b) The decoding agent takes in the combined faulty syndrome volume and action history and chooses an action.
 			This action is simultaneously (c) added to a list of accumulated corrections and (d) used to update only the action history component of the input state to the agent.
-			This updated input state is then given to the agent and procedures (b-d) continue until the agent (e) repeats an action or chooses the identity.
+			This updated input state is then given to the agent and procedures (b-d) continue until the agent (e) repeats an action or requests a new syndrome.
 			(f) At this stage the corrections could be applied to the lattice state, although in practice they would be tracked through the entire computation.
 		}
 		\label{agent_decoding}
@@ -411,7 +411,7 @@
 
 	Given all the above elements, it is now possible to summarize a complete episode.
 	In particular, every episode starts with a resetting of the environment.
-	Specifically, as shown in Fig~\ref{f:single_episode} (a), given an initial logical state $|\psi_0\rangle \in \mathcal{H}_{\mathrm{sc}}$, represented by a hidden state $S_{\mathrm{hidden},0}$ which is just an empty list, the \emph{request new syndrome} action is applied to the environment to obtain the initial tuple $[S_{1} = \{S_{\mathrm{sv},1},h_{1}\},R_{1},T_{1}]$.
+	Specifically, as shown in Fig.~\ref{f:single_episode}~(a), given an initial logical state $|\psi_0\rangle \in \mathcal{H}_{\mathrm{sc}}$, represented by a hidden state $S_{\mathrm{hidden},0}$ which is just an empty list, the \emph{request new syndrome} action is applied to the environment to obtain the initial tuple $[S_{1} = \{S_{\mathrm{sv},1},h_{1}\},R_{1},T_{1}]$.
 	Now, in any step $t$, given $[S_{t},R_{t},T_{1}]$ the agent needs to decide on an action $A_t$, which is applied to the environment.
 	Using the rules described above the environment then generates the tuple $[S_{t+1},R_{t},T_{1}]$, and the process continues until $T_{t+1} = 1$, i.e. until $S_{t+1} \in \mathcal{S}_\mathrm{terminal}$.
 	From the construction above one can see that in order to maximise long term discounted cumulative reward, a decoding agent needs to learn how to choose actions that suppress errors, preserving as closely as possible the initial logical state $|\psi_0\rangle$.
@@ -426,7 +426,7 @@
 	Additionally, as mentioned above, the agent will only accumulate reward provided it can learn to consistently correct any errors that might occur on physical data qubits, without implementing logical operations.
 	However, the agent is \textit{not} constrained to return the state back into the code space between successive syndrome measurements.
 	In particular, because typical reinforcement learning algorithms take into account not only immediate rewards, but rather discounted cumulative rewards, the agent may learn strategies involving actions whose benefit may not be immediate.
-	For example, if a rare event occurs and multiple measurement errors occur within the extraction of a syndrome volume, creating a highly ambiguous and difficult to decode input state, the agent may choose to only partially decode before requesting a new syndrome volume, in which hopefully less measurement errors will occur and the underlying error configuration may be less ambiguous.
+	For example, in the rare event of multiple measurement errors occurring within the extraction of a syndrome volume, creating a highly ambiguous and difficult to decode input state, the agent may choose to only partially decode before requesting a new syndrome volume, in which hopefully less measurement errors will occur and the underlying error configuration may be less ambiguous.
 	As such, the decoding agents obtained via this framework may have access to truly novel decoding strategies, that are not currently available to alternative decoding algorithms.
 
 	It is also useful to note that in practice various alternative design choices are possible, and that it is possible to speed-up learning by utilizing various improvements.
@@ -439,7 +439,7 @@
 	Finally, the structure of the reward mechanism presented here is only one of many possible choices.
 	In particular, while this natural reward structure facilitated stable training and the obtaining of decoding agents whose performance is shown in Section~\ref{s:results}, it is an interesting and open question to explore the effectiveness of alternative reward mechanisms.
 
-	Finally, although we have now thoroughly addressed a framework to which reinforcement learning algorithms could be applied to \textit{train} an agent, we have not yet explicitly discussed the implementation of our $q$-function based agent and how it may be used to decode within an experimental setting.
+	Although we have now thoroughly addressed a framework to which reinforcement learning algorithms could be applied to \textit{train} an agent, we have not yet explicitly discussed the implementation of our $q$-function based agent and how it may be used to decode within an experimental setting.
 	As illustrated in Fig.~\ref{agent_decoding}, the latter problem is straightforwardly addressed.
 	Given a faulty syndrome volume from an experiment, we initialize an empty action history list and combine this with the faulty syndrome volume as an initial input to the decoding agent.
 	The trained agent can then be asked directly for an initial correction, which is added to a list of accumulated corrections.
@@ -487,8 +487,8 @@
 \section{Results}\label{s:results}
 
 	As a demonstration, we utilized deepQ learning within the framework presented in Section~\ref{s:decoding_as_rl}, to obtain deepQ decoding agents for both bit-flip and depolarizing noise, with faulty syndromes, for a $d=5$ surface code lattice.
-	All the code utilized to obtain these agents is supplied in the corresponding \textit{DeepQ-Decoding} code repository~\cite{DeepQDecoding}, and as such we will provide only an overview of the details here.
-	In particular, for a single fixed set of hyper-parameters, we used the original deepQ algorithm~\cite{RLMnih15} with annealed $\epsilon$-greedy exploration, implemented via the keras-RL library~\cite{plappert2016kerasrl} and incorporating doubleQ updates~\cite{RLvan2016deep} and a dueling network architecture~\cite{RLwang2015dueling}.
+	All the code used to obtain these agents is supplied in the corresponding \textit{DeepQ-Decoding} code repository~\cite{DeepQDecoding}, and as such we will provide only an overview of the details here.
+	In particular, for a single fixed set of hyper-parameters, we used the original deepQ algorithm~\cite{RLMnih15} with annealed $\epsilon$-greedy exploration, implemented via the keras-rl library~\cite{plappert2016kerasrl} and incorporating doubleQ updates~\cite{RLvan2016deep} and a dueling network architecture~\cite{RLwang2015dueling}.
 	In addition we used a custom training procedure, described in Appendix~\ref{A:training}, for sequentially iterating through increasing error rates, while simultaneously performing a hyper-parameter grid search at each error-rate iteration.
 	For both error models we utilized a convolutional deepQ network, as illustrated in Fig.~\ref{f:agent}, consisting of three convolutional layers, followed by a single feed-forward layer before the final output layer.
 	Specifically, if we describe a single convolutional layer with a three-tuple $[n,w,s]$, where $n$ is the number of filters, $w$ is the filter width and $s$ is the stride, and a single feed forward layer via a two-tuple $[n,d]$, where $n$ is the number of neurons and $d$ is the output drop-out rate, then from input to output our deepQ networks had the base structure,
@@ -498,7 +498,7 @@
 		[[64,3,2],~[32,2,1],~[32,2,1],~[512,0.2],~[|\mathcal{A}|, 0]],
 	\end{equation}
 	where $|\mathcal{A}|$ is the size of the action space.
-	Additional minor modifications as required for dueling methodologies were also included~\cite{RLwang2015dueling} .
+	Additional minor modifications as required for dueling methodologies were also included~\cite{RLwang2015dueling}.
 	All other additional hyper-parameters used to obtain each decoding agent, along with histories of each training procedure, are provided in Appendix~\ref{A:parameters}.
 
 	\begin{figure*}
@@ -518,11 +518,11 @@
 	For depolarising noise, the physical error channel acted by applying to each physical data qubit, with probability $p_{\mathrm{phys}}$, either a Pauli $X$, $Y$ or $Z$ flip, with equal probability.
 	For both noise models, after the physical error channel, the true syndrome was calculated, after which the second measurement error channel was applied, in which the value of each stabilizer measurement was flipped with probability $p_{\mathrm{meas}}$.
 	For all simulations we set $p \equiv p_{\mathrm{phys}} = p_{\mathrm{meas}}$.
-	Also, note that for bit-flip noise, as only $X$ corrections were necessary, we had $|\mathcal{A}| = d^2 + 1$ - i.e. the agent could perform either the identity or a single qubit $X$ flip on any individual physical data qubit.
+	Also, note that for bit-flip noise, as only $X$ corrections were necessary, we had $|\mathcal{A}| = d^2 + 1$ - i.e. the agent could perform either the \textit{request new syndrome} action or a single qubit $X$ flip on any individual physical data qubit.
 	For depolarising noise, we restricted the agent to only $X$ and $Z$ flips (as $Y$ errors can be corrected via both an $X$ flip and a $Z$ flip), such that $|\mathcal{A}| = 2d^2 + 1$ rather than $|\mathcal{A}| = 3d^2 + 1$.
 
-	To evaluate the performance of our trained decoders we used the procedure described in Fig.~\ref{agent_decoding}, where the agent selected actions via the final $q$-function in a purely greedy manner, with identity or repeated actions triggering new syndrome volumes.
-	As referee decoders, we utilized fast feed-forward neural network based homology class predictors, trained in a supervised manner, as per~\cite{Torlai10, Varsamopoulos17}.
+	To evaluate the performance of our trained decoders we used the procedure described in Fig.~\ref{agent_decoding}, where the agent selected actions via the final $q$-function in a purely greedy manner, with repeated actions or the request of a new syndrome triggering new syndrome volumes.
+	As referee decoders, we utilized fast feed-forward neural network based homology class predictors, trained in a supervised manner, as per Refs.~\cite{Torlai10, Varsamopoulos17}.
 	All utilized referee decoders are included in the DeepQ repository~\cite{DeepQDecoding}.
 	In particular, the referee decoder was used to check after every action of the agent whether or not a terminal state had been reached, and the length of a single episode was reported as the number of individual syndromes seen by the agent (i.e. the number of times the two-fold error channel was applied) before a terminal state was reached.
 	For each error rate, the average lifetime of the actively decoded logical qubit was determined by the average episode length, over a number of episodes that guaranteed at least $10^6$ syndromes were seen by the decoding agent.
@@ -538,21 +538,22 @@
 	Furthermore, there are various points worth emphasising.
 	First, both the neural network architecture and reinforcement learning algorithm used here are comparatively simple with respect to the current state-of-the-art~\cite{RLmnih2016asynchronous,RLSilver17b,RLsilver2017mastering,RLSilver2016}, and were chosen to allow for the execution of the required training procedure with the available computational resources.
 	As such, it is expected that utilization of either more sophisticated neural network architectures or learning algorithms, coupled with the computational resources required for implementing the required training procedures, could allow one to obtain significantly better results.
-	Furthermore, as discussed in ref.~\cite{chamberland2018deep}, using dedicated hardware it is expected that the forward pass time of various applicable neural network architectures (including the architecture used here) can be brought below the time-scales necessary for near-term experiments.
+	Furthermore, as discussed in Ref.~\cite{chamberland2018deep}, using dedicated hardware it is expected that the forward pass time of various applicable neural network architectures (including the architecture used here) can be brought below the time-scales necessary for near-term experiments.
 	Factoring in the ability to straightforwardly apply the techniques here to circuit-level noise renders decoding agents promising candidates for near-term fault-tolerant experiments.
 
 \section{Conclusion}\label{s:conclusions}
 
 	We have shown that the problem of decoding within the setting of fault-tolerant quantum computation can be naturally reformulated as a reinforcement learning problem.
 	In particular, we have provided an agent-environment framework which allows for the application of diverse reinforcement learning algorithms, and provided a proof-of-principle demonstration by training deepQ decoding agents for the $d=5$ surface code, for both bit-flip and depolarizing noise with faulty syndrome measurements.
-	However, this framework is both code and error model agnostic, and hence can be directly used to train decoding agents, a novel class of flexible decoding algorithms, for a wide variety of other experimentally relevant settings.
+	It is important to stress that this framework is both code and error model agnostic, and hence can be directly used to train decoding agents, a novel class of flexible decoding algorithms, for a wide variety of other experimentally relevant settings.
 	Additionally, the recent use of more sophisticated reinforcement learning techniques and neural network architectures to demonstrate super-human performance in complex domains such as Chess and Go~\cite{RLSilver17b,RLsilver2017mastering,RLSilver2016}, strongly indicate that the initial results presented here could be successfully improved and extended upon (given appropriate computational resources).
 	With the development of dedicated special purpose hardware for the fast implementation of neural networks, decoding agents could indeed provide a practical solution for decoding in near-term fully fault-tolerant quantum computation.
 
 	There is a plethora of natural and interesting ways of extending these initial results.
-	First and foremost it would be of interest to explore the performance of alternative decoding agents, obtained via different reinforcement learning algorithms, for a wider class of codes and error models.
+	First and foremost it would be of interest to explore the performance of alternative decoding agents, obtained via different reinforcement learning algorithms, for a wider class of codes.
+	Crucially, a key feature of this approach is the ability to straight-forwardly tackle general error-models, even including models exhibiting intricate correlations.
 	Equally important is the consideration of techniques allowing for the scaling of neural network decoders to larger code distances.
-	In this work we have focused on the decoding of idling logical qubits, encoded via surface code patches of fixed size.
+	In this work we have focused on the decoding of idling logical qubits during quantum computation, encoded via surface code patches of fixed size.
 	For such a setting recent literature provides neural network architecture suggestions for scaling to larger code distances~\cite{Ni18}, although an alternative method for future research could be found in the use of multiple communicating decoding agents, simultaneously decoding on overlapping sub-lattices of the total code.
 
 	However, current surface code based approaches to large scale fault-tolerant quantum computing require methods for decoding of irregularly shaped and constantly changing surface code patches, formed via lattice surgery and code deformation~\cite{Litinski18b,Fowler18}.

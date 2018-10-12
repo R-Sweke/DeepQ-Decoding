@@ -620,7 +620,7 @@
 	\begin{equation}
 		[[64,3,2],~[32,2,1],~[32,2,1],~[512,0.2],~[|\mathcal{A}|, 0]],
 	\end{equation}
-	with an additional modifications as required for dueling methodologies~\cite{RLwang2015dueling} implemented automatically by keras-rl~\cite{plappert2016kerasrl}.
+	with additional modifications required for dueling methodologies~\cite{RLwang2015dueling} implemented automatically by keras-rl~\cite{plappert2016kerasrl}.
 	Single convolutional layers have been described with a three-tuple $[n,w,s]$, where $n$ is the number of filters, $w$ is the filter width and $s$ is the stride, and single feed forward layers via a two-tuple $[n,d]$, where $n$ is the number of neurons and $d$ is the output drop-out rate.
 	All agents were trained via the original deepQ algorithm~\cite{RLMnih15}, implemented via the keras-rl library~\cite{plappert2016kerasrl}, with annealed $\epsilon$-greedy exploration, doubleQ updates~\cite{RLvan2016deep} and dueling networks~\cite{RLvan2016deep}.
 	Both the fixed hyper-parameters and variable hyper-parameter grids utilized during the training procedure are specified in Table.~\ref{t:hyper_parameters}.

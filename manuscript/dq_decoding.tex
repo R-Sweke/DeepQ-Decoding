@@ -427,13 +427,15 @@
 	For example, if a rare event occurs and multiple measurement errors occur within the extraction of a syndrome volume, creating a highly ambiguous and difficult to decode input state, the agent may choose to only partially decode before requesting a new syndrome volume, in which hopefully less measurement errors will occur and the underlying error configuration may be less ambiguous.
 	As such, the decoding agents obtained via this framework may have access to truly novel decoding strategies, that are not currently available to alternative decoding algorithms.
 
-	It is also useful to note that in practice it is possible to speed-up learning by utilizing various improvements.
+	It is also useful to note that in practice various alternative design choices are possible, and that it is possible to speed-up learning by utilizing various improvements.
 	First of all, when choosing exploratory actions, we can restrict the action space to a reduced set of potentially valid corrections.
 	In particular, the agent need only consider actions on vertices either involved in a violated stabilizer or adjacent to vertices which have already been acted on.
 	This restriction effectively increases the probability of the agent discovering useful actions, and therefore the effectiveness of any exploration phase.
 	Second, when generating new syndrome volumes, we discard those cases in which the syndrome is trivial.
 	In these cases, the agent does not need to act and hence no useful experience tuple would be generated.
 	This allows any experience memory required by the learning algorithm to consist of only useful memories.
+	Finally, the structure of the reward mechanism presented here is only one of many possible choices.
+	In particular, while this natural reward structure facilitated stable training and the obtaining of decoding agents whose performance is shown in Section \ref{s:results}, it is an interesting and open question to explore the effectiveness of alternative reward mechanisms.
 
 	Finally, although we have now thoroughly addressed a framework to which reinforcement learning algorithms could be applied to \textit{train} an agent, we have not yet explicitly discussed the implementation of our $q$-function based agent and how it may be used to decode within an experimental setting.
 	As illustrated in Fig.~\ref{agent_decoding}, the latter problem is straightforwardly addressed.

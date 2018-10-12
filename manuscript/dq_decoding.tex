@@ -560,7 +560,6 @@
 	
 
 
-
 % Acknowledgments
 	\begin{acknowledgments}
 		The authors gratefully acknowledge helpful and insightful discussions with Daniel Litinski, Nicolas Delfosse, Aleksander Kubica, Thomas Jochym-O'Connor, Paul Baireuther, James Wooton and Hendrik Poulsen Nautrup.
@@ -594,11 +593,15 @@
 		\caption{Iterative training procedure, via a hyper-parameter grid search at each error rate. After training multiple decoding agents at a given error rate, one for each point in the specified hyper-parameter grid, the results are sorted. The weights and experience memory from the optimal decoding agent are then used as the initial weights and experience memory for a new round of training procedures, again one for each point in the hyper-parameter grid, but at an increased error rate.}\label{f:iterative_training}
 	\end{figure}
 
-\section{Agent Hyperparameters and Learning Curves}\label{A:parameters}
+\section{Agent Hyper-Parameters and Learning Curves}\label{A:parameters}
 
 	We implemented the distributed iterative training procedure described in Appendix \ref{A:training}, for both bit-flip and depolarising noise (all utilized code can be found in the \emph{DeepQ-Decoding} repository \cite{DeepQDecoding}).
 	In particular, the initial error rate was set to $p_1 = p_{\mathrm{phys}} = p_{\mathrm{meas}} = 1\times10^{-3}$, and incremented by $2\times10^{-3}$ in each iteration. 
-	The neural network architecture was as described in Section \ref{s:results}.
+	As described in Section \ref{s:results}, from input to output the neural network architecture was as follows;
+	\begin{equation}
+		[[64,3,2],~[32,2,1],~[32,2,1],~[512,0.2],~[|\mathcal{A}|, 0]],
+	\end{equation}
+	with an additional single output for value prediction, as required for dueling methodologies \cite{RLwang2015dueling}, and single convolutional layers have been described with a three-tuple $[n,w,s]$, where $n$ is the number of filters, $w$ is the filter width and $s$ is the stride, and single feed forward layers via a two-tuple $[n,d]$, where $n$ is the number of neurons and $d$ is the output drop-out rate.
 	All agents were trained via the original deepQ algorithm \cite{RLMnih15}, implemented via the keras-RL library \cite{plappert2016kerasrl}, with annealed $\epsilon$-greedy exploration, doubleQ updates \cite{RLvan2016deep} and dueling networks \cite{RLvan2016deep}.
 	Both the fixed hyper-parameters and variable hyper-parameter grids utilized during the training procedure are specified in Table. \ref{t:hyper_parameters}.
 	Figs. \ref{f:training_results_dp} and \ref{f:training_results_x} then show the training history of the optimal decoding agent at each error rate, while the associated values for the variable hyper-parameters are given in Table \ref{t:agent_hyper_parameters}.

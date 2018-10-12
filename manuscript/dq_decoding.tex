@@ -105,16 +105,13 @@
 	However, despite this diversity of proposed decoding algorithms, and the clear potential of machine learning based approaches, there is as of yet no algorithm or technique which clearly satisfies all the required experimental criteria listed above.
 	As such, there remains room for improvement and new techniques, particularly within the fault tolerant setting.
 
-	Simultaneously, the last few years have also seen impressive advances in the development of deep reinforcement learning algorithms, which have allowed for the training of neural network based agents capable of obtaining super-human performance in domains such as Atari~\cite{RLMnih15,RLschaul2015prioritized,RLvan2016deep,RLwang2015dueling}, Chess~\cite{RLsilver2017mastering} and Go~\cite{RLSilver2016,RLSilver17b}.
+	Simultaneously, the last few years have also seen impressive advances in the development of deep reinforcement learning algorithms, which have allowed for the training of neural network based agents capable of obtaining super-human performance in challenging domains such as Atari~\cite{RLMnih15,RLschaul2015prioritized,RLvan2016deep,RLwang2015dueling}, Chess~\cite{RLsilver2017mastering} and Go~\cite{RLSilver2016,RLSilver17b}.
 	These techniques are particularly powerful in situations where it is necessary to learn strategies for complex sequential decision making, involving consideration of the future effects of ones actions.
-	
-	In this work, \je{we set out to present a machine learning algorithm that allows to decode fault tolerant quantum memories most naturally
-	based notions
-	of reinforcement learning -- in a way compatible with the aforementioned desiderata.}
-	% we demonstrate that decoding in the context of fault-tolerant quantum computing provides a natural setting for the application of reinforcement learning methods.
-	We % will
-	\je{discuss} the advantages of such an approach over the previously proposed neural network decoders.
-	In particular, \je{in the new framework established,} we interpret the decoder as an agent performing discrete, sequential actions on an environment which is defined by a quantum error correction code.
+
+	In this work we demonstrate that decoding in the context of fault-tolerant quantum computing provides a natural setting for the application of reinforcement learning methods.
+	As such, we introduce a novel reinforcement learning based framework for obtaining a new class of decoding algorithms applicable to the setting of fully fault tolerant quantum computation.
+	Importantly, we discuss the advantages of such an approach over the previously proposed neural network decoders, and argue that the framework presented here both lays the foundations and provides a toolbox for obtaining decoders satisfying all the required criteria.
+	In particular, within the newly established framework to be presented here, we interpret the decoder as an agent performing discrete, sequential actions on an environment which is defined by a quantum error correction code.
 	This conceptual framework allows for the application of various deep reinforcement learning algorithms to obtain neural network based decoding agents.
 	As a demonstration, we then utilize to deepQ learning to obtain fast surface code decoders, for a variety of noise models, in the fully fault-tolerant setting.
 	These results provide a foundation for extension via both more sophisticated reinforcement learning techniques and neural network models.

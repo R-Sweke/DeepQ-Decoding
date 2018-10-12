@@ -378,8 +378,7 @@
 
 	\begin{enumerate}
 		\item The hidden state of the environment $S_{\mathrm{hidden},t+1}$ is obtained by appending $A_t$ to $S_{\mathrm{hidden},t}$. In essence, the agent's chosen correction is applied to the  underlying state $|\psi_t\rangle$, yielding state $|\psi_{t+1}\rangle$.
-		\item As the agent has not requested a new syndrome, and is therefore interpreted as being still busy providing corrections to the syndrome volume $S_{\mathrm{sv},t}$, a new syndrome volume is not generated. 
-		As such, $S_{\mathrm{sv},t+1} = S_{\mathrm{sv},t}$. 
+		\item We set $S_{\mathrm{sv},t+1} = S_{\mathrm{sv},t}$, therefore providing the agent an opportunity to provide more corrections in response to the current syndrome volume.
 		In addition, the updated action history $h_{t+1}$ is obtained by appending to $A_t$ to $h_t$.
 		The output state is then $S_{t+1} = \{S_{\mathrm{sv},t+1},h_{t+1}\}$.
 		\item If $|\psi_{t+1}\rangle$ is equal to the initial logical state $|\psi_0\rangle$ - i.e. if all errors have been corrected at this stage without implementing a logical operation - then $R_{t+1} = 1$, otherwise $R_{t+1} = 0$. Technically, this can be determined by checking both that no stabilizers are violated by $|\psi_{t+1}\rangle$, and that $|\psi_{t+1}\rangle$ belongs to the same homology class as $|\psi_0\rangle$.

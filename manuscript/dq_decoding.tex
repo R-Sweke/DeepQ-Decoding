@@ -159,28 +159,25 @@
 		\label{f:surface_code}
 	\end{figure}
 
-	To illustrate the motivation behind such an encoding, \je{let us} examine the consequences of a single qubit Pauli flip on a physical data qubit.
-	If we assume that the initial state \je{vector} $|\psi\rangle \in \mathcal{H}_\mathrm{sc}$ is an element of the code space, then the subsequent state 
-	\je{vector} $|\psi'\rangle \not \in \mathcal{H}_\mathrm{sc}$ will no longer be an element of the code space.
+	To illustrate the motivation behind such an encoding, let us examine the consequences of a single qubit Pauli flip on a physical data qubit.
+	If we assume that the initial state vect,or $|\psi\rangle \in \mathcal{H}_\mathrm{sc}$ is an element of the code space, then the subsequent state 
+	vector $|\psi'\rangle \not \in \mathcal{H}_\mathrm{sc}$ will no longer be an element of the code space.
 	In particular, $|\psi'\rangle$ will be an eigenstate with eigenvalue $-1$ of at least one stabilizer.
 	We say that $|\psi'\rangle$ violates these stabilizers, as illustrated by red circles in Fig.~\ref{f:surface_code_examples}~(a).
 	The \textit{syndrome} of a state is a list of the outcomes of a simultaneous measurement of all the stabilizers, each of which takes the value $\pm 1$.
 	Given that a single Pauli flip occurred on a single physical data qubit, by analysing the syndrome we may be able to identify and correct this error, in the process conserving the logical qubit state. 	This process of \textit{decoding} is discussed in the next section.
-	
-	 \je{In the terminology of \emph{quantum error correction}, such a surface code on a $d\times d$ lattice is a 
-	$[[d^2,1,d]]$ code. This means that $d^2$ physical qubits are involved, a single logical qubit is being encoded and the code distance is
-	$d$: The distance of a stabilizer code is the weight of the minimal-weight Pauli operator that preserves the code subspace and that 
-	acts nontrivially within the code subspace. This quantity characterizes the error correcting capabilities: If an encoded
-	quantum state is affected by the action of a Pauli operator the weight of which is less than half the code distance, 
-	then one can recover from the error successfully by applying that minimal weight Pauli operator to retuern tge 
-	altered state back to the code subspace.}
 
+	In the terminology of stabilizer codes and quantum error correction,  such a surface code on a $d\times d$ lattice is a 
+	$[[d^2,1,d]]$ code \cite{Gottesman97}.
+	This means that $d^2$ physical qubits data qubits are required to encode a single logical qubit, with code distance $d$.
+	Specifically, the distance of a stabilizer code is the weight of the minimal-weight non-trivial logical operator - i.e. the minimal weight Pauli operator that both preserves the code subspace and acts non-trivially within this code subspace.
+	In particular, this quantity characterizes the error correcting capabilities of a given code: if a logical qubit is affected by the action of a Pauli operator, the weight of which is less than half the code distance, then one can successfully recover from the error by applying the minimal weight Pauli operator which returns the altered state to the code subspace.
 
 \section{The Decoding Problem}\label{s:the_decoding_problem}
 
 	With the foundations from the previous section, we can now formulate a simple preliminary version of the decoding problem.
 
-	\begin{problem}[\je{Decoding problem}]Assume that at $t=0$ one is given a state \je{vector} $|\psi\rangle = \alpha |0_L\rangle + \beta |1_L\rangle \in \mathcal{H}_{\mathrm{sc}}.$ \textit{At some time }$t_1>0$ \textit{a syndrome measurement is performed which indicates that one or more stabilizers are violated - i.e. some errors have occurred on physical data qubits. From the given syndrome, determine a set of corrections which should be applied to the code lattice such that the subsequent state} $|\psi'\rangle$ \textit{is equal to the initial state} $|\psi\rangle.$ 
+	\begin{problem}[Decoding problem]Assume that at $t=0$ one is given a state vector $|\psi\rangle = \alpha |0_L\rangle + \beta |1_L\rangle \in \mathcal{H}_{\mathrm{sc}}.$ \textit{At some time }$t_1>0$ \textit{a syndrome measurement is performed which indicates that one or more stabilizers are violated - i.e. some errors have occurred on physical data qubits. From the given syndrome, determine a set of corrections which should be applied to the code lattice such that the subsequent state} $|\psi'\rangle$ \textit{is equal to the initial state} $|\psi\rangle.$ 
 	\end{problem}
 	
 	\noindent Before proceeding to discuss more subtle and technical versions of the decoding problem, \je{let us} examine why even the above problem is indeed potentially difficult.

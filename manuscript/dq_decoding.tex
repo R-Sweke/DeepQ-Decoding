@@ -495,7 +495,7 @@
 	\begin{equation}
 		[[64,3,2],~[32,2,1],~[32,2,1],~[512,0.2],~[|\mathcal{A}|, 0]],
 	\end{equation}
-	where $|\mathcal{A}|$ is the size of the action space.
+	where $|\mathcal{A}|$ is the size of the action space, and an additional single neuron output for value prediction, as required by dueling methodologies \cite{RLwang2015dueling}, was also included.
 	All other additional hyper-parameters used to obtain each decoding agent, along with histories of each training procedure, are provided in Appendix~\ref{A:parameters}.
 
 	\begin{figure*}
@@ -568,8 +568,8 @@
 		MSK\ is supported by the DFG (CRC183, project B02).
 		EvN\ is supported by the Swiss National Science Foundation through grant P2EZP2-172185.
 		JE\ is supported by DFG (CRC 183, EI 519/14-1, and EI 519/7-1), the ERC (TAQ), the Templeton Foundation, and the BMBF (Q.com).
-		\je{This work has also received funding from the European Union's Horizon 2020
-		research and innovation programme under grant agreement No 817482 (PASQUANS).}
+		This work has also received funding from the European Union's Horizon 2020
+		research and innovation programme under grant agreement No 817482 (PASQUANS).
 	\end{acknowledgments}
 
 \appendix
@@ -601,7 +601,7 @@
 	\begin{equation}
 		[[64,3,2],~[32,2,1],~[32,2,1],~[512,0.2],~[|\mathcal{A}|, 0]],
 	\end{equation}
-	with an additional single output for value prediction, as required for dueling methodologies \cite{RLwang2015dueling}, and single convolutional layers have been described with a three-tuple $[n,w,s]$, where $n$ is the number of filters, $w$ is the filter width and $s$ is the stride, and single feed forward layers via a two-tuple $[n,d]$, where $n$ is the number of neurons and $d$ is the output drop-out rate.
+	with an additional single output for value prediction, as required for dueling methodologies \cite{RLwang2015dueling}. Single convolutional layers have been described with a three-tuple $[n,w,s]$, where $n$ is the number of filters, $w$ is the filter width and $s$ is the stride, and single feed forward layers via a two-tuple $[n,d]$, where $n$ is the number of neurons and $d$ is the output drop-out rate.
 	All agents were trained via the original deepQ algorithm \cite{RLMnih15}, implemented via the keras-RL library \cite{plappert2016kerasrl}, with annealed $\epsilon$-greedy exploration, doubleQ updates \cite{RLvan2016deep} and dueling networks \cite{RLvan2016deep}.
 	Both the fixed hyper-parameters and variable hyper-parameter grids utilized during the training procedure are specified in Table. \ref{t:hyper_parameters}.
 	Figs. \ref{f:training_results_dp} and \ref{f:training_results_x} then show the training history of the optimal decoding agent at each error rate, while the associated values for the variable hyper-parameters are given in Table \ref{t:agent_hyper_parameters}.

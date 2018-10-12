@@ -68,20 +68,18 @@
 	The known strategy for achieving such robustness is to encode a single logical qubit into the state of many physical qubits, via a quantum error correcting code, from which it is possible to actively diagnose and correct errors that may occur~\cite{Terhal15,Campbell17}.
 	While many quantum error correcting codes exist, topological quantum codes~\cite{Kitaev03, Dennis02, Preskill17lectures, Nayak08, Pachos12, Terhal15, Brown16, Campbell17}, in which only local operations are required to diagnose and correct errors, are of particular interest as a result of their experimental feasibility~\cite{Reed12, Barends14, Nigg14, Corcoles15, Albrecht16, Takita16, Linke17}.
 	In particular, the surface code has emerged as an especially promising candidate for large-scale fault-tolerant quantum computation, due to the combination of its comparatively low overhead and locality requirements, coupled with the availability of convenient strategies for the implementation of all required logical gates~\cite{Fowler18,Litinski18b}. 
-	In fact, current road maps towards the realization of robust quantum computing have identified surface code based approaches as the most feasible methodology for achieving this goal ~\cite{Roadmap}.
+	In fact, current road maps towards the realization of robust quantum computing have identified surface code based approaches as the most feasible methodology for achieving this goal~\cite{Roadmap}.
 
 	However, the known realistic topological quantum error correcting codes, including the surface code, are not self-correcting, and are therefore not robust to natural thermal noise.
 	For this reason one has to actively diagnose and correct for errors, and as such, in any code-based strategy for fault tolerant quantum computation decoding algorithms play a critical role.
 	At a high level, these algorithms take as input the outcomes of syndrome measurements (which provide a diagnosis of errors that have occurred on the physical qubits), and provide as output a suggestion of corrections for any errors that may have occurred during the computation. 
 	In practice, these decoding algorithms have to be extremely fast - in particular, one has to be able to decode faster than the rate at which errors occur.
-	As such. the development of decoding algorithms constitutes a serious bottleneck in the realization of fault tolerant quantum computers. and are key to gaining an understanding of quantum computing in realistic regimes.
+	As such, the development of decoding algorithms constitutes a serious bottleneck in the realization of fault tolerant quantum computers and are key to gaining an understanding of quantum computing in realistic regimes.
 
 	It is particularly important to note that in any physically realistic setting, the required syndrome measurements are obtained via small quantum circuits, and are therefore also generically faulty. 
 	For this reason, while the setting of perfect syndrome measurements provides a paradigmatic test-bed for the development of decoding algorithms, any decoding algorithm which aims to be experimentally useful 
 	must necessarily be capable of dealing with such faulty syndrome measurements.
 	Additionally, such algorithms should also be capable of dealing with experimentally relevant noise models, as well as be fast enough to not present a bottleneck to the execution of computations, even as the size of the system (i.e. the code distance) grows.
-
-
 
 	As of yet, it is precisely the development of decoders applicable to the fault tolerant setting that constitutes a particular challenge. 
 	However, due to the importance of decoding algorithms for fault tolerant quantum computation, several approaches have been developed, each of which tries to satisfy as many of the experimentally required criteria as possible.
@@ -527,7 +525,7 @@
 	Additionally, the recent use of more sophisticated reinforcement learning techniques and neural network architectures to demonstrate super-human performance in complex domains such as Chess and Go~\cite{RLSilver17b,RLsilver2017mastering,RLSilver2016}, strongly indicate that the initial results presented here could be successfully improved and extended upon (given appropriate computational resources).
 	With the development of dedicated special purpose hardware for the fast implementation of neural networks, decoding agents could indeed provide a practical solution for decoding in near-term fully fault-tolerant quantum computation.
 
-	There are a plethora of natural and interesting ways of extending these initial results. 
+	There is a plethora of natural and interesting ways of extending these initial results. 
 	First and foremost it would be of interest to explore the performance of alternative decoding agents, obtained via different reinforcement learning algorithms, for a wider class of codes and error models.
 	Equally important is the consideration of techniques allowing for the scaling of neural network decoders to larger code distances.
 	In this work we have focused on the decoding of idling logical qubits, encoded via surface code patches of fixed size. 
@@ -536,7 +534,7 @@
 	However, current surface code based approaches to large scale fault-tolerant quantum computing require methods for decoding of irregularly shaped and constantly changing surface code patches, formed via lattice surgery and code deformation~\cite{Litinski18b,Fowler18}.
 	Hence, to provide a truly complete toolbox for fault tolerant quantum computing it is necessary to provide decoding algorithms which do not explicitly depend on the underlying code lattice.
 	For the case of decoding agents, this would require the development of methods circumventing the requirement to retrain agents for different shape surface code patches.
-	The aforementioned approach of multiple communicating agents acting on fixed size sublattices could however provide a promising approach to this problem.
+	The aforementioned approach of multiple communicating agents acting on fixed size sub-lattices could however provide a promising approach to this problem.
 
 	Furthermore, the framework presented here relies on the availability of a referee decoder, with access to the state of the underlying physical data qubits. 
 	As a result, the framework given here can not be used to train decoding agents only on experimental data, and in practice one would be required to first estimate an error model for the experimental setup.

@@ -464,21 +464,21 @@
 	\end{figure*}
 
 	As discussed in the previous section, many different reinforcement learning algorithms could now be applied within the framework presented here. 
-	However, in order to provide a concrete example and proof-of-principle, we will specialize to deepQ learning, which has been previously utilized to obtain agents capable of human-level control in domains such as Atari.
+	However, in order to provide a concrete example and proof-of-principle, we will specialize to deepQ learning, which has been previously utilized to obtain agents capable of human-level control in domains such as Atari \cite{RLMnih15}.
 	As mentioned briefly in Section~\ref{s:reinforcement_learning}, a variety of now standard tricks are required to get deepQ learning to work in practice, and we will not present these details here, referring the reader to the relevant references \cite{RLMnih15,RLvan2016deep,RLschaul2015prioritized,RLwang2015dueling} or associated code repository \cite{DeepQDecoding}.
 	However, there are various details concerning the construction of the deepQ agent which may be useful for applying alternative deep reinforcement learning algorithms within this framework, and as such we will present these details in this section.
 
 	In particular, in Section~\ref{s:decoding_as_rl} we described how at the beginning of any time step $t$ the agent is supplied with the state $S_{t}=\{S_{\mathrm{sv},{t}},h_{t}\}$, where $S_{\mathrm{sv},{t}}$ is a faulty syndrome volume, given as a list of violated stabilizers from successive syndrome measurements, and $h_{t}$ is the action history list.
 	In deepQ learning, and in many other deep reinforcement learning algorithms, this state $S_t$ needs to be provided as the input to a deep neural network.
 	For example, in the case of deepQ learning, the state $S_t$ is the input to the deepQ network parametrizing the $q$-function from which the agent is partially deriving its policy.
-	As such, utilizing an appropriate encoding of $S_t$, which allows for the use of appropriate neural networks, is important.
+	As such, utilizing an encoding of $S_t$, which allows for the use of appropriate neural networks, is important.
 
 	In Fig.~\ref{f:agent} we have illustrated the encoding of $S_t$ which was used to facilitate the use of deep convolutional neural networks to parametrize the $q$-function.
 	In particular, as shown in Fig.~\ref{f:agent} (a) and (b), we can embed a $d\times d$ code lattice into a $(2d + 1)\times(2d+1)$ binary matrix, where each entry corresponds to either a plaquette, a vertex, or an edge of the lattice.
 	As shown in Fig.~\ref{f:agent} (a), we can then use a single such binary matrix to encode each of the faulty syndromes, by using the entries corresponding to plaquettes to indicate violated stabilizers, and the remaining entries to differentiate both blue and orange, and bulk and boundary plaquettes.
 	Similarly, as illustrated in  Fig.~\ref{f:agent} (b) we can use two such binary matrices to encode the action history, by using one matrix to indicate the physical data qubits on which $X$ flips have already been applied, and the other binary matrix to indicate the data qubits on which $Z$ flips have already been applied.
 	As can be seen in Fig.~\ref{f:agent} (c), the total state $S_t$ can then be obtained by stacking the action history slices on top of the faulty syndrome slices, effectively creating a multi-channel image suitable as input for a convolutional neural network.
-	In particular, the strength of this encoding is that any convolutional filter, such as the one indicated in Fig.~\ref{f:agent} (c), then isolates all relevant information, both violated stabilizers and applied actions, from some local patch of the lattice.
+	In particular, the strength of this encoding is that any convolutional filter, such as the one indicated in Fig.~\ref{f:agent} (c), then isolates all relevant information from some local patch of the lattice - in particular, the violated stabilizers and their type, as well as the previously applied actions.
 	Finally, the deepQ network we utilize is completed by stacking a feed forward neural network on top of multiple convolutional layers.
 	In particular, the final layer of this network has $|\mathcal{A}|$ activations, each of which encodes $q(S_t,a)$ for an action $a$.
 

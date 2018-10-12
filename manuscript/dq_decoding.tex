@@ -77,15 +77,11 @@
 \maketitle
 
 \section{Introduction}\label{s:introduction}
-	In order to implement large scale quantum \je{computations} it is necessary to be able to store and manipulate quantum information in a manner that is robust to the unavoidable errors introduced through interaction of the physical qubits with a noisy environment.
-%	A possible strategy
-	\je{The known strategy} for achieving such robustness is to encode a single logical qubit into the state of many physical qubits, via a quantum error correcting code, from which it 
-	%may be 
-	\je{is} possible to actively diagnose and correct errors that may occur~\cite{Terhal15,Campbell17}.
+	In order to implement large scale quantum computations it is necessary to be able to store and manipulate quantum information in a manner that is robust to the unavoidable errors introduced through interaction of the physical qubits with a noisy environment.
+	The known strategy for achieving such robustness is to encode a single logical qubit into the state of many physical qubits, via a quantum error correcting code, from which it is possible to actively diagnose and correct errors that may occur~\cite{Terhal15,Campbell17}.
 	While many quantum error correcting codes exist, topological quantum codes~\cite{Kitaev03, Dennis02, Preskill17lectures, Nayak08, Pachos12, Terhal15, Brown16, Campbell17}, in which only local operations are required to diagnose and correct errors, are of particular interest as a result of their experimental feasibility~\cite{Reed12, Barends14, Nigg14, Corcoles15, Albrecht16, Takita16, Linke17}.
-	%Recently 
-	\je{In particular,} the surface code has emerged as an especially promising candidate for large-scale fault-tolerant quantum computation, due to the combination of its comparatively low overhead and locality requirements, coupled with the availability of convenient strategies for the implementation of all required logical gates \cite{Fowler18,Litinski18b}. \je{In fact, road maps towards realizing robust quantum computing focus on achieving this goal based on such surface codes as the 
-	most feasible way forward  (see, e.g., Ref.~\cite{Roadmap})}.
+	In particular, the surface code has emerged as an especially promising candidate for large-scale fault-tolerant quantum computation, due to the combination of its comparatively low overhead and locality requirements, coupled with the availability of convenient strategies for the implementation of all required logical gates \cite{Fowler18,Litinski18b}. 
+	In fact, current road maps towards the realization of robust quantum computing have identified surface code based approaches as the most feasible methodology for achieving this goal ~\cite{Roadmap}.
 
 	\je{The known realistic topological quantum error correcting codes are not self-correcting, however, a feature which comes at a heavy price: They are not robust
 	to natural thermal noise. For this reason one has to actively correct for errors following sophisticated prescriptions. That is to say,} in any code-based strategy for fault tolerant quantum computation, decoding algorithms play a critical role.

@@ -8,38 +8,26 @@
 	\usepackage{dsfont}
 	\usepackage{bm}
 	\usepackage{amsmath}
-
-\usepackage{complexity}
-
+	\usepackage{complexity}
 	\usepackage{times}
-
 	\usepackage{amsmath}
-
 	%\usepackage{float}
-
 	\usepackage[usenames, dvipsnames]{color}
 	\usepackage{url}
 	\usepackage[colorlinks=true,breaklinks=true,allcolors=blue]{hyperref}
-	% \usepackage{hyperref}
 	\usepackage{microtype}
-	
 
 	\newtheorem{theorem}{Theorem}
 	\newtheorem{lemma}{Lemma}
-
+	\newtheorem{problem}{Problem}%[section]
 	\newcommand{\defeq}{\mathrel{\mathop:}=}
 
 	\newcommand{\ryan}[1]{\textcolor{cyan}{RS: #1}}
-
 	\newcommand{\mk}[1]{\textcolor{cyan}{MK: #1}}
-
 	\newcommand{\en}[1]{\textcolor{cyan}{EN: #1}}
-
 	\newcommand{\je}[1]{\textcolor{cyan}{#1}}
 
 \begin{document}
-
-\newtheorem{problem}{Problem}%[section]
 
 % Title page
 	\title{Reinforcement Learning Decoders for Fault Tolerant Quantum Computation}
@@ -66,8 +54,7 @@
 		In this work, we show that the problem of decoding such codes, in the full fault tolerant setting, can be naturally reformulated as a process of 
 		repeated interactions between a decoding agent and a code environment, to which the machinery of reinforcement learning 
 		can be applied to obtain decoding agents.
-		As a demonstration, by using deepQ learning, we obtain fast decoding agents for the surface code, for a variety of 
-		natural noise-models.
+		As a demonstration, by using deepQ learning, we obtain fast decoding agents for the surface code, for a variety of noise-models.
 		%, within the fully fault tolerant setting.
 		 \je{We argue that it is specifically the practically important situation of fault tolerant decoding that is particularly suitable
 		 to be tackled with notions of machine learning.}
@@ -495,7 +482,8 @@
 	\begin{equation}
 		[[64,3,2],~[32,2,1],~[32,2,1],~[512,0.2],~[|\mathcal{A}|, 0]],
 	\end{equation}
-	where $|\mathcal{A}|$ is the size of the action space, and an additional single neuron output for value prediction, as required by dueling methodologies \cite{RLwang2015dueling}, was also included.
+	where $|\mathcal{A}|$ is the size of the action space.
+	Additional minor modifications as required for dueling methodologies were also included~\cite{RLwang2015dueling} .
 	All other additional hyper-parameters used to obtain each decoding agent, along with histories of each training procedure, are provided in Appendix~\ref{A:parameters}.
 
 	\begin{figure*}
@@ -504,7 +492,7 @@
 		\caption{(a,b) Performance of all agents obtained during the iterative training procedure. Each agent was evaluated at increasing error rates, until the average lifetime of the logical qubit actively decoded by the agent became less than the average lifetime of a single faulty qubit. (c,d) Results obtained by using the optimal decoding agent for each error rate.}\label{f:results}
 	\end{figure*}
 
-	We then considered both bit-flip and depolarizing noise models.
+	We considered both bit-flip and depolarizing noise models.
 	For both of these error models we considered the measurement of a single syndrome to consist of two separate error channels, as illustrated in Fig.~\ref{f:decoding_problem}.
 	For bit-flip noise, in the first error channel - the physical error channel - a Pauli $X$ flip was applied to each physical data qubit with probability $p_{\mathrm{phys}}$.
 	For depolarising noise, the physical error channel acted by applying to each physical data qubit, with probability $p_{\mathrm{phys}}$, either a Pauli $X$, $Y$ or $Z$ flip, with equal probability.
@@ -601,7 +589,7 @@
 	\begin{equation}
 		[[64,3,2],~[32,2,1],~[32,2,1],~[512,0.2],~[|\mathcal{A}|, 0]],
 	\end{equation}
-	with an additional single output for value prediction, as required for dueling methodologies \cite{RLwang2015dueling}. Single convolutional layers have been described with a three-tuple $[n,w,s]$, where $n$ is the number of filters, $w$ is the filter width and $s$ is the stride, and single feed forward layers via a two-tuple $[n,d]$, where $n$ is the number of neurons and $d$ is the output drop-out rate.
+	with an additional modifications as required for dueling methodologies \cite{RLwang2015dueling} implemented automatically by keras-rl~\cite{plappert2016kerasrl}. Single convolutional layers have been described with a three-tuple $[n,w,s]$, where $n$ is the number of filters, $w$ is the filter width and $s$ is the stride, and single feed forward layers via a two-tuple $[n,d]$, where $n$ is the number of neurons and $d$ is the output drop-out rate.
 	All agents were trained via the original deepQ algorithm \cite{RLMnih15}, implemented via the keras-RL library \cite{plappert2016kerasrl}, with annealed $\epsilon$-greedy exploration, doubleQ updates \cite{RLvan2016deep} and dueling networks \cite{RLvan2016deep}.
 	Both the fixed hyper-parameters and variable hyper-parameter grids utilized during the training procedure are specified in Table. \ref{t:hyper_parameters}.
 	Figs. \ref{f:training_results_dp} and \ref{f:training_results_x} then show the training history of the optimal decoding agent at each error rate, while the associated values for the variable hyper-parameters are given in Table \ref{t:agent_hyper_parameters}.

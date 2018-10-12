@@ -83,20 +83,17 @@
 	In particular, the surface code has emerged as an especially promising candidate for large-scale fault-tolerant quantum computation, due to the combination of its comparatively low overhead and locality requirements, coupled with the availability of convenient strategies for the implementation of all required logical gates \cite{Fowler18,Litinski18b}. 
 	In fact, current road maps towards the realization of robust quantum computing have identified surface code based approaches as the most feasible methodology for achieving this goal ~\cite{Roadmap}.
 
-	\je{The known realistic topological quantum error correcting codes are not self-correcting, however, a feature which comes at a heavy price: They are not robust
-	to natural thermal noise. For this reason one has to actively correct for errors following sophisticated prescriptions. That is to say,} in any code-based strategy for fault tolerant quantum computation, decoding algorithms play a critical role.
-	At a high level, these algorithms take as input the outcomes of syndrome measurements (which provide a diagnosis of errors that \je{have} occurred on the physical qubits), and provide as output a suggestion of corrections for any errors that may have occurred during the computation. \je{They have to be extremely 
-	fast -- faster than the quantum noise can act -- and reliable.
-	As such they constitute a serious bottleneck in the realization of fault tolerant quantum computers and are key to the understanding of quantum
-	computing in realistic regimes.}
+	However, the known realistic topological quantum error correcting codes, including the surface code, are not self-correcting, and are therefore not robust to natural thermal noise.
+	For this reason one has to actively diagnose and correct for errors, and as such, in any code-based strategy for fault tolerant quantum computation decoding algorithms play a critical role.
+	At a high level, these algorithms take as input the outcomes of syndrome measurements (which provide a diagnosis of errors that have occurred on the physical qubits), and provide as output a suggestion of corrections for any errors that may have occurred during the computation. 
+	In practice, these decoding algorithms have to be extremely fast - in particular, one has to be able to decode faster than the rate at which errors occur.
+	As such. the development of decoding algorithms constitutes a serious bottleneck in the realization of fault tolerant quantum computers. and are key gaining an understanding of quantum computing in realistic regimes.
 
 	It is particularly important to note that in any physically realistic setting, the required syndrome measurements are obtained via small quantum circuits, and are therefore also generically faulty. 
-	\je{For this reason}, while the setting of perfect syndrome measurements provides a \je{paradigmatic} 
-	test-bed for the development of decoding algorithms, any decoding algorithm which aims to be experimentally useful 
-	\je{must necessarily} 
-	%should also 
-	be capable of dealing with such faulty syndrome measurements.
-	Additionally, such algorithms should also be capable of dealing with experimentally relevant noise models, as well as be fast enough to not present a bottleneck to the execution of computations, even as the size of the system (i.e. the code distance) grows. \je{This, in particular, gives rise to the most daunting desideratum.}
+	For this reason, while the setting of perfect syndrome measurements provides a paradigmatic test-bed for the development of decoding algorithms, any decoding algorithm which aims to be experimentally useful 
+	must necessarily be capable of dealing with such faulty syndrome measurements.
+	Additionally, such algorithms should also be capable of dealing with experimentally relevant noise models, as well as be fast enough to not present a bottleneck to the execution of computations, even as the size of the system (i.e. the code distance) grows. 
+	This, in particular, is a particularly daunting criteria.
 
 	\je{It turns out that it is precisely the development of decoders applicable to the fault tolerant setting that constitutes a particular challenge.} 
 	Due to the importance of decoding algorithms for fault tolerant quantum computation, 

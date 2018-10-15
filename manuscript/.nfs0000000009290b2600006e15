@@ -25,7 +25,7 @@
 	\newcommand{\ryan}[1]{\textcolor{cyan}{RS: #1}}
 	\newcommand{\mk}[1]{\textcolor{cyan}{MK: #1}}
 	\newcommand{\en}[1]{\textcolor{cyan}{EN: #1}}
-%	\newcommand{\je}[1]{\textcolor{cyan}{#1}}
+	\newcommand{\je}[1]{\textcolor{cyan}{#1}}
 
 \begin{document}
 
@@ -71,8 +71,7 @@
 	It is particularly important to note that in any physically realistic setting, the required syndrome measurements are obtained via small quantum circuits, and are therefore also generically faulty.
 	For this reason, while the setting of perfect syndrome measurements provides a paradigmatic test-bed for the development of decoding algorithms, any decoding algorithm which aims to be experimentally useful 
 	must necessarily be capable of dealing with such faulty syndrome measurements.
-	Additionally, such algorithms should also be capable of dealing with experimentally relevant noise models, as well as be fast enough to not present a bottleneck to the execution of computations, even as the size of the system (i.e.\ the code distance) 
-	grows.
+	Additionally, such algorithms should also be capable of dealing with experimentally relevant noise models, as well as be fast enough to not present a bottleneck to the execution of computations, even as the size of the system (i.e. the code distance) grows.
 
 	As of yet, it is precisely the development of decoders applicable to the fault-tolerant setting that constitutes a particular challenge.
 	However, due to the importance of decoding algorithms for fault-tolerant quantum computation, several approaches have been developed, each of which tries to satisfy as many of the experimentally required criteria as possible.
@@ -93,12 +92,12 @@
 	Importantly, we discuss the advantages of such an approach over the previously proposed neural network decoders, and argue that the framework presented here both lays the foundations and provides a toolbox for obtaining decoders satisfying all the required criteria.
 	In particular, within the newly established framework to be presented here, we interpret the decoder as an agent performing discrete, sequential actions on an environment which is defined by a quantum error correction code.
 	This conceptual framework allows for the application of various deep reinforcement learning algorithms to obtain neural network based decoding agents.
-	As a demonstration, we then utilize deepQ learning to obtain fast surface code decoders, for a variety of noise models, in the fully fault-tolerant setting.
+	As a demonstration, we then utilize to deepQ learning to obtain fast surface code decoders, for a variety of noise models, in the fully fault-tolerant setting.
 	These results provide a foundation for extension via both more sophisticated reinforcement learning techniques and neural network models.
 
 	In this work we begin by providing an introductory overview of the surface code in Section~\ref{s:the_surface_code}, before presenting a description of the decoding problem for fault-tolerant quantum computation in Section~\ref{s:the_decoding_problem}.
 	After a brief introduction to the formalism of reinforcement learning and $Q$-functions in Section~\ref{s:reinforcement_learning} we are then able to provide the conceptual reframing of decoding as a reinforcement learning problem in Section~\ref{s:decoding_as_rl}, representing one of the primary results of this work.
-	In Section~\ref{s:results} we then present deepQ surface code decoders for a variety of noise models, before finally in Section~\ref{s:conclusions} we discuss both the advantages and disadvantages of the approach presented here, along with various potential strategies for building upon the results presented in this work.
+	In Section~\ref{s:results} we then present deepQ surface code decoders for a variety of noise models, before finally in Sect,ion~\ref{s:conclusions} we discuss both the advantages and disadvantages of the approach presented here, along with various potential strategies for building upon the results presented in this work.
 
 \section{The Surface Code}\label{s:the_surface_code}
 
@@ -122,7 +121,7 @@
 	All stabilizers are mutually commuting and have eigenvalues $\pm 1$.
 	This allows for the introduction of a fictitious Hamiltonian $H = -\sum_p S_p$ from which the surface code $\mathcal{H}_\mathrm{sc} \subset \mathcal{H}$ is defined to be the ground state space of $H$.
 	Alternatively, this space consists of all simultaneous $+1$ eigenstates of all stabilizers.
-	This subspace is two dimensional, i.e.\ $\mathcal{H}_\mathrm{sc} \simeq \mathbb{C}^2$, and hence can encode a single \textit{logical} qubit.
+	This subspace is two dimensional, i.e. $\mathcal{H}_\mathrm{sc} \simeq \mathbb{C}^2$, and hence can encode a single \textit{logical} qubit.
 	Logical operators are operators which preserve the code space, and can therefore be used to manipulate the state of the logical qubit.
 	Fig.~\ref{f:surface_code} shows logical $X$ ($Z$) operators, denoted $X_L$ ($Z_L$), which are continuous strings of single vertex $X$ ($Z$) operators connecting the top and bottom (left and right) boundaries of the lattice.
 	
@@ -151,19 +150,19 @@
 	In the terminology of stabilizer codes and quantum error correction,  such a surface code on a $d\times d$ lattice is a 
 	$[[d^2,1,d]]$ code~\cite{Gottesman97}.
 	This means that $d^2$ physical qubits data qubits are required to encode a single logical qubit, with code distance $d$.
-	Specifically, the \emph{distance of a stabilizer code} is the weight of the minimal-weight non-trivial logical operator - i.e.\ the minimal weight Pauli operator that both preserves the code subspace and acts non-trivially within this code subspace.
+	Specifically, the distance of a stabilizer code is the weight of the minimal-weight non-trivial logical operator - i.e. the minimal weight Pauli operator that both preserves the code subspace and acts non-trivially within this code subspace.
 	In particular, this quantity characterizes the error correcting capabilities of a given code: if a logical qubit is affected by the action of a Pauli operator, the weight of which is less than half the code distance, then one can successfully recover from the error by applying the minimal weight Pauli operator which returns the altered state to the code subspace.
 
 \section{The Decoding Problem}\label{s:the_decoding_problem}
 
 	With the foundations from the previous section, we can now formulate a simple preliminary version of the decoding problem.
 
-	\begin{problem}[Decoding problem]Assume that at $t=0$ one is given a state vector $|\psi\rangle = \alpha |0_L\rangle + \beta |1_L\rangle \in \mathcal{H}_{\mathrm{sc}}.$ \textit{At some time }$t_1>0$ \textit{a syndrome measurement is performed which indicates that one or more stabilizers are violated - i.e.\ some errors have occurred on physical data qubits.
+	\begin{problem}[Decoding problem]Assume that at $t=0$ one is given a state vector $|\psi\rangle = \alpha |0_L\rangle + \beta |1_L\rangle \in \mathcal{H}_{\mathrm{sc}}.$ \textit{At some time }$t_1>0$ \textit{a syndrome measurement is performed which indicates that one or more stabilizers are violated - i.e. some errors have occurred on physical data qubits.
 	From the given syndrome, determine a set of corrections which should be applied to the code lattice such that the subsequent state} $|\psi'\rangle$ \textit{is equal to the initial state} $|\psi\rangle.$ 
 	\end{problem}
 	
 	\noindent Before proceeding to discuss more subtle and technical versions of the decoding problem, let us examine why even the above problem is indeed potentially difficult.
-	The most important observation is that the map from error configurations to syndromes is many-to-one, i.e.\ many different sets of errors can lead to the same syndrome.
+	The most important observation is that the map from error configurations to syndromes is many-to-one, i.e. many different sets of errors can lead to the same syndrome.
 	As an example, consider the error configurations illustrated in Fig.~\ref{f:surface_code_examples}~(b-d), all of which lead to the same syndrome.
 	If the probability of an error on a single physical data qubit is low, given such a syndrome one might reasonably assume that the error shown in (c) occurred, as one error on a single qubit is a more likely event than errors on multiple qubits.
 	Given this reasoning, one might then suggest to correct by applying an $X$ flip on the physical data qubit in the third row and fourth column.
@@ -173,8 +172,7 @@
 	Finally, if the error in (b) occurred, then the combination of the original error with the correction would implement the logical $X_L$ operator.
 	As a result, even though the post-correction state is back in the code space, it will be in a different logical state.
 	Thus, the information we were trying to preserve would have been corrupted.
-	From this simple example one can see that most often solving the decoding problem as stated above involves deciding, given 
-	an inherently ambiguous syndrome and (possibly imperfect) knowledge of the underlying error model, which error configuration most likely occurred.
+	From this simple example one can see that most often solving the decoding problem as stated above involves deciding, given an inherently ambiguous syndrome and (possibly imperfect) knowledge of the underlying error model, which error configuration most likely occurred.
 	The mathematical structure underlying the decoding problem is that of homology, which provides a 
 	concise representation of the relationship between errors and syndromes~\cite{FastDecoders}.
 	In this language,
@@ -220,8 +218,7 @@
 	Finally, in the context of surface code based fault-tolerant quantum computing, all logical gates are implemented either via protocols which also involve an inherent decoding procedure or do not spread errors.
 	To be specific, it is sufficient for universal quantum computing to be able to implement both Clifford and $T$ gates~\cite{Nebe01,Bravyi05}.
 	In contemporary proposals for surface code based quantum computing~\cite{Litinski18b,Fowler18}, 
-	protocols are known for implementing Clifford gates either by tracking, via code deformation~\cite{Brown17} or via lattice 
-	surgery~\cite{Horsman12,Litinski18}.
+	protocols are known for implementing Clifford gates either by tracking, via code deformation~\cite{Brown17} or via lattice surgery~\cite{Horsman12,Litinski18}.
 	Code deformation and lattice surgery requires several decoding cycles.
 	Non-Clifford gates, such as the $T$ gate, can be performed fault-tolerantly via gate teleportation using magic states.
 	High quality magic states can be obtained via magic state distillation, which requires only Clifford gates and faulty magic states~\cite{Bravyi05}.
@@ -239,7 +236,7 @@
 	Given a state of the environment, the agent can then choose to perform an action $A_t \in \mathcal{A}$, where $\mathcal{A}$ is referred to as the action space.
 	As a result of the agents chosen action, the environment then updates accordingly, entering a new state $S_{t+1}$ and providing feedback to the agent on its choice of action in the form of a scalar reward $R_{t+1}$.
 	We will restrict ourselves here to episodic environments, for which there exist a set of terminal states $\mathcal{S}_{\mathrm{terminal}} \subset \mathcal{S}$.
-	In such episodic settings, in addition to a scalar reward, the agent also receives a boolean signal $T_{t+1}$, indicating whether $S_{t+1} \in \mathcal{S}_{\mathrm{terminal}} $ - i.e.\ whether or not it is ``game over''.
+	In such episodic settings, in addition to a scalar reward, the agent also receives a boolean signal $T_{t+1}$, indicating whether $S_{t+1} \in \mathcal{S}_{\mathrm{terminal}} $ - i.e. whether or not it is ``game over''.
 
 	In general, the agent's choice of action, the resulting state of the environment and the returned reward can all be stochastic.
 	In the case of finite state and action spaces, the environment can then be formalized via a  classical  \emph{finite Markov decision process (FMDP)} governed by the transition probabilities
@@ -248,6 +245,7 @@
 	\end{equation}
 	To formalize the decision making process of the agent, we define an agent's \textit{policy} $\pi$, in essence the agent's strategy, as a mapping from states to probabilities of specific actions - i.e. $\pi(a|s)$ is the probability that agent chooses $A_t = a$, given that the environment is in state $S_t = s$.
 	For FMDP's we then define the \textit{value} of a state $s$ under policy $\pi$ as,
+
 	\begin{equation}
 		v_{\pi}(s) = \mathbb{E}_{\pi}[G_t|S_t = s]  = \mathbb{E}_{\pi} \Big[\sum_{k = 0}^{\infty}\gamma^k R_{t+k+1}\Big| S_t = s \Big] 
 	\end{equation}
@@ -259,20 +257,15 @@
 	Hence strategies which involve some element of successful future planning may lead to higher state values.
 	As such, we see that the value of a state with respect to a given policy reflects accurately the ability of an agent to achieve its long-term goals when following that policy from that state.
 
-	Similarly to the \textit{state-value function}, we can define the \textit{action-value function}  (referred to as the $q$-function) for policy $\pi$ via
+	Similarly to the \textit{state-value function}, we can define the \textit{action-value function}  (referred to as the $q$-function) for policy $\pi$ via:
+
 	\begin{align}
 		q_{\pi}(s,a) &= \mathbb{E}_{\pi}[G_t|S_t = s, A_t = a]  \nonumber\\
-		& = \mathbb{E}_{\pi} \Big[\sum_{k = 0}^{\infty}\gamma^k R_{t+k+1}\Big| S_t = s, A_t = a \Big] .
+		& = \mathbb{E}_{\pi} \Big[\sum_{k = 0}^{\infty}\gamma^k R_{t+k+1}\Big| S_t = s, A_t = a \Big] \je{.}
 	\end{align}
 	Clearly, the $q$-function with respect to a given policy is conceptually similar to the state-value function, differing only in that it provides the value for state-action pairs.
 	Importantly, value functions allow us to place an order over policies, i.e. $\pi > \pi' \iff v_{\pi}(s) > v_{\pi'}(s)\quad \forall s \in \mathcal{S} $.
-	This in turn allows us to define an optimal policy $\pi^*$, for which
-	\begin{equation}\label{e:fixed_point}
-		q_*(s,a) = \mathbb{E}\big[R_{t+1} + \gamma\max_{a'}q_{*}(S_{t+1},a')\big|S_t = s, A_t = a \big].
-	\end{equation}
-	Note that given the optimal $q$-function it is easy to obtain the optimal strategy. In a given state $s$ simply choose the action $a = \mathrm{argmax}_{a'}[q_*(s,a')]$.
-
-
+	This in turn allows us to define an optimal policy $\pi^*$, for which:
 
 	\begin{figure}
 		\centering
@@ -282,6 +275,12 @@
 		}
 		\label{f:agent_environment}
 	\end{figure}
+
+	\begin{equation}\label{e:fixed_point}
+		q_*(s,a) = \mathbb{E}\big[R_{t+1} + \gamma\max_{a'}q_{*}(S_{t+1},a')\big|S_t = s, A_t = a \big].
+	\end{equation}
+	Note that given the optimal $q$-function it is easy to obtain the optimal strategy; In a given state $s$ simply choose the action $a = \mathrm{argmax}_{a'}[q_*(s,a')]$.
+
 	Given this framework, there are many different approaches and methodologies that can be used to learn optimal policies.
 	We will focus here on $q$-learning, the goal of which is to find or approximate $q_*(s,a)$.
 	This is generically done via iterative $q$-learning, in which the agent starts with an arbitrary $q$-function and then iteratively refines it on the basis of experience gained from interaction with the environment.
@@ -302,7 +301,7 @@
 	Given such a batch of training instances, the $q$-network is then updated via the cost function
 	\begin{align} 
 		C &= y_{\mathrm{pred}} - y_{\mathrm{true}}\\
-		&= q(S_t,A_t) - \big[R_{t+1} + \gamma\max_{a'}q(S_{t+1},a') \big],
+		&= q(S_t,A_t) - \big[R_{t+1} + \gamma\max_{a'}q(S_{t+1},a') \big]\je{,}
 	\end{align}
 	which, by comparison with Eq.~\eqref{e:fixed_point}, will be minimized by the optimal policy $q_*$.
 	Unfortunately, despite the simplicity of this idea, in practice a variety of tricks - such as separate active and target $q$-networks, double-$q$ learning and dueling networks - are required to achieve stable $q$-learning.
@@ -340,7 +339,7 @@
 	As such, the fundamental idea is to define all the required elements in such a way that allows for decoding agents to learn to continuously correct errors by performing single qubit Pauli flips on the underlying physical qubits of a given code, remaining ``alive'' as long as future logical operations can succeed with high probability, and being rewarded whenever all errors have been successfully corrected.
 	In particular, given some initial logical state $|\psi_0\rangle \in \mathcal{H}_{\mathrm{sc}}$, the goal of the agent is to suppress errors for as long as possible, such that future logical operations can succeed with high probability.
 
-	To provide a framework for achieving this, we consider environments consisting of the following three elements: A \emph{hidden state}, an \emph{error model} and a \emph{referee decoder}.
+	To provide a framework for achieving this, we consider environments consisting of the following three elements; A \emph{hidden state}, an \emph{error model} and a \emph{referee decoder}.
 	At the beginning of any time step $t$, the \emph{hidden state} of the environment $S_{\mathrm{hidden},t}$, will be a list of all the single qubit Pauli flips which have been applied to physical data qubits through the course of the episode, either via errors or as corrections.
 	Given both the hidden state $S_{\mathrm{hidden},t}$ and the initial logical state $|\psi_0\rangle$, the current underlying state $|\psi_t\rangle$ of all the physical data qubits could be obtained by applying all the Pauli operations listed in $S_{\mathrm{hidden},t}$ to $|\psi_0\rangle$.
 	Note that because we are particularly interested in only the difference between the current state $|\psi_t\rangle$ and the initial logical state $|\psi_0\rangle$, and because we consider only Pauli noise and corrections, we are able to utilise the simple and efficient hidden state description provided here.
@@ -361,7 +360,8 @@
 
 	\subsection{Non-Repeated Pauli Flips}\label{s:non-repeated}
 
-	If, as shown in Fig.~\ref{f:single_episode} (c), the action $A_t$ chosen by the agent is any Pauli flip that is not already an element of the action history list $h_t$, then the environment responds as follows:
+	If, as shown in Fig.~\ref{f:single_episode} (c), the action $A_t$ chosen by the agent is any Pauli flip that is not already an element of the action history list $h_t$, then the environment responds as follows;
+
 	\begin{enumerate}
 		\item The hidden state of the environment $S_{\mathrm{hidden},t+1}$ is obtained by appending $A_t$ to $S_{\mathrm{hidden},t}$.
 		In essence, the agent's chosen correction is applied to the  underlying state $|\psi_t\rangle$, yielding state $|\psi_{t+1}\rangle$.
@@ -419,7 +419,7 @@
 
 	At this stage we have all the ingredients required to obtain decoding agents through the application of a variety of reinforcement learning algorithms.
 	In Section~\ref{s:dq_agent} we will present a detailed construction for a deepQ agent, that allows us to apply deepQ learning and obtain decoding agents whose performance is shown in Section~\ref{s:results}.
-	Before proceeding however it is worthwhile to emphasize a few points.
+	Before proceeding however it is worthwhile to emphasize a few points;
 
 	First, it is important to note that the above agent-interaction framework is both code and error model agnostic, provided one has access to a referee decoder, capable of single-shot decoding on perfect syndromes.
 	From this perspective, one might view the framework presented here as a tool for leveraging single-shot, perfect-syndrome decoding algorithms, into decoding algorithms for the fully fault-tolerant setting.
@@ -486,14 +486,14 @@
 
 \section{Results}\label{s:results}
 
-	As a demonstration, we have 
-	utilized deepQ learning within the framework presented in Section~\ref{s:decoding_as_rl}, to obtain deepQ decoding agents for both bit-flip and depolarizing noise, with faulty syndromes, for a $d=5$ surface code lattice.
+	As a demonstration, we utilized deepQ learning within the framework presented in Section~\ref{s:decoding_as_rl}, to obtain deepQ decoding agents for both bit-flip and depolarizing noise, with faulty syndromes, for a $d=5$ surface code lattice.
 	All the code used to obtain these agents is supplied in the corresponding \textit{DeepQ-Decoding} code repository~\cite{DeepQDecoding}, and as such we will provide only an overview of the details here.
-	In particular, for a single fixed set of hyper-parameters, we have exploited 
-	the original deepQ algorithm~\cite{RLMnih15} with annealed $\epsilon$-greedy exploration, implemented via the keras-rl library~\cite{plappert2016kerasrl} and incorporating doubleQ updates~\cite{RLvan2016deep} and a dueling network architecture~\cite{RLwang2015dueling}.
-	In addition, we have made use of a custom training procedure, described in Appendix~\ref{A:training}, for sequentially iterating through increasing error rates, while simultaneously performing a hyper-parameter grid search at each error-rate iteration.
+	In particular, for a single fixed set of hyper-parameters, we used the original deepQ algorithm~\cite{RLMnih15} with annealed $\epsilon$-greedy exploration, implemented via the keras-rl library~\cite{plappert2016kerasrl} and incorporating doubleQ updates~\cite{RLvan2016deep} and a dueling network architecture~\cite{RLwang2015dueling}.
+	In addition we used a custom training procedure, described in Appendix~\ref{A:training}, for sequentially iterating through increasing error rates, while simultaneously performing a hyper-parameter grid search at each error-rate iteration.
 	For both error models we utilized a convolutional deepQ network, as illustrated in Fig.~\ref{f:agent}, consisting of three convolutional layers, followed by a single feed-forward layer before the final output layer.
 	Specifically, if we describe a single convolutional layer with a three-tuple $[n,w,s]$, where $n$ is the number of filters, $w$ is the filter width and $s$ is the stride, and a single feed forward layer via a two-tuple $[n,d]$, where $n$ is the number of neurons and $d$ is the output drop-out rate, then from input to output our deepQ networks had the base structure,
+
+
 	\begin{equation}
 		[[64,3,2],~[32,2,1],~[32,2,1],~[512,0.2],~[|\mathcal{A}|, 0]],
 	\end{equation}
@@ -532,8 +532,7 @@
 	In particular, Fig.~\ref{f:results} (a, b) shows the performance of all decoding agents obtained during the iterative training procedure (as described in Appendix~\ref{A:training}), while Fig.~\ref{f:results} (c, d) shows the results obtained by the using the best performing decoding agent for each error rate.
 	For bit-flip (depolarising) noise we find that for approximately $p < 1.3\times 10^{-2}$ $(p < 1.1\times 10^{-2})$ there is a decoding agent for which the average lifetime of the actively decoded $d=5$ logical qubit is longer than the average lifetime of a single faulty qubit.
 	While these results should not be interpreted as rigorous thresholds, they can be seen as proof-of-principle demonstrations of the feasibility of using decoding agents, and in particular deepQ agents, as decoders for the fully fault-tolerant setting.
-	In particular, in the context of near term fault-tolerant demonstrations of quantum computation, we insist that 
-	what is most important is the life-time of the logical qubit at the specific error-rate given by the experimental device.
+	In particular, in the context of near term fault-tolerant demonstrations of quantum computation what is most important is the life-time of the logical qubit at the specific error-rate given by the experimental device.
 	In this respect, our proof-of-principle decoders perform competitively at code distances and error-rates expected in near-term devices.
 
 	Furthermore, there are various points worth emphasising.
@@ -557,11 +556,8 @@
 	In this work we have focused on the decoding of idling logical qubits during quantum computation, encoded via surface code patches of fixed size.
 	For such a setting recent literature provides neural network architecture suggestions for scaling to larger code distances~\cite{Ni18}, although an alternative method for future research could be found in the use of multiple communicating decoding agents, simultaneously decoding on overlapping sub-lattices of the total code.
 
-	However, current surface code based approaches to large scale fault-tolerant quantum computing 
-	require methods for decoding of irregularly shaped and constantly changing surface code patches, 
-	formed via lattice surgery and code deformation~\cite{Litinski18b,Fowler18}.
-	Hence, to provide a truly complete toolbox for fault-tolerant quantum computing it is necessary to provide 
-	decoding algorithms which do not explicitly depend on the underlying code lattice.
+	However, current surface code based approaches to large scale fault-tolerant quantum computing require methods for decoding of irregularly shaped and constantly changing surface code patches, formed via lattice surgery and code deformation~\cite{Litinski18b,Fowler18}.
+	Hence, to provide a truly complete toolbox for fault-tolerant quantum computing it is necessary to provide decoding algorithms which do not explicitly depend on the underlying code lattice.
 	For the case of decoding agents, this would require the development of methods circumventing the requirement to retrain agents for different shape surface code patches.
 	The aforementioned approach of multiple communicating agents acting on fixed size sub-lattices could however provide a promising approach to this problem.
 
@@ -571,14 +567,11 @@
 	One such modification would be to consider ``single-shot'' episodes, which terminate as soon as the agent has returned the current state into the code space.
 
 	Finally, due to the inherent design of the procedure via which these decoding agents are obtained, in which discounted future performance is valued over immediate rewards, these agents have the potential to learn decoding strategies not available to alternative decoding algorithms.
-	It may therefore be insightful to construct test-cases (i.e.\ specific error volumes) to infer the learned strategy, and use this information in the design of model-tailored decoding algorithms. 
-	It is the hope that the present work constitutes a significant step forward in the understanding of the applicability of notions of 
-	reinforcement learning -- with its ability to predict sophisticated situations that require an understanding of the impact of present actions into the future -- in quantum information science and in the quantum technologies.
+	It may therefore be insightful to construct test-cases (i.e. specific error volumes) to infer the learned strategy, and use this information in the design of model-tailored decoding algorithms.
 
 % Acknowledgments
 	\begin{acknowledgments}
-		The authors gratefully acknowledge helpful and insightful discussions with Daniel Litinski, Nicolas Delfosse, Aleksander Kubica, 
-		Thomas Jochym-O'Connor, Paul Baireuther, James Wootton and Hendrik Poulsen Nautrup.
+		The authors gratefully acknowledge helpful and insightful discussions with Daniel Litinski, Nicolas Delfosse, Aleksander Kubica, Thomas Jochym-O'Connor, Paul Baireuther, James Wootton and Hendrik Poulsen Nautrup.
 		Additionally, the authors would like to thank J\"{o}rg Behrmann for incredible technical support, without which this work would not have been possible.
 		RS\ acknowledges the financial support of the Alexander von Humboldt foundation.
 		MSK\ is supported by the DFG (CRC183, project B02).
@@ -597,7 +590,7 @@
 
 	\begin{enumerate}
 		\item Choose an initial error rate $p_1$, and fix the values for any hyper-parameters which should remain constant throughout the entire training procedure.
-		\item For all hyper-parameters not yet fixed, specify a list of values to be used for training - i.e.\ specify a hyper-parameter grid over which one would like to search for an optimal hyper-parameter configuration.
+		\item For all hyper-parameters not yet fixed, specify a list of values to be used for training - i.e. specify a hyper-parameter grid over which one would like to search for an optimal hyper-parameter configuration.
 		\item Train multiple decoding agents at the initial error rate, one for each hyper-parameter configuration in the specified grid.
 		Each agent is initialized with an empty experience memory and random initial neural network weights.
 		The training of all agents can be done simultaneously in a distributed manner.
@@ -623,11 +616,11 @@
 
 	We implemented the distributed iterative training procedure described in Appendix~\ref{A:training}, for both bit-flip and depolarising noise (all utilized code can be found in the \emph{DeepQ-Decoding} repository~\cite{DeepQDecoding}).
 	In particular, the initial error rate was set to $p_1 = p_{\mathrm{phys}} = p_{\mathrm{meas}} = 1\times10^{-3}$, and incremented by $2\times10^{-3}$ in each iteration.
-	As described in Section~\ref{s:results}, from input to output the neural network architecture was as follows:
+	As described in Section~\ref{s:results}, from input to output the neural network architecture was as follows;
 	\begin{equation}
 		[[64,3,2],~[32,2,1],~[32,2,1],~[512,0.2],~[|\mathcal{A}|, 0]],
 	\end{equation}
-	with additional modifications required for dueling methodologies~\cite{RLwang2015dueling} implemented automatically by keras-rl~\cite{plappert2016kerasrl}.
+	with an additional modifications as required for dueling methodologies~\cite{RLwang2015dueling} implemented automatically by keras-rl~\cite{plappert2016kerasrl}.
 	Single convolutional layers have been described with a three-tuple $[n,w,s]$, where $n$ is the number of filters, $w$ is the filter width and $s$ is the stride, and single feed forward layers via a two-tuple $[n,d]$, where $n$ is the number of neurons and $d$ is the output drop-out rate.
 	All agents were trained via the original deepQ algorithm~\cite{RLMnih15}, implemented via the keras-rl library~\cite{plappert2016kerasrl}, with annealed $\epsilon$-greedy exploration, doubleQ updates~\cite{RLvan2016deep} and dueling networks~\cite{RLvan2016deep}.
 	Both the fixed hyper-parameters and variable hyper-parameter grids utilized during the training procedure are specified in Table.~\ref{t:hyper_parameters}.

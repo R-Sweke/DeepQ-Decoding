@@ -18,6 +18,8 @@ from rl.memory import SequentialMemory
 from rl.callbacks import FileLogger
 
 import json
+import pickle
+
 
 from Function_Library import *
 from Environments import *

@@ -1,7 +1,7 @@
 
 ###  _DeepQ Decoding_
 
-This repository is intended as a companion to the manuscript _Reinforcement Learning Decoders for Fault-Tolerant Quantum Computation_. In particular, this repository provides all the tools necessary to reproduce all results presented in the above mentioned paper. Furthermore, it is hoped that this repository may serve as a starting-point for extending these tools and techniques.
+This repository is intended as a companion to the manuscript _Reinforcement Learning Decoders for Fault-Tolerant Quantum Computation ("RL Decoders for FTQC")_. In particular, this repository provides all the tools necessary to reproduce all results presented in the above mentioned paper. Furthermore, it is hoped that this repository may serve as a starting-point for extending these tools and techniques.
 
 In particular, this repo contains:
 

@@ -7,8 +7,8 @@ In particular, this repo contains:
 
 <ol>
   <li> Example Notebooks: A collection of jupyter notebooks, intended to serve as detailed documentation for all utilised code, and for exploring the obtained results.</li>
-  <li>_Trained Models: A folder containing all trained models, along with detailed results from the evaluation of these models.</li>
-  <li>_Cluster Scripts: All the scripts necessary to reproduce the given results via a large scale iterated training procedure on an HPC cluster running the Slurm workload manager.</li>
+  <li> Trained Models: A folder containing all trained models, along with detailed results from the evaluation of these models.</li>
+  <li> Cluster Scripts: All the scripts necessary to reproduce the given results via a large scale iterated training procedure on an HPC cluster running the Slurm workload manager.</li>
   <li> Manuscript: A folder containing the "Reinforcement Learning Decoders for Fault-Tolerant Quantum Computation" paper, along with all associated files and figures.</li>
 </ol> 
 

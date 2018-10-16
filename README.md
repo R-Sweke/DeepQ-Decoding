@@ -8,23 +8,23 @@ In particular, this repo contains:
 <ol>
   <li> <b>Example Notebooks:</b> A collection of jupyter notebooks, intended to serve as detailed documentation for all utilised code, and for exploring the obtained results.</li>
   <li> <b>Trained Models:</b> A folder containing all trained models, along with detailed results from the evaluation of these models.</li>
-  <li> Cluster Scripts: All the scripts necessary to reproduce the given results via a large scale iterated training procedure on an HPC cluster running the Slurm workload manager.</li>
-  <li> Manuscript: A folder containing the "Reinforcement Learning Decoders for Fault-Tolerant Quantum Computation" paper, along with all associated files and figures.</li>
+  <li> <b>Cluster Scripts:</b> All the scripts necessary to reproduce the given results via a large scale iterated training procedure on an HPC cluster running the Slurm workload manager.</li>
+  <li> <b>Manuscript:</b> A folder containing the "Reinforcement Learning Decoders for Fault-Tolerant Quantum Computation" paper, along with all associated files and figures.</li>
 </ol> 
 
 <hr>
 
 #### Quickstart
 
-In this readme, we will provide a summary and walkthrough of all the information contained within the included notebooks. However, we recommend starting by reading the included manuscript _Reinforcement Learning Decoders for Fault-Tolerant Quantum Computation_. To explore the code used for training and evaluating agents, as well as take a more detailed look at the results, please see the example notebooks. In order to run the code given in these notebooks the following packages are required:
+In this readme, we will provide a summary and walkthrough of all the information contained within the included notebooks. However, we recommend starting by reading the included manuscript _Reinforcement Learning Decoders for Fault-Tolerant Quantum Computation_. To explore the code used for training and evaluating agents, as well as take a more detailed look at the results, please see the example notebooks. In order to run the code given in these notebooks the following is required:
 
 <ol>
-  <li> Python 3 (with numpy and scipy)</li>
-  <li> Jupyter </li>
-  <li> tensorflow </li>
-  <li> keras </li> 
-  <li> gym </li> 
-  <li> a modified keras-rl, installed from <a href="https://github.com/R-Sweke/keras-rl">this fork</a> </li>
+  <li> <b>Python 3</b> (with numpy and scipy)</li>
+  <li> <b>Jupyter</b> </li>
+  <li> <b>tensorflow</b> </li>
+  <li> <b>keras</b> </li> 
+  <li> <b>gym</b> </li> 
+  <li> a modified <b>keras-rl</b>, installed from <a href="https://github.com/R-Sweke/keras-rl">this fork</a> </li>
 </ol> 
 
 If you have any questions, please feel free to contact any of the contributors.

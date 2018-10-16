@@ -1,10 +1,11 @@
+# ------------ Helper Functions -------------------------------------------------------------------------
+#
+# This file provides all necessary helper functions. 
+#
+# ----- (0) Imports --------------------------------------------------------------------------------------
+
 import random
 import numpy as np
-from numpy import copy
-import scipy
-import pickle
-
-import tensorflow as tf
 
 import keras
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau
@@ -16,6 +17,7 @@ from keras.layers.normalization import BatchNormalization
 from keras.utils import np_utils
 from keras.layers import Dense, Dropout, Activation, Flatten, Conv2D, MaxPooling2D, ZeroPadding2D, GlobalAveragePooling2D, Flatten, Lambda, Cropping2D, Activation, Input, merge, Concatenate
 
+# ---- (1) Functions -------------------------------------------------------------------------------------
 
 
 def generateSurfaceCodeLattice(d):
@@ -28,8 +30,6 @@ def generateSurfaceCodeLattice(d):
            -> for the surface code geometry each qubit can support up to 4 stabilizers
      - qubits[i,j,k,:] is a 3-vector describing the k'th stabilizer supported on physical qubit(i,j)
            -> qubits[i,j,k,:] = [x_lattice_address, y_lattice_address, I or X or Y or Z]
-    
-    TO DO: 1) make a simple diagram illlustrating the surface code lattice indexing conventions.
     
     :param: d: The lattice width and height (or, equivalently, for the surface code, the code distance)
     :return: qubits: np.array listing and describing the code-stabilizers supported on each qubit
@@ -64,6 +64,8 @@ def generateSurfaceCodeLattice(d):
 def multiplyPaulis(a,b):
     """"
     A simple helper function for multiplying Pauli Matrices. Returns ab.
+    :param: a: an int in [0,1,2,3] representing [I,X,Y,Z]
+    :param: b: an int in [0,1,2,3] representing [I,X,Y,Z]
     """
     
     out = [[0,1,2,3],[1,0,3,2],[2,3,0,1],[3,2,1,0]]
@@ -74,11 +76,11 @@ def multiplyPaulis(a,b):
 
 def generate_error(d,p_phys,error_model):
     """"
-    This function generates an error configuration, from a single time step, due to bit flip noise, on a 
-    square lattice.
+    This function generates an error configuration, via a single application of the specified error channel, on a square dxd lattice.
     
     :param: d: The code distance/lattice width and height (for surface/toric codes)
     :param: p_phys: The physical error rate.
+    :param: error_model: A string in ["X", "DP", "IIDXZ"] indicating the desired error model.
     :return: error: The error configuration
     """
     
@@ -93,8 +95,7 @@ def generate_error(d,p_phys,error_model):
 
 def generate_DP_error(d,p_phys):
     """"
-    This function generates an error configuration, from a single time step, due to depolarizing noise,
-    on a square lattice.
+    This function generates an error configuration, via a single application of the depolarizing noise channel, on a square dxd lattice.
     
     :param: d: The code distance/lattice width and height (for surface/toric codes)
     :param: p_phys: The physical error rate.
@@ -113,8 +114,7 @@ def generate_DP_error(d,p_phys):
 
 def generate_X_error(d,p_phys):
     """"
-    This function generates an error configuration, from a single time step, due to bit flip noise, on a 
-    square lattice.
+    This function generates an error configuration, via a single application of the bitflip noise channel, on a square dxd lattice.
     
     :param: d: The code distance/lattice width and height (for surface/toric codes)
     :param: p_phys: The physical error rate.
@@ -133,8 +133,7 @@ def generate_X_error(d,p_phys):
                 
 def generate_IIDXZ_error(d,p_phys):
     """"
-    This function generates an error configuration, from a single time step, due to bit IID bit flip and
-    dephasing noise, on a square lattice.
+    This function generates an error configuration, via a single application of the IIDXZ noise channel, on a square dxd lattice.
     
     :param: d: The code distance/lattice width and height (for surface/toric codes)
     :param: p_phys: The physical error rate.
@@ -158,43 +157,31 @@ def generate_IIDXZ_error(d,p_phys):
 
             error[i,j] = p
     
-    return error   
+    return error
 
-
-def generate_one_hot_labels_surface_code(error,err_model):
+def generate_surface_code_syndrome_NoFT_efficient(error,qubits):
     """"
-    This function generates the NN target label, in a one-hot encoding (suitable for a categorical cross
-    entropy loss function) for the given error and error model, assuming a surface code toplogy (i.e. one
-    logicl qubit).
-    
-    TO DO: Add some more detail about what exactly these target variables are!
+    This function generates the syndrome (violated stabilizers) corresponding to the input error configuration, 
+    for the surface code.
     
     :param: error: An error configuration on a square lattice
-    :param: err_model: A string in ["IIDXZ","DP","X"]
-    :return: training_label: The one-encoded training label
+    :param: qubits: The qubit configuration
+    :return: syndrome: The syndrome corresponding to input error
     """
     
-    d = error.shape[0]
-    
-    X = 0
-    Z = 0
-        
-    for x in range(d):
-        if error[x,0] == 1 or error[x,0] == 2:
-            X = 1 - X
-    for y in range(d):
-        if error[0,y] == 3 or error[0,y] == 2:
-            Z = 1 - Z
-            
-    if err_model in ["IIDXZ","DP"]:
-        training_label = np.zeros(4,int)                       
-    else:
-        training_label = np.zeros(2,int)
+    d = np.shape(error)[0]
+    syndrome = np.zeros((d+1,d+1),int)
 
-    training_label[X + 2*Z] = 1
-    
-    return training_label
-
+    for i in range(d): 
+        for j in range(d):
+            if error[i,j] != 0:
+                for k in range(qubits.shape[2]):
+                    if qubits[i,j,k,2] != error[i,j] and qubits[i,j,k,2] != 0:
+                        a = qubits[i,j,k,0]
+                        b = qubits[i,j,k,1]
+                        syndrome[a,b] = 1 - syndrome[a,b]
+                        
+    return syndrome
 
 def generate_faulty_syndrome(true_syndrome, p_measurement_error):
     """"
@@ -244,39 +231,15 @@ def generate_faulty_syndrome(true_syndrome, p_measurement_error):
             faulty_syndrome[row,col] = true_syndrome[row,col]
   
     return faulty_syndrome
-    
 
-def generate_surface_code_syndrome_NoFT_efficient(error,qubits):
-    """"
-    This function generates the syndrome (violated stabilizers) corresponding to the input error, 
-    for the surface code.
-    
-    :param: error: An error configuration on a square lattice
-    :param: qubits: The qubit configuration - this function efficient because this is not generated everycall.
-    :return: syndrome: The syndrome corresponding to input error
-    """
-    
-    d = np.shape(error)[0]
-    syndrome = np.zeros((d+1,d+1),int)
-
-    for i in range(d): 
-        for j in range(d):
-            if error[i,j] != 0:
-                for k in range(qubits.shape[2]):
-                    if qubits[i,j,k,2] != error[i,j] and qubits[i,j,k,2] != 0:
-                        a = qubits[i,j,k,0]
-                        b = qubits[i,j,k,1]
-                        syndrome[a,b] = 1 - syndrome[a,b]
-                        
-    return syndrome
 
 def obtain_new_error_configuration(old_configuration,new_gates):
     """"
-    This function generates a new error configurarion out of an old configuration and a new set of
-    gates which might arise either from errors or corrections.
+    This function generates a new error configuration out of an old configuration and a new configuration,
+     which might arise either from errors or corrections.
     
     :param: old_configuration: An error configuration on a square lattice
-    :param: new_gates: A configuration of new gates, either from an error or active corrections
+    :param: new_gates: An error configuration on a square lattice
     :return: new_configuration: The resulting error configuration
     """
     
@@ -288,7 +251,17 @@ def obtain_new_error_configuration(old_configuration,new_gates):
     return new_configuration
 
 def index_to_move(d,move_index,error_model,use_Y=True):
+    """"
+    Given an integer index corresponding to a Pauli flip on a physical data qubit, this
+    function generates the lattice representation of the move.
     
+    :param: d: The code distance
+    :param: move_index: The integer representation of the Pauli Flip
+    :param: error_model: A string in ["X", "DP", "IIDXZ"] indicating the desired error model.
+    :param: use_Y: a boolean indicating whether or not Y flips are allowed
+    :return: new_move: A lattice representation of the desired move.
+    """
+
     new_move = np.zeros((d,d))
     
     if error_model == "X":
@@ -330,7 +303,49 @@ def index_to_move(d,move_index,error_model,use_Y=True):
 
     return new_move
 
+def generate_one_hot_labels_surface_code(error,err_model):
+    """"
+
+    This function generates the homology class label, in a one-hot encoding, for a given perfect syndrome, to use as the target label
+    for a feed forward neural network homology class predicting decoder.
+!
+    :param: error: An error configuration on a square lattice
+    :param: err_model: A string in ["IIDXZ","DP","X"]
+    :return: training_label: The one-encoded training label
+    """
+    
+    d = error.shape[0]
+    
+    X = 0
+    Z = 0
+        
+    for x in range(d):
+        if error[x,0] == 1 or error[x,0] == 2:
+            X = 1 - X
+    for y in range(d):
+        if error[0,y] == 3 or error[0,y] == 2:
+            Z = 1 - Z
+            
+    if err_model in ["IIDXZ","DP"]:
+        training_label = np.zeros(4,int)                       
+    else:
+        training_label = np.zeros(2,int)
+
+    training_label[X + 2*Z] = 1
+    
+    return training_label
+
 def build_convolutional_nn(cc_layers,ff_layers, input_shape, num_actions):
+    """"
+
+    This function builds a convolutional neural network:
+!
+    :param: cc_layers: [[num_filters, kernel_size,strides],...]
+    :param: ff_layers: [[neurons, output_dropout_rate],...]
+    :param: input_shape: The shape of the input - i.e. num channels and image height,width
+    :param: num_actions: The number of output activations
+    :return: model: The Keras model
+    """
     
     # cc_layers =[num_filters, kernel_size,strides]
     
@@ -360,3 +375,4 @@ def build_convolutional_nn(cc_layers,ff_layers, input_shape, num_actions):
     model.add(Activation('linear'))
          
     return model
+

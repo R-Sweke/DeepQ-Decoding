@@ -1,4 +1,3 @@
-
 #----- (0) Imports ---------------------------------------------------------------------------------------------------------------
 
 from Function_Library import *
@@ -6,27 +5,39 @@ import gym
 import copy
 from itertools import product, starmap
 
+#---------- (1) --------------------------------------------------------------------------------------------------------------------------------------
 
 class Surface_Code_Environment_Multi_Decoding_Cycles():
     """
-    This environment has:
+    A surface code environment for obtaining decoding agents in the fault-tolerant setting.
+    In particular:
 
-        - a syndrome volume + completed actions as the state 
-        - a variable number of moves:
-            - an error is introduced if the agent does the identity
-            - an error is introduced if the agent repeats the same move twice
-        - a plus 1 reward for every action that results in the code being in the ground state
-        - can deal with error_model in {"X","DP"}
-        - can deal with faulty syndromes - i.e. p_meas > 0
+        - The visible state consists of a syndrome volume + completed action volume
+        - The agent can perform single qubit Pauli flips on physical data qubits
+        -   - an error volume is introduced if the agent does the identity
+            - an error volume is introduced if the agent repeats the same move twice
+        - a plus 1 reward is given for every action that results in the code being in the ground state space.
+        - The terminal state criterion is satisfied for every hidden state that cannot be decoded by the referee/static decoder
 
-    TODO: flesh out documentation!
+    Note, this environment can:
+        - cater for error_model in {"X","DP"}
+        - cater for faulty syndromes - i.e. p_meas > 0
 
-    Parameters
+    Also, this environment provides all methods as required by an openAi gym class. In particular:
+        - reset
+        - step
+
+
+    Attributes
     ----------
 
-
-    Returns
-    -------
+    :param: d: The code distance
+    :param: p_phys: The physical error probability on a single physical data qubit
+    :param: p_meas: The measurement error probability on a single syndrome bit
+    :param: error_model: A string in ["X, DP"]
+    :param: use_Y: A boolean indicating whether the environment accepts Y Pauli flips as actions
+    :param: volume_depth: The number of sequential syndrome measurements performed when generating a new syndrome volume.
+    :param: static_decoder: A homology class predicting decoder for perfect syndromes.
 
     """
 
@@ -87,7 +98,9 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
 
     def reset(self):
         """
-        In this environment reset introduces a non-trivial error
+        Resetting of the environment introduces a new non-trivial syndrome volume.
+
+        :return: self.board_state: The new reset visible state of the environment = syndrome volume + blank action history volume
         """
 
         self.done = False
@@ -103,6 +116,15 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
 
 
     def step(self, action):
+        """
+        Given an action, this method executes the logic of the environment.
+
+        :param: action: The action, given as an integer, supplied by some agent.
+        :return: self.board_state: The new reset visible state of the environment = syndrome volume + action history volume
+        :return: reward: The reward for the action
+        :return: self.done: The boolean terminal state indicator
+        :return: info: A dictionary via which additional diagnostic information can be provided. Empty here.
+        """
 
         new_error_flag = False
         done_identity = False
@@ -129,7 +151,7 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
             self.done = True
 
 
-        # 3) If necessary, apply multiple errors and obtain an error volume
+        # 3) If necessary, apply multiple errors and obtain an error volume - ensure that a non-trivial volume is generated
         if done_identity:
 
             trivial_volume = True
@@ -153,7 +175,7 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
                 self.board_state[j, :, :] = self.padding_syndrome(faulty_syndromes[j])
 
 
-            # reset the completed actions
+            # reset the legal moves
             self.reset_legal_moves()
 
             # update the part of the state which shows the actions you have just taken
@@ -182,10 +204,9 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
         return self.board_state, reward, self.done, {}
 
     def initialize_state(self):
-        '''
-            Creates an initial volume of errors
-
-        '''
+        """
+        Generate an initial non-trivial syndrome volume
+        """
 
         self.done = False
         self.hidden_state = np.zeros((self.d, self.d), int)
@@ -215,6 +236,9 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
 
 
     def reset_legal_moves(self):
+        """
+        Reset the legal moves
+        """
 
         self.completed_actions = np.zeros(self.num_actions, int)
         self.acted_on_qubits = set()
@@ -236,6 +260,9 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
 
 
     def is_adjacent_to_syndrome(self, qubit_number):
+        """
+        Determine whether a qubit is adjacent to a violated stabilizer
+        """
 
         for stabilizer in self.qubit_stabilizers[qubit_number]:
             if self.summed_syndrome_volume[stabilizer] != 0:
@@ -244,6 +271,10 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
         return False
 
     def padding_syndrome(self, syndrome_in):
+        """
+        Pad a syndrome into the required embedding
+        """
+
         syndrome_out = np.zeros((2*self.d+1, 2*self.d+1),int)
         
         for x in range( 2*self.d+1 ):
@@ -268,8 +299,9 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
         return syndrome_out
         
     def padding_actions(self,actions_in):
-        # works only for a subset of actions (only x actions)
-        # has to be called 1, 2 or 3 separate times, depending on noise-model and use_Y; for X, Z and Y actions
+        """
+        Pad an action history for a single type of Pauli flip into the required embedding.
+        """
         actions_out = np.zeros( ( 2*self.d+1, 2*self.d+1 ),int )
 
         for action_index, action_taken in enumerate( actions_in ):
@@ -282,6 +314,9 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
         return actions_out
 
     def indicate_identity(self, board_state):
+        """
+        Pad the action history to indicate that an identity has been performed.
+        """
 
         for k in range(self.n_action_layers):
             board_state[self.volume_depth + k,:, :] = board_state[self.volume_depth + k,:, :] + self.identity_indicator
@@ -312,6 +347,9 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
         return stabilizer_list
 
     def get_qubit_neighbour_list(self, d):
+        """"
+        Given a lattice, this function provides a list of the neighbouring qubits for each physical qubit.
+        """
 
         count = 0
         qubit_dict = {}
@@ -334,6 +372,9 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
         return neighbour_list
 
     def generate_identity_indicator(self, d):
+        """"
+        A simple helper function to generate the array that will be added to the action history to indicate that an identity has been performed.
+        """
 
         identity_indicator = np.ones((2 *d + 1, 2 *d + 1),int)
         for j in range(d):

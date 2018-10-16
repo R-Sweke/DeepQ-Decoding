@@ -507,7 +507,7 @@
 		\caption{
 			(a,b) Performance of all agents obtained during the iterative training procedure.
 			Each agent was evaluated at increasing error rates, until the average lifetime of the logical qubit actively decoded by the agent became less than the average lifetime of a single faulty qubit.
-			(c,d) Results obtained by using the optimal decoding agent for each error rate.
+			(c,d) Results obtained by using the best performing decoding agent for each error rate.
 		}
 		\label{f:results}
 	\end{figure*}
@@ -517,7 +517,7 @@
 	For bit-flip noise, in the first error channel - the physical error channel - a Pauli $X$ flip was applied to each physical data qubit with probability $p_{\mathrm{phys}}$.
 	For depolarising noise, the physical error channel acted by applying to each physical data qubit, with probability $p_{\mathrm{phys}}$, either a Pauli $X$, $Y$ or $Z$ flip, with equal probability.
 	For both noise models, after the physical error channel, the true syndrome was calculated, after which the second measurement error channel was applied, in which the value of each stabilizer measurement was flipped with probability $p_{\mathrm{meas}}$.
-	For all simulations we set $p \equiv p_{\mathrm{phys}} = p_{\mathrm{meas}}$.
+	For all simulations we set $p \defeq p_{\mathrm{phys}} = p_{\mathrm{meas}}$, and used a syndrome volume depth of 5.
 	Also, note that for bit-flip noise, as only $X$ corrections were necessary, we had $|\mathcal{A}| = d^2 + 1$ - i.e. the agent could perform either the \textit{request new syndrome} action or a single qubit $X$ flip on any individual physical data qubit.
 	For depolarising noise, we restricted the agent to only $X$ and $Z$ flips (as $Y$ errors can be corrected via both an $X$ flip and a $Z$ flip), such that $|\mathcal{A}| = 2d^2 + 1$ rather than $|\mathcal{A}| = 3d^2 + 1$.
 
@@ -578,7 +578,7 @@
 % Acknowledgments
 	\begin{acknowledgments}
 		The authors gratefully acknowledge helpful and insightful discussions with Daniel Litinski, Nicolas Delfosse, Aleksander Kubica, 
-		Thomas Jochym-O'Connor, Paul Baireuther, James Wootton and Hendrik Poulsen Nautrup.
+		Thomas Jochym-O'Connor, Paul Baireuther, James Wootton and Hendrik Poulsen Nautrup. Two of us (J.E. and E.vN) would like to thank Roger Melko, Titus Melko and Simon Trebst for the invitation to the workshop on "Machine Learning for Quantum Many-body Physics" in Dresden in June 2018, where two ongoing research programs have been merged into the present collaboration.
 		Additionally, the authors would like to thank J\"{o}rg Behrmann for incredible technical support, without which this work would not have been possible.
 		RS\ acknowledges the financial support of the Alexander von Humboldt foundation.
 		MSK\ is supported by the DFG (CRC183, project B02).

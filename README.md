@@ -12,6 +12,8 @@ In particular, this repo contains:
   <li> Manuscript: A folder containing the "Reinforcement Learning Decoders for Fault-Tolerant Quantum Computation" paper, along with all associated files and figures.</li>
 </ol> 
 
+<hr>
+
 #### Quickstart
 
 In this readme, we will provide a summary and walkthrough of all the information contained within the included notebooks. However, we recommend starting by reading the included manuscript _Reinforcement Learning Decoders for Fault-Tolerant Quantum Computation_. To explore the code used for training and evaluating agents, as well as take a more detailed look at the results, please see the example notebooks. In order to run the code given in these notebooks the following packages are required:
@@ -22,7 +24,7 @@ In this readme, we will provide a summary and walkthrough of all the information
   <li> tensorflow </li>
   <li> keras </li> 
   <li> gym </li> 
-  <li> a modified Keras-RL, installed from <a href="https://github.com/R-Sweke/keras-rl">this fork</a> </li>
+  <li> a modified keras-rl, installed from <a href="https://github.com/R-Sweke/keras-rl">this fork</a> </li>
 </ol> 
 
 If you have any questions, please feel free to contact any of the contributors.

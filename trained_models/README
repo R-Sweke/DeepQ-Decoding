@@ -1,1 +1,9 @@
-hello
+This folder contains all trained models and final results.
+
+In particular, for both bitflip and depolarising noise, the relevant folder contains:
+
+    1) A fixed_config.p file, containing the fixed hyper-parameters used for all simulations.
+    2) A subfolder for each error rate at which agents were trained
+
+Each error-rate subfolder then contains:
+

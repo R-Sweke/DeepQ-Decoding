@@ -97,7 +97,7 @@
 	These results provide a foundation for extension via both more sophisticated reinforcement learning techniques and neural network models.
 
 	In this work we begin by providing an introductory overview of the surface code in Section~\ref{s:the_surface_code}, before presenting a description of the decoding problem for fault-tolerant quantum computation in Section~\ref{s:the_decoding_problem}.
-	After a brief introduction to the formalism of reinforcement learning and $Q$-functions in Section~\ref{s:reinforcement_learning} we are then able to provide the conceptual reframing of decoding as a reinforcement learning problem in Section~\ref{s:decoding_as_rl}, representing one of the primary results of this work.
+	After a brief introduction to the formalism of reinforcement learning and $Q$-functions in Section~\ref{s:reinforcement_learning} we are then able to provide the conceptual re-framing of decoding as a reinforcement learning problem in Section~\ref{s:decoding_as_rl}, representing one of the primary results of this work.
 	In Section~\ref{s:results} we then present deepQ surface code decoders for a variety of noise models, before finally in Section~\ref{s:conclusions} we discuss both the advantages and disadvantages of the approach presented here, along with various potential strategies for building upon the results presented in this work.
 
 \section{The Surface Code}\label{s:the_surface_code}
@@ -109,7 +109,7 @@
 
 	We will consider $d\times d$ lattices with a \textit{physical} data qubit on each vertex $v$, as illustrated in Fig.~\ref{f:surface_code} for $d=5$.
 	The collective state of all qubits on the lattice is an element of the Hilbert space $\mathcal{H} = \mathbb{C}^{2^{(d\times d)}}$.
-	We associate stabilizer operators with each coloured plaquette of the lattice.
+	We associate stabilizer operators with each colored plaquette of the lattice.
 	Stabilizers on blue (orange) plaquettes are operators which apply Pauli $X$ ($Z$) flips to all qubits on the vertices of the plaquette.
 	Specifically, denoting the set of all blue (orange) plaquettes as $B_p$ ($O_p$) we define the stabilizer $S_p$ on plaquette $p$ as,
 	\begin{equation}\label{e:stabilizer_definition}
@@ -133,7 +133,7 @@
 		\caption{
 			An overview of the $5 \times 5$ surface code.
 			(a) We consider square lattices, with a physical data qubit on each vertex.
-			The coloured plaquettes indicate stabilizer operators as defined in Eq.~\eqref{e:stabilizer_definition}.
+			The colored plaquettes indicate stabilizer operators as defined in Eq.~\eqref{e:stabilizer_definition}.
 			(b) Logical $X_L$ and $Z_L$ operators for the surface code are given by continuous strings of single qubit $X$ or $Z$ operators connecting the top and bottom or left and right boundaries of the code respectively.
 		}
 		\label{f:surface_code}
@@ -145,7 +145,7 @@
 	In particular, $|\psi'\rangle$ will be an eigenstate with eigenvalue $-1$ of at least one stabilizer.
 	We say that $|\psi'\rangle$ violates these stabilizers, as illustrated by red circles in Fig.~\ref{f:surface_code_examples}~(a).
 	The \textit{syndrome} of a state is a list of the outcomes of a simultaneous measurement of all the stabilizers, each of which takes the value $\pm 1$.
-	Given that a single Pauli flip occurred on a single physical data qubit, by analysing the syndrome we may be able to identify and correct this error, in the process conserving the logical qubit state.
+	Given that a single Pauli flip occurred on a single physical data qubit, by analyzing the syndrome we may be able to identify and correct this error, in the process conserving the logical qubit state.
 	This process of \textit{decoding} is discussed in the next section.
 
 	In the terminology of stabilizer codes and quantum error correction,  such a surface code on a $d\times d$ lattice is a 
@@ -211,7 +211,7 @@
 		\label{f:decoding_problem}
 	\end{figure*}
 
-	The essential aspect of the additional difficulty from faulty syndrome measurements can be phenomenologically modelled by imagining each time step as consisting of two distinct error processes~\cite{stephens2014fault}, as illustrated in Fig.~\ref{f:decoding_problem}.
+	The essential aspect of the additional difficulty from faulty syndrome measurements can be phenomenologically modeled by imagining each time step as consisting of two distinct error processes~\cite{stephens2014fault}, as illustrated in Fig.~\ref{f:decoding_problem}.
 	In the first error process, an error occurs on each data qubit with some probability.
 	One then imagines extracting the perfect syndrome before a second error process occurs, in which with a given probability an error occurs on each stabilizer measurement outcome.
 	In this realistic scenario, lacking only the propagation of errors during syndrome extraction, single syndrome measurements are hence no longer reliable.
@@ -239,7 +239,7 @@
 	Given a state of the environment, the agent can then choose to perform an action $A_t \in \mathcal{A}$, where $\mathcal{A}$ is referred to as the action space.
 	As a result of the agents chosen action, the environment then updates accordingly, entering a new state $S_{t+1}$ and providing feedback to the agent on its choice of action in the form of a scalar reward $R_{t+1}$.
 	We will restrict ourselves here to episodic environments, for which there exist a set of terminal states $\mathcal{S}_{\mathrm{terminal}} \subset \mathcal{S}$.
-	In such episodic settings, in addition to a scalar reward, the agent also receives a boolean signal $T_{t+1}$, indicating whether $S_{t+1} \in \mathcal{S}_{\mathrm{terminal}} $ - i.e.\ whether or not it is ``game over''.
+	In such episodic settings, in addition to a scalar reward, the agent also receives a Boolean signal $T_{t+1}$, indicating whether $S_{t+1} \in \mathcal{S}_{\mathrm{terminal}} $ - i.e.\ whether or not it is ``game over''.
 
 	In general, the agent's choice of action, the resulting state of the environment and the returned reward can all be stochastic.
 	In the case of finite state and action spaces, the environment can then be formalized via a  classical  \emph{finite Markov decision process (FMDP)} governed by the transition probabilities
@@ -292,7 +292,7 @@
 	The above describes concisely the elements of $q$-learning, however it does not address the general impracticality of storing this $q$-function.
 	In most real world applications, the number of valid state-action pairs can be impractically large (e.g. consider the number of possible chess configurations).
 	It is precisely to address this problem, and in effect to render $q$-learning applicable in practice, that \textit{deepQ} learning was introduced~\cite{RLMnih15,RLvan2016deep,RLschaul2015prioritized}.
-	In particular, in deepQ learning we parametrize $q$ by a neural network, and use Eq.~\eqref{e:fixed_point} to construct the cost function from which the network weights can be updated via a stochastic gradient descent method.
+	In particular, in deepQ learning we parameterize $q$ by a neural network, and use Eq.~\eqref{e:fixed_point} to construct the cost function from which the network weights can be updated via a stochastic gradient descent method.
 	The learning of the $q$-function is hence done by training a neural network in an online supervised manner, the training instances for which are generated by having the agent explore the environment.
 	Specifically, we let the agent interact with the environment via an $\epsilon$-greedy exploration policy, in the process generating experience-tuples of the form
 	\begin{equation}

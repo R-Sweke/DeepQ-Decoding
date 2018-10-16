@@ -12,6 +12,10 @@ In particular, this repo contains:
   <li> <b>Manuscript:</b> A folder containing the "Reinforcement Learning Decoders for Fault-Tolerant Quantum Computation" paper, along with all associated files and figures.</li>
 </ol> 
 
+If you use any of the code provided here, please cite:
+
+    R. Sweke, M.S. Kesselring, E.P.L. van Nieuwenburg, J. Eisert, Reinforcement Learning Decoders for Fault-Tolerant Quantum Computation,  
+
 <hr>
 
 #### 0) Quickstart

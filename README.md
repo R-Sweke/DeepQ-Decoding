@@ -6,10 +6,10 @@ This repository is intended as a companion to the manuscript _Reinforcement Lear
 In particular, this repo contains:
 
 <ol>
-  <li> _Example Notebooks_: A collection of jupyter notebooks, intended to serve as detailed documentation for all utilised code, and for exploring the obtained results.</li>
-  <li>_Trained Models_: A folder containing all trained models, along with detailed results from the evaluation of these models.</li>
-  <li>_Cluster Scripts_: All the scripts necessary to reproduce the given results via a large scale iterated training procedure on an HPC cluster running the Slurm workload manager.</li>
-  <li>_Manuscript_: A folder containing the _Reinforcement Learning Decoders for Fault-Tolerant Quantum Computation_ paper, along with all associated files and figures.</li>
+  <li> Example Notebooks: A collection of jupyter notebooks, intended to serve as detailed documentation for all utilised code, and for exploring the obtained results.</li>
+  <li>_Trained Models: A folder containing all trained models, along with detailed results from the evaluation of these models.</li>
+  <li>_Cluster Scripts: All the scripts necessary to reproduce the given results via a large scale iterated training procedure on an HPC cluster running the Slurm workload manager.</li>
+  <li> Manuscript: A folder containing the "Reinforcement Learning Decoders for Fault-Tolerant Quantum Computation" paper, along with all associated files and figures.</li>
 </ol> 
 
 

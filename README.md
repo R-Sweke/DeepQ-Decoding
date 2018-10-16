@@ -14,7 +14,8 @@ In particular, this repo contains:
 
 If you use any of the code provided here, please cite:
 
-    R. Sweke, M.S. Kesselring, E.P.L. van Nieuwenburg, J. Eisert, Reinforcement Learning Decoders for Fault-Tolerant Quantum Computation,  
+    R. Sweke, M.S. Kesselring, E.P.L. van Nieuwenburg, J. Eisert,
+    Reinforcement Learning Decoders for Fault-Tolerant Quantum Computation,  
 
 <hr>
 

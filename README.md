@@ -161,12 +161,12 @@ In particular:
   <li> The just extracted syndrome volume is combined with the reset action history, as previously described in the "state construction" figure, and then provided to the agent as the initial state (d).</li>
     <li> Now the agent must choose an action (e). As per most RL algorithms it is helpful to balance a period of exploration, with a period of exploiting previously obtained knowledge. As such, with a given probability \epsilon, which is annealed during the course of training, the agent will choose an action at random, and with a probability 1-\epsilon the agent will choose the action with the maximal Q-value according to its current parameterization. In order to aid training, we restrict the agents random choice to actions which are either adjacent to violated stabilizer, or adjacent to previously acted on qubits.</li>
     <li> When the agents acts on the environment with the chosen action, provided the action is not the identity action (request new syndrome action), multiple things then happen simultaneously. Firstly, the action history slices of the visible state are updated to indicate the action that has been applied (f). Then, the action is actually applied to the code lattice, whose error configuration is updated accordingly (g). Then finally, in order to determine the reward, a "referee" decoder takes in the true non-faulty syndrome corresponding to the updated error configuration (h). If the referee decoder can succesfully decode the current syndrome, then the agent remains alive and the episode continues, if not then the agent dies and the episode ends. If the agent remains alive and its action has resulted in putting the code back into the desired initial state, the agent is giving a reward of 1, in any other case the agent is given a reward of 0.</li>
-    <li> The reward and game over signal is then combined with the updated state (in which only the action history was updated) and provided to the agent (i,j). In addition, the tuple of (state, action, reward, new state, game_over) is added to an external memory which is used to update the parameterization of the agent via backpropogation. </li>
+    <li> The reward and game over signal is then combined with the updated state (in which only the action history was updated) and provided to the agent (i,j). In addition, the tuple of (state, action, reward, new state, game_over) is added to an external memory which is used to update the parametrization of the agent via backpropagation. </li>
         <li> The procedure detailed above is then repeated (k-p) until the point at which the agent chooses to do the identity (q), which can be done explicitly, or by repeating an action. Conceptually, the identity action is meant as a tool for the agent to signal its belief that it has applied all the corrections necessary to return the code to the desired initial state. </li>    
     <li> Given the identity signal from the agent, the environment then provides a new faulty syndrome volume (s,t), the action history slices of the state are reset, the new visible state is constructed from the rest action history and the updated syndrome (u,t) and fed to the agent, from which the episode continues as per steps (4-7), until the agent dies. </li> 
 </ol> 
 
-What has not been specifically illustrated in the above diagram is the procedure via which the parameterization of the Q-function is updated from batches of experience tuples. We will not present the details here as this is done using the exact same Q learning methodology described in  <a href="https://www.nature.com/articles/nature14236">these</a>  <a href="https://arxiv.org/abs/1511.06581">two</a> landmark papers on deepQ learning.
+What has not been specifically illustrated in the above diagram is the procedure via which the parametrization of the Q-function is updated from batches of experience tuples. We will not present the details here as this is done using the exact same Q learning methodology described in  <a href="https://www.nature.com/articles/nature14236">these</a>  <a href="https://arxiv.org/abs/1511.06581">two</a> landmark papers on deepQ learning.
 
 At this point all that remains is to discuss how decoding is done in practice once training has been completed and the agent has converged to an optimal Q-function. As illustrated below, this is quite straightforward:
 
@@ -177,13 +177,11 @@ At this point all that remains is to discuss how decoding is done in practice on
 Specifically, decoding proceeds as follows:
 
 <ol>
-  <li> Firstly, a syndrome volume is extracted from the code lattice and encododed as previously discussed (a,b). This encoded syndrome volume is then stacked with a blank action history to create the initial input state to the decoder (c, d).</li>
+  <li> Firstly, a syndrome volume is extracted from the code lattice and encoded as previously discussed (a,b). This encoded syndrome volume is then stacked with a blank action history to create the initial input state to the decoder (c, d).</li>
   <li> Given this input state, one forward pass of the neural network is executed and an argmax is taken over the output Q-values to obtain the first suggested correction. This suggested correction is then added to a memory (f) and used to update the action history slices of the visible state (e). These updated action history slices are then combined with the original syndrome volume (g) and passed to the decoder (h)</li>
   <li> Step 2 is then repeated (i,j,k,l) until the point at which the agent chooses the identity action (m).</li>
-    <li> At this point, given that the agent has signalled that it belives it has supplied all the necessary corrections, the acummulated corrections are applied to the code lattice (n), or in practice, tracked through the computation. </li>
+    <li> At this point, given that the agent has signalled that it believes it has supplied all the necessary corrections, the accumulated corrections are applied to the code lattice (n), or in practice, tracked through the computation. </li>
 </ol> 
-
-
 
 
 #### 2) Training Decoders in Practice
@@ -551,13 +549,13 @@ Now, we need to load:
    1. The hyper-parameters of the agent we would like to test
    2. The weights of the agent
     
-In this example we will evaluate one of the provided pre-trained decoders, for d=5, with X noise only, trained at an error rate of p_phys=p_meas=0.004
+In this example we will evaluate one of the provided pre-trained decoders, for d=5, with X noise only, trained at an error rate of p_phys=p_meas=0.007
 
 
 ```python
 fixed_configs_path = os.path.join(os.getcwd(),"../trained_models/d5_x/fixed_config.p")
-variable_configs_path = os.path.join(os.getcwd(),"../trained_models/d5_x/0.004/variable_config_22.p")
-model_weights_path = os.path.join(os.getcwd(),"../trained_models/d5_x/0.004/dqn_weights.h5f")
+variable_configs_path = os.path.join(os.getcwd(),"../trained_models/d5_x/0.007/variable_config_77.p")
+model_weights_path = os.path.join(os.getcwd(),"../trained_models/d5_x/0.007/final_dqn_weights.h5f")
 
 static_decoder_path = os.path.join(os.getcwd(),"referee_decoders/nn_d5_X_p5")
 static_decoder = load_model(static_decoder_path)
@@ -634,38 +632,39 @@ testing_history = dqn.test(env,nb_episodes = nb_test_episodes, visualize=False, 
     Testing for 1001 episodes ...
     -----------------
     Episode: 1
-    This Episode Length: 59
-    This Episode Reward: 29.0
-    This Episode Lifetime: 220
-    
-    Episode Lifetimes Avg: 220.000
-    
+    This Episode Length: 44
+    This Episode Reward: 27.0
+    This Episode Lifetime: 125
+
+    Episode Lifetimes Avg: 125.000
+
     -----------------
     Episode: 101
-    This Episode Length: 76
-    This Episode Reward: 38.0
-    This Episode Lifetime: 300
-    
-    Episode Lifetimes Avg: 698.861
+    This Episode Length: 278
+    This Episode Reward: 171.0
+    This Episode Lifetime: 830
+
+    Episode Lifetimes Avg: 330.149
+
     
    and the evaluation continues...
     
     -----------------
     Episode: 901
-    This Episode Length: 414
-    This Episode Reward: 306.0
-    This Episode Lifetime: 1905
-    
-    Episode Lifetimes Avg: 683.235
-    
+    This Episode Length: 230
+    This Episode Reward: 172.0
+    This Episode Lifetime: 685
+
+    Episode Lifetimes Avg: 330.638
+
     -----------------
     Episode: 1001
-    This Episode Length: 55
-    This Episode Reward: 30.0
-    This Episode Lifetime: 215
-    
-    Episode Lifetimes Avg: 679.141
-    
+    This Episode Length: 280
+    This Episode Reward: 166.0
+    This Episode Lifetime: 765
+
+    Episode Lifetimes Avg: 329.106
+      
 
 
 ```python
@@ -674,10 +673,10 @@ results = testing_history.history["episode_lifetime"]
 print("Mean Qubit Lifetime:", np.mean(results))
 ```
 
-    Mean Qubit Lifetime: 679.1408591408591
+    Mean Qubit Lifetime: 329.1058941058941
 
 
-Here we see that on average, over 1001 test episodes, the qubit survives for 679 syndrome measurements on average, which is better than the average lifetime of 250 syndrome measurements for a single faulty qubit.
+Here we see that on average, over 1001 test episodes, the qubit survives for 329 syndrome measurements on average, which is better than the average lifetime of 143 syndrome measurements for a single faulty qubit.
 
 ##### 3b) Using a Trained Decoder in Production
 

@@ -773,7 +773,7 @@ for j in range(d):
      [0 1 0 0 0 0]
      [0 0 1 0 0 0]]
     
-    
+
 And now we would like to decode and obtain the suggested corrections. To do this, we begin by padding the faulty syndromes as required and by concatenating the obtained volume with an action history slice, in which all the actions are initially zero:
 
 
@@ -956,225 +956,38 @@ To begin, copy the entire folder "d5_x" onto the HPC cluster and navigate into t
 
 #### 5) Results
 
-As we have discussed, during the course of the training procedure the results of all trained agents in "test_mode" are written out and stored, as well as the results from the best agent at each error rate. However, in order to ease computational time during training, each agent was only benchmarked for 100 episodes. In this section we present these raw preliminary results from the training procedure, as well as provide a script for obtaining more rigorous results from the optimal trained models. Again, see the example_notebooks folder for a companion notebook containing all the code in this section.
+As we have discussed, during the course of the training procedure the results of all trained agents in "test_mode" are written out and stored, as well as the results from the best agent at each error rate. However, in order to ease computational time during training, each agent was only benchmarked for 100 episodes.
 
-##### 5a) Preliminary Results
+Here we present the full results and training histories for each best performing agent, as selected by the preliminary benchmarking during training. In particular, these full results were obtained by testing each best performing trained agent, at each error rate, for the number of episodes that guaranteed at least 10^6 syndromes were seen by the agent. All the trained agents from which these results were obtained, along with the fully detailed results (i.e. episode length of every single tested episode at each error rate for each agent), can be found in the "trained_models" directory of the repo. In addition to these evaluation results, we also provide the learning curves for all best performing agents.
 
-Here we present the preliminary results, as obtained from within the training procedure, and from which the controller script based its decisions.
+The code for generating these plots, can be found in the "Final Results and Training Histories" Example Notebook, in the example notebooks folder.
 
-
-```python
-import numpy as np
-import keras
-import tensorflow
-import gym
-
-from Function_Library import *
-from Environments import *
-
-import rl as rl
-from rl.agents.dqn import DQNAgent
-from rl.policy import BoltzmannQPolicy, EpsGreedyQPolicy, LinearAnnealedPolicy, GreedyQPolicy
-from rl.memory import SequentialMemory
-from rl.callbacks import FileLogger
-
-import json
-import copy
-import sys
-import os
-import shutil
-import datetime
-
-from matplotlib import pyplot as plt
-%matplotlib inline
-```
-
-    Using TensorFlow backend.
-
-
-
-```python
-directory_dict = {"X Noise": os.path.join(os.getcwd(),"../results/d5_x/"),
-                  "DP Noise": os.path.join(os.getcwd(),"../results/d5_dp/")}
-
-results_dict = {}
-for key in directory_dict.keys():
-    results_list = []
-    for file in os.listdir(directory_dict[key]):
-        if "best" in file:
-            with open(directory_dict[key]+file) as f:
-                content = f.readlines()
-            content = [x.strip() for x in content]
-            start_index = content[0].index(":")
-            result = float(content[0][start_index+2:])
-            results_list.append(result)
-    results_list.sort(reverse=True)
-    results_dict[key] = results_list
-    
-    
-```
-
-
-```python
-end = 8
-p_phys = [j/1000 for j in range(1, end+1)]
-bench = [1/p for p in p_phys]
-key = "X Noise"
-
-_=plt.figure(figsize=[12,8])
-plt.semilogy(p_phys[:end],results_dict[key][:end],"b",label="Decoded Logical Qubit")
-plt.semilogy(p_phys[:end],results_dict[key][:end],"bo")
-plt.semilogy(p_phys[:end],bench[:end],"r",label="Single Faulty Qubit")
-plt.semilogy(p_phys[:end],bench[:end],"rx")
-plt.title("d=5 X Noise Preliminary Decoder Results")
-plt.xlabel("p_phys=p_meas")
-plt.ylabel("Average Qubit Survival Time")
-_=plt.legend()
-```
+We start by presenting the results obtained when using the best performing agent from each iterative training step, for both bitflip and depolarizing noise, as well as the results obtained when using the best performing agent for each specific error rate.
 
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/6330346/45932267-01af9680-bf7a-11e8-9caa-5c7168727ae7.png" width="70%" height="70%">
+<img src="https://user-images.githubusercontent.com/6330346/47023954-10483280-d161-11e8-9d82-bce6f66b077a.png" width="70%" height="70%">
+</p>
+
+In addition, it is of interest to view the learning curves for all the agents whose performance is shown above. The following plots provide these training histories, along with the hyper-parameter settings for the agent, given as a list in the form [num_exploration_steps, initial_epsilon, final_epsilon, learning_rate, target_network_update_frequency].
+
+First, let's have a look at the depolarising noise agents:
+
+<p align="center">
+<img src="https://user-images.githubusercontent.com/6330346/47023852-d9721c80-d160-11e8-9106-f22dff1e41ac.png" width="70%" height="70%">
+</p>
+
+And finally, we can view the learning curves from the bitflip noise agents:
+
+<p align="center">
+<img src="https://user-images.githubusercontent.com/6330346/47023863-e131c100-d160-11e8-942d-e473d1c9df8f.png" width="70%" height="70%">
 </p>
 
 
 
-```python
-end = 5
-p_phys = [j/1000 for j in range(1, end+1)]
-bench = [1/p for p in p_phys]
-key = "DP Noise"
-
-_=plt.figure(figsize=[12,8])
-plt.semilogy(p_phys[:end],results_dict[key][:end],"g",label="Decoded Logical Qubit")
-plt.semilogy(p_phys[:end],results_dict[key][:end],"go")
-plt.semilogy(p_phys[:end],bench[:end],"r",label="Single Faulty Qubit")
-plt.semilogy(p_phys[:end],bench[:end],"rx")
-plt.title("d=5 DP Noise Preliminary Decoder Results")
-plt.xlabel("p_phys=p_meas")
-plt.ylabel("Average Qubit Survival Time")
-_=plt.legend()
-```
 
 
-<p align="center">
-<img src="https://user-images.githubusercontent.com/6330346/45939238-503c4f80-bfd1-11e8-9111-5be9ceea2dea.png" width="70%" height="70%">
-</p>
 
-
-##### 5b) Rigorous Results - !NB: TO DO! Run these cells!!
-
-As mentioned, the preliminary results above were obtained directly from the training procedure over only 100 episodes. As such we would like to obtain more rigorous results over more benchmarking episodes, which can be done with the following methodology.
-
-We begin by defining a function for evaluation of a single point, which we can then loop over:
-
-
-```python
-def evaluate_single_point(models_directory, error_rate, nb_testing_episodes, static_decoder):
-    
-    # Load all the configs
-    fixed_configs_path = os.path.join(models_directory,"fixed_config.p")
-    
-    error_rate_directory = os.path.join(models_directory,error_rate+"/")
-    all_files = os.listdir(os.path.join(error_rate_directory))
-    
-    for file in all_files:
-        if "config" in file:
-            variable_configs_path = os.path.join(error_rate_directory, file)
-    
-    model_weights_path = os.path.join(error_rate_directory,"dqn_weights.h5f")
-
-    fixed_configs = pickle.load( open(fixed_configs_path, "rb" ) )
-    variable_configs = pickle.load( open(variable_configs_path, "rb" ) )
-
-    all_configs = {}
-
-    for key in fixed_configs.keys():
-        all_configs[key] = fixed_configs[key]
-
-    for key in variable_configs.keys():
-        all_configs[key] = variable_configs[key]
-        
-    # instantiate the environment
-    env = Surface_Code_Environment_Multi_Decoding_Cycles(d=all_configs["d"], 
-    p_phys=all_configs["p_phys"], 
-    p_meas=all_configs["p_meas"],  
-    error_model=all_configs["error_model"], 
-    use_Y=all_configs["use_Y"], 
-    volume_depth=all_configs["volume_depth"],
-    static_decoder=static_decoder)
-    
-    # Instantiate the agent
-    model = build_convolutional_nn(all_configs["c_layers"],all_configs["ff_layers"], env.observation_space.shape, env.num_actions)
-    memory = SequentialMemory(limit=all_configs["buffer_size"], window_length=1)
-    policy = GreedyQPolicy(masked_greedy=True)
-    test_policy = GreedyQPolicy(masked_greedy=True)
-
-    dqn = DQNAgent(model=model, 
-                   nb_actions=env.num_actions, 
-                   memory=memory, 
-                   nb_steps_warmup=all_configs["learning_starts"], 
-                   target_model_update=all_configs["target_network_update_freq"], 
-                   policy=policy,
-                   test_policy=test_policy,
-                   gamma = all_configs["gamma"],
-                   enable_dueling_network=all_configs["dueling"])  
-
-
-    dqn.compile(Adam(lr=all_configs["learning_rate"]))
-    
-    # Load the weights
-    dqn.model.load_weights(model_weights_path)
-    
-    # Test
-    nb_test_episodes = nb_testing_episodes
-    testing_history = dqn.test(env,nb_episodes = nb_test_episodes, visualize=False, 
-                               verbose=2, interval=100, single_cycle=False)
-    
-    return testing_history.history["episode_lifetime"]
-```
-
-And now we can perform the required evaluations:
-
-
-```python
-nb_testing_episodes = 5000
-
-models_directory = os.path.join(os.getcwd(),"../trained_models/d5_x/")
-static_decoder_path = os.path.join(os.getcwd(),"referee_decoders/nn_d5_X_p5")
-static_decoder = load_model(static_decoder_path)
-
-error_rates = ["0.001", "0.002", "0.003", "0.004", "0.005", "0.006", "0.007", "0.008"]
-
-final_all_results = {}
-final_mean_results = {}
-for error_rate in error_rates:
-    print("Evaluating at error rate:" ,error_rate)
-    print()
-    
-    final_all_results[error_rate] = evaluate_single_point(models_directory,error_rate,nb_testing_episodes, static_decoder)
-    final_mean_results[error_rate] = np.mean(final_all_results[error_rate])
-```
-
-
-```python
-final_results = [final_mean_results[key] for key in error_rates]
-
-end = 8
-p_phys = [j/1000 for j in range(1, end+1)]
-bench = [1/p for p in p_phys]
-key = "X Noise"
-
-_=plt.figure(figsize=[12,8])
-plt.semilogy(p_phys[:end],final_results[:end],"b",label="Decoded Logical Qubit")
-plt.semilogy(p_phys[:end],final_results[:end],"bo")
-plt.semilogy(p_phys[:end],bench[:end],"r",label="Single Faulty Qubit")
-plt.semilogy(p_phys[:end],bench[:end],"rx")
-plt.title("d=5 X Noise Rigorous Decoder Results")
-plt.xlabel("p_phys=p_meas")
-plt.ylabel("Average Qubit Survival Time")
-_=plt.legend()
-```
 
 
 

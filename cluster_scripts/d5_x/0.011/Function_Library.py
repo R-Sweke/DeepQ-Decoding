@@ -298,7 +298,7 @@ def generate_one_hot_labels_surface_code(error,err_model):
 
     This function generates the homology class label, in a one-hot encoding, for a given perfect syndrome, to use as the target label
     for a feed forward neural network homology class predicting decoder.
-!
+
     :param: error: An error configuration on a square lattice
     :param: err_model: A string in ["IIDXZ","DP","X"]
     :return: training_label: The one-encoded training label

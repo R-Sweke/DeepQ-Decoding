@@ -687,7 +687,7 @@ To do this, we start by generating a faulty syndrome volume as would be generate
 
 ```python
 d=5
-p_phys=0.004
+p_phys=0.007
 p_meas=p_phys
 error_model = "X"
 qubits = generateSurfaceCodeLattice(d)
@@ -703,7 +703,7 @@ for j in range(d):
     faulty_syndromes.append(current_faulty_syndrome)
 ```
 
-By viewing the hidden_state (the lattice state) we can see what errors occured, which here was a single error on the 6th qubit (we start counting from 0, and move row wise left to right).
+By viewing the final hidden_state (the lattice state) we can see what errors occured, which here was a single error on the 21st qubit (we start counting from 0, and move row wise left to right).
 
 
 ```python
@@ -711,70 +711,69 @@ print(hidden_state)
 ```
 
     [[0. 0. 0. 0. 0.]
-     [0. 1. 0. 0. 0.]
      [0. 0. 0. 0. 0.]
      [0. 0. 0. 0. 0.]
-     [0. 0. 0. 0. 0.]]
+     [0. 0. 0. 0. 0.]
+     [0. 1. 0. 0. 0.]]
 
 
-And we can view the faulty_syndromes that we received, which is what would come out of an experiment. As we can see, a measurement error occured in the first time slice, and the actual error occured between the 3rd and 4th slice...
+And we can view the faulty_syndromes that we received, which is what would come out of an experiment. As we can see, measurement errors occurred in syndrome slices 2 and 5, and it appears as if the actual error occurred between extraction of syndrome 2 and 3:
 
 
 ```python
 for j in range(d):
-    print("syndrome slice", j)
+    print("syndrome slice", j+1)
     print()
     print(faulty_syndromes[j])
     print()
 ```
 
-    syndrome slice 0
-    
-    [[0 0 0 0 0 0]
-     [0 0 0 0 0 0]
-     [0 0 0 0 0 0]
-     [0 0 0 0 0 0]
-     [0 0 1 0 0 0]
-     [0 0 0 0 0 0]]
-    
     syndrome slice 1
-    
+
     [[0 0 0 0 0 0]
      [0 0 0 0 0 0]
      [0 0 0 0 0 0]
      [0 0 0 0 0 0]
      [0 0 0 0 0 0]
      [0 0 0 0 0 0]]
-    
+
     syndrome slice 2
-    
+
     [[0 0 0 0 0 0]
-     [0 0 0 0 0 0]
-     [0 0 0 0 0 0]
+     [0 0 1 0 0 0]
+     [0 0 0 0 1 0]
      [0 0 0 0 0 0]
      [0 0 0 0 0 0]
      [0 0 0 0 0 0]]
-    
+
     syndrome slice 3
-    
+
     [[0 0 0 0 0 0]
-     [0 0 1 0 0 0]
+     [0 0 0 0 0 0]
+     [0 0 0 0 0 0]
+     [0 0 0 0 0 0]
      [0 1 0 0 0 0]
-     [0 0 0 0 0 0]
-     [0 0 0 0 0 0]
-     [0 0 0 0 0 0]]
-    
+     [0 0 1 0 0 0]]
+
     syndrome slice 4
-    
+
     [[0 0 0 0 0 0]
-     [0 0 1 0 0 0]
+     [0 0 0 0 0 0]
+     [0 0 0 0 0 0]
+     [0 0 0 0 0 0]
      [0 1 0 0 0 0]
+     [0 0 1 0 0 0]]
+
+    syndrome slice 5
+
+    [[0 1 0 0 0 0]
      [0 0 0 0 0 0]
      [0 0 0 0 0 0]
-     [0 0 0 0 0 0]]
+     [0 0 0 0 0 0]
+     [0 1 0 0 0 0]
+     [0 0 1 0 0 0]]
     
-
-
+    
 And now we would like to decode and obtain the suggested corrections. To do this, we begin by padding the faulty syndromes as required and by concatenating the obtained volume with an action history slice, in which all the actions are initially zero:
 
 
@@ -821,7 +820,7 @@ And now we can view the suggested corrections, which in this case was a single c
 print(corrections)
 ```
 
-    [6]
+    [21]
 
 
 Note that in general if there is more than one error, or if the agent is uncertain about a given configuration, it may choose to do the identity, therefore triggering a new syndrome volume from which it may be more certain which action to take - The crucial point is that in practice we are interested in how long the qubit survives for, and an optimal strategy for achieving long qubit lifetimes may not be to attempt to fully decode into the ground state after each syndrome volume - in fact, that is one of the primary advantages of this approach!

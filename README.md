@@ -966,7 +966,7 @@ We start by presenting the results obtained when using the best performing agent
 
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/6330346/47023954-10483280-d161-11e8-9d82-bce6f66b077a.png" width="70%" height="70%">
+<img src="https://user-images.githubusercontent.com/6330346/47023954-10483280-d161-11e8-9d82-bce6f66b077a.png" width="100%" height="100%">
 </p>
 
 In addition, it is of interest to view the learning curves for all the agents whose performance is shown above. The following plots provide these training histories, along with the hyper-parameter settings for the agent, given as a list in the form [num_exploration_steps, initial_epsilon, final_epsilon, learning_rate, target_network_update_frequency].

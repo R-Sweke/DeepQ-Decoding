@@ -12,12 +12,23 @@ In particular, this repo contains:
   <li> Manuscript: A folder containing the "Reinforcement Learning Decoders for Fault-Tolerant Quantum Computation" paper, along with all associated files and figures.</li>
 </ol> 
 
+#### Quickstart
 
-Each of the above sections of the README is also contained within a jupyter notebook that can be found inside the "example_notebooks" folder of the repo, and within which the code cells can be run. In addition, all the scripts necessary for the large-scale distributed iterative training procedure described in Section 4 can be found inside the "cluster_scripts" folder of the repo, and following the instructions in Section 4 should allow you to run this procedure on your own HPC cluster, provided it utilizes the slurm workload manager.
+In this readme, we will provide a summary and walkthrough of all the information contained within the included notebooks. However, we recommend starting by reading the included manuscript _Reinforcement Learning Decoders for Fault-Tolerant Quantum Computation_. To explore the code used for training and evaluating agents, as well as take a more detailed look at the results, please see the example notebooks. In order to run the code given in these notebooks the following packages are required:
 
-The main goal of this repo is to allow you to reproduce for yourself in a straightforward and transparent way all the results contained in Section 5, and additionally to obtain new decoders, and to implement these decoders easily in practice within an experimental or computational setting.
+<ol>
+  <li> Python 3 (with numpy and scipy)</li>
+  <li> Jupyter </li>
+  <li> tensorflow </li>
+  <li> keras </li> 
+  <li> gym </li> 
+  <li> a modified Keras-RL, installed from <a href="https://github.com/R-Sweke/keras-rl">this fork</a> </li>
+</ol> 
+
+If you have any questions, please feel free to contact any of the contributors.
 
 Enjoy!
+
 
 #### 1) Setting
 

@@ -1,17 +1,17 @@
 
 ###  _DeepQ Decoding_
 
-This repository provides all the tools necessary to obtain, run and evaluate surface code decoders for fault tolerant quantum computation, i.e. decoders capable of dealing with faulty syndrome measurements, via <a href="https://www.nature.com/articles/nature14236">DeepQ reinforcement learning</a>.
+This repository is intended as a companion to the manuscript _Reinforcement Learning Decoders for Fault-Tolerant Quantum Computation_. In particular, this repository provides all the tools necessary to reproduce all results presented in the above mentioned paper. Furthermore, it is hoped that this repository may serve as a starting-point for extending these tools and techniques.
 
-In particular, this README contains:
+In particular, this repo contains:
 
 <ol>
-  <li>A detailed introduction to the setting, conceptual foundations, strategies and techniques used for obtaining DeepQ decoders.</li>
-  <li>A full explanation of how to train a deepQ decoder for a single set of hyper-parameters.</li>
-  <li>A full explanation of how to evaluate a trained DeepQ decoder, and how to use such a decoder in the setting of an actual experiment or computation.</li>
-  <li>Complete instructions for how to implement an iterated large scale training procedure on an HPC cluster, for obtaining optimal decoders over a large range of error rates.</li>
-  <li>The results obtained when executing the above large scale training procedure on a d=5 surface code lattice for both X noise and depolarizing noise </li>
+  <li> _Example Notebooks_: A collection of jupyter notebooks, intended to serve as detailed documentation for all utilised code, and for exploring the obtained results.</li>
+  <li>_Trained Models_: A folder containing all trained models, along with detailed results from the evaluation of these models.</li>
+  <li>_Cluster Scripts_: All the scripts necessary to reproduce the given results via a large scale iterated training procedure on an HPC cluster running the Slurm workload manager.</li>
+  <li>_Manuscript_: A folder containing the _Reinforcement Learning Decoders for Fault-Tolerant Quantum Computation_ paper, along with all associated files and figures.</li>
 </ol> 
+
 
 Each of the above sections of the README is also contained within a jupyter notebook that can be found inside the "example_notebooks" folder of the repo, and within which the code cells can be run. In addition, all the scripts necessary for the large-scale distributed iterative training procedure described in Section 4 can be found inside the "cluster_scripts" folder of the repo, and following the instructions in Section 4 should allow you to run this procedure on your own HPC cluster, provided it utilizes the slurm workload manager.
 

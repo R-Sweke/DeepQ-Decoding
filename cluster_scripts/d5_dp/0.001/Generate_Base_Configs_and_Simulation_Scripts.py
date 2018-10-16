@@ -35,8 +35,8 @@ success_threshold = 100000
 
 learning_starts_list = [1000]
 learning_rate_list = [0.0001, 0.00005, 0.00001]
-exploration_fraction_list = [100000, 200000, 300000]
-sim_time_per_ef = [12, 12, 12]
+exploration_fraction_list = [100000, 200000]
+sim_time_per_ef = [14, 14]
 max_eps_list = [1.0]
 target_network_update_freq_list = [2500, 5000]
 gamma_list = [0.99]
@@ -86,7 +86,7 @@ for ls in learning_starts_list:
 #SBATCH --job-name='''+job_name+'''          # Job name, will show up in squeue output
 #SBATCH --ntasks=4                           # Number of cores
 #SBATCH --nodes=1                            # Ensure that all cores are on one machine
-#SBATCH --time=0-0'''+job_limit+''':00:00    # Runtime in DAYS-HH:MM:SS format
+#SBATCH --time=0-'''+job_limit+''':30:00    # Runtime in DAYS-HH:MM:SS format
 #SBATCH --mem-per-cpu=1000                   # Memory per cpu in MB (see also --mem) 
 #SBATCH --output='''+output_file+'''         # File to which standard out will be written
 #SBATCH --error='''+error_file+'''           # File to which standard err will be written

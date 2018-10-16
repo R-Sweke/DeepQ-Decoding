@@ -12,20 +12,20 @@ now = datetime.datetime.now()
 print(now)                          # This allows us to track executions in stdout
 
 # These are TESTING thresholds to determine which simulations should be spawned off of - should be chosen wrt to some benchmark - i.e. mwpm!
-threshold_dict = {"0.001": 1000, "0.002": 500, "0.003": 334, "0.004": 250, "0.005": 200, "0.006": 167, "0.007": 142, "0.008": 125, "0.009": 112, "0.01": 100}    
+threshold_dict = {"0.001": 1000, "0.003": 334, "0.005": 200, "0.007": 142, "0.009": 112, "0.011": 91, "0.013": 77, "0.015": 67, "0.017": 59}    
 num_best_to_spawn_from = 1
 
 # These are TRAINING thresholds to be used when an individual script should converge
-p_phys_list = [0.001, 0.002, 0.003, 0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.01]
-success_threshold_list = [100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000]             
+p_phys_list = [0.001, 0.003, 0.005, 0.007, 0.009, 0.011, 0.013, 0.015, 0.017]
+success_threshold_list = [100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000]             
 
 # This is the amount of time we give to each simulation before marking it as timed out
-simulation_time_limit_hours = 8.6              
+simulation_time_limit_hours = 14              
 
 # Grid over which any spawned simulation will run:
 
 learning_starts_list = [1000]
-learning_rate_list = [0.0005, 0.0001, 0.00005, 0.00001]
+learning_rate_list = [0.0001, 0.00005, 0.00001, 0.000005]
 exploration_fraction_list = [100000, 200000]
 max_eps_list = [1.0, 0.5, 0.25]
 target_network_update_freq_list = [2500, 5000]
@@ -233,7 +233,7 @@ if completed_simulations == num_configs:
 #SBATCH --job-name={job_name}                # Job name, will show up in squeue output
 #SBATCH --ntasks=4                           # Number of cores
 #SBATCH --nodes=1                            # Ensure that all cores are on one machine
-#SBATCH --time=0-08:30:00                    # Runtime in DAYS-HH:MM:SS format
+#SBATCH --time=0-13:30:00                    # Runtime in DAYS-HH:MM:SS format
 #SBATCH --mem-per-cpu=1000                   # Memory per cpu in MB (see also --mem) 
 #SBATCH --output={output_file}               # File to which standard out will be written
 #SBATCH --error={error_file}                 # File to which standard err will be written
@@ -259,8 +259,8 @@ python {python_script} {config_counter} {new_p_phys_directory}'''.format(job_nam
                                             f.close()
                                             
                                             # Finally I copy the base neural network that will be loaded into that folder
-                                            source_weights = os.path.join(check_directory,"config_"+spawn+"/dqn_weights.h5f")
-                                            destination_weights = os.path.join(config_directory,"dqn_weights.h5f")
+                                            source_weights = os.path.join(check_directory,"config_"+spawn+"/final_dqn_weights.h5f")
+                                            destination_weights = os.path.join(config_directory,"initial_dqn_weights.h5f")
                                             copyfile(source_weights, destination_weights)
 
                                             source_memory = os.path.join(check_directory,"config_"+spawn+"/memory.p")

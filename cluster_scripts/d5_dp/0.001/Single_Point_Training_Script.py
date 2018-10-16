@@ -154,9 +154,8 @@ history = dqn.fit(env,
 memory_file = os.path.join(variable_configs_folder,"memory.p")
 pickle.dump(dqn.memory, open(memory_file, "wb" ) )
 
-weights_file = os.path.join(variable_configs_folder, "dqn_weights.h5f")
-if not "dqn_weights.h5f" in os.listdir(variable_configs_folder):
-  dqn.save_weights(weights_file, overwrite=True)
+final_weights_file = os.path.join(variable_configs_folder, "final_dqn_weights.h5f")
+dqn.save_weights(final_weights_file, overwrite=True)
 
 # -------------------------------------------------------------------------------------------
 
@@ -179,13 +178,43 @@ dqn = DQNAgent(model=model,
 
 
 dqn.compile(Adam(lr=all_configs["learning_rate"]))
-dqn.model.load_weights(weights_file)
+dqn.model.load_weights(final_weights_file)
 
 # -------------------------------------------------------------------------------------------
 
+trained_at = all_configs["p_phys"]
+num_to_test = 20
+error_rates = [j*0.001 for j in range(1,num_to_test + 1)]
+thresholds = [1/p for p in error_rates]
 nb_test_episodes = all_configs["testing_length"]
-testing_history = dqn.test(env,nb_episodes = nb_test_episodes, visualize=False, verbose=2, interval=10, single_cycle=False)
-results = testing_history.history["episode_lifetimes_rolling_avg"]
+all_results = {}
 
-results_file = os.path.join(variable_configs_folder,"results.p")
-pickle.dump(results, open(results_file, "wb" ) )
+
+keep_evaluating = True
+count = 0
+while keep_evaluating:
+
+  err_rate = error_rates[count]
+  env.p_phys = err_rate
+  env.p_meas = err_rate
+
+  dict_key = str(err_rate)[:5]
+
+
+  testing_history = dqn.test(env,nb_episodes = nb_test_episodes, visualize=False, verbose=2, interval=10, single_cycle=False)
+  results = testing_history.history["episode_lifetimes_rolling_avg"]
+  final_result = results[-1:][0]
+  all_results[dict_key] = final_result
+
+  if abs(trained_at - err_rate) < 1e-6:
+    results_file = os.path.join(variable_configs_folder,"results.p")
+    pickle.dump(results, open(results_file, "wb" ))
+
+  to_beat = thresholds[count]
+  if final_result < to_beat or count == (num_to_test - 1):
+    keep_evaluating = False
+
+  count += 1
+
+all_results_file = os.path.join(variable_configs_folder,"all_results.p")
+pickle.dump(all_results, open(all_results_file, "wb" ))

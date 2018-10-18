@@ -22,7 +22,7 @@ If you use any of the code provided here, please cite:
 
 #### 0) Quickstart
 
-In this readme, we will provide a summary and walkthrough of all the information contained within the included notebooks. However, we recommend starting by reading the included manuscript _Reinforcement Learning Decoders for Fault-Tolerant Quantum Computation_. To explore the code used for training and evaluating agents, as well as take a more detailed look at the results, please see the example notebooks. In order to run the code given in these notebooks the following is required:
+In this readme, we will provide a summary and walkthrough of all the information contained within the included notebooks. However, we recommend starting by reading the included manuscript <a href="https://arxiv.org/pdf/1810.07207.pdf">Reinforcement Learning Decoders for Fault-Tolerant Quantum Computation</a>. To explore the code used for training and evaluating agents, as well as take a more detailed look at the results, please see the example notebooks. In order to run the code given in these notebooks the following is required:
 
 <ol>
   <li> <b>Python 3</b> (with numpy and scipy)</li>

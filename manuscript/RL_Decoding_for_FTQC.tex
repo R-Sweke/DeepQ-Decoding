@@ -77,10 +77,10 @@
 	As of yet, it is precisely the development of decoders applicable to the fault-tolerant setting that constitutes a particular challenge.
 	However, due to the importance of decoding algorithms for fault-tolerant quantum computation, several approaches have been developed, each of which tries to satisfy as many of the experimentally required criteria as possible.
 	Perhaps most prominent are algorithms based on minimum-weight perfect matching subroutines~\cite{Fowler13}, although alternative approaches based on techniques such as the renormalization group~\cite{Duclos2010} and locally operating cellular automata~\cite{Herold15,herold2017cellular,Kubica2018} have also been put forward.
-	These algorithms solve the problem in principle, but may well be too slow in realistic settings.
+	These algorithms solve the problem in principle, but may well be too slow in realistic settings.,
 
-	Recently, techniques from machine learning have begun to find application in diverse areas of quantum physics - such as in the efficient representation of many-body quantum states~\cite{WFcarleo2017solving,WFcarleo2018constructing,WFgao2017efficient}, the identification of phase transitions~\cite{PTvan2017learning,PTPhysRevB.97.134109,PTcarrasquilla2017machine,broecker2017quantum,PhysRevB.95.245134}, and the autonomous design of novel experimental set-ups~\cite{melnikov2018active,fosel2018reinforcement} - and in an attempt to tackle the issue of fast decoding various neural-network based decoders have also been proposed~\cite{Torlai10, Varsamopoulos17, Krastanov17, chamberland2018deep, Baireuther18a, Baireuther18b, Breuckmann18,Ni18}.
-	In particular, previously proposed neural network decoders promise extremely fast decoding times~\cite{chamberland2018deep}, flexibility with respect to the underlying code and noise model~\cite{chamberland2018deep,Baireuther18a,Baireuther18b,Breuckmann18} and the potential to scale to large code distances~\cite{Ni18, Breuckmann18}.
+	Recently, techniques from machine learning have begun to find application in diverse areas of quantum physics - such as in the efficient representation of many-body quantum states~\cite{WFcarleo2017solving,WFcarleo2018constructing,WFgao2017efficient}, the identification of phase transitions~\cite{PTvan2017learning,PTPhysRevB.97.134109,PTcarrasquilla2017machine,broecker2017quantum,PhysRevB.95.245134}, and the autonomous design of novel experimental set-ups~\cite{melnikov2018active,fosel2018reinforcement} - and in an attempt to tackle the issue of fast decoding various neural-network based decoders have also been proposed~\cite{Torlai10, Varsamopoulos17, Krastanov17, chamberland2018deep, Baireuther18a, Baireuther18b,maskara2018advantages, Breuckmann18,Ni18}.
+	In particular, previously proposed neural network decoders promise extremely fast decoding times~\cite{chamberland2018deep}, flexibility with respect to the underlying code and noise model~\cite{chamberland2018deep,Baireuther18a,Baireuther18b,Breuckmann18, maskara2018advantages} and the potential to scale to large code distances~\cite{Ni18, Breuckmann18}.
 	However, despite this diversity of proposed decoding algorithms, and the clear potential of machine learning based approaches, there is as of yet no algorithm or technique which clearly satisfies all the required experimental criteria listed above.
 	As such, there remains room for improvement and new techniques, particularly within the fault-tolerant setting.
 
@@ -719,6 +719,8 @@
 
 % Bibliography
 	\clearpage
+	% \bibliographystyle{apsrev4-1mod}
+	% \bibliography{dq}
 	\bibliography{RL_Decoding_for_FTQCNotes.bbl}
 
 \end{document}

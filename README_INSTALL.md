@@ -1,3 +1,5 @@
+These instructions work for Linux.
+
 Make sure that the system has Python 3.7 installed.
 The following instructions have not been tested with conda, but
 with `virtualenv` in a system that has multiple versions of

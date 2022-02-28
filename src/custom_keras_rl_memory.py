@@ -3,7 +3,7 @@ from collections import deque, namedtuple
 import warnings
 import random
 
-from rl.memory import Memory, SequentialMemory
+from rl.memory import Memory, SequentialMemory, sample_batch_indexes, zeroed_observation
 
 import numpy as np
 
@@ -226,7 +226,7 @@ class MySequentialMemory(Memory):
             reward (float): Reward obtained by taking this action
             terminal (boolean): Is the state terminal
         """
-        super(SequentialMemory, self).append(observation, action, reward,
+        super(MySequentialMemory, self).append(observation, action, reward,
                                              terminal, training=training)
 
         # This needs to be understood as follows: in `observation`, take `action`, obtain `reward`
@@ -257,14 +257,14 @@ class MySequentialMemory(Memory):
         return config
 
 
-class EpisodeParameterMemory(Memory):
+class MyEpisodeParameterMemory(Memory):
     def __init__(self, limit, **kwargs):
-        super(EpisodeParameterMemory, self).__init__(**kwargs)
+        super(MyEpisodeParameterMemory, self).__init__(**kwargs)
         self.limit = limit
 
-        self.params = RingBuffer(limit)
+        self.params = MyRingBuffer(limit)
         self.intermediate_rewards = []
-        self.total_rewards = RingBuffer(limit)
+        self.total_rewards = MyRingBuffer(limit)
 
     def sample(self, batch_size, batch_idxs=None):
         """Return a randomized batch of params and rewards
@@ -296,7 +296,7 @@ class EpisodeParameterMemory(Memory):
             reward (float): Reward obtained by taking this action
             terminal (boolean): Is the state terminal
         """
-        super(EpisodeParameterMemory, self).append(observation, action, reward,
+        super(MyEpisodeParameterMemory, self).append(observation, action, reward,
                                                    terminal, training=training)
         if training:
             self.intermediate_rewards.append(reward)

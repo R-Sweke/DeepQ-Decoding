@@ -124,9 +124,9 @@ dqn.model.load_weights(model_weights_path)
 # In[14]:
 
 
-nb_test_episodes = 1001
+nb_test_episodes = 2 #1001
 testing_history = dqn.test(env,nb_episodes = nb_test_episodes, visualize=False, verbose=2, 
-                           interval=100, single_cycle=False)
+                           interval=1, single_cycle=False)
 
 
 # In[15]:

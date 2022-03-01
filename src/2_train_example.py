@@ -129,7 +129,6 @@ env = Surface_Code_Environment_Multi_Decoding_Cycles(d=all_configs["d"],
     volume_depth=all_configs["volume_depth"],
     static_decoder=static_decoder)
 
-
 # The environment class is defined to mirror the environments of
 # [https://gym.openai.com/](openAI gym), and such contains the required
 # "reset" and "step" methods, via which the agent can interact with the

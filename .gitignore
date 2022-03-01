@@ -344,3 +344,4 @@ TSWLatexianTemp*
 
 # standalone packages
 *.sta
+/src/logging_directory/

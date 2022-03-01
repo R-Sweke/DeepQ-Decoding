@@ -8,56 +8,20 @@ from tempfile import mkdtemp
 import numpy as np
 
 from keras import __version__ as KERAS_VERSION
-from keras.callbacks import Callback as KerasCallback, \
-    CallbackList as KerasCallbackList
+from keras.callbacks import CallbackList as KerasCallbackList
 
+from rl.callbacks import Callback, CallbackList, \
+    Visualizer, FileLogger, TrainIntervalLogger, ModelIntervalCheckpoint, \
+    TrainEpisodeLogger
 
-class MyCallback(KerasCallback):
-    def _set_env(self, env):
-        self.env = env
+from rl.core import History
 
-    def on_episode_begin(self, episode, logs={}):
-        """Called at beginning of each episode"""
-        pass
-
+class MyCallback(Callback):
     def on_episode_end(self, episode, logs={}, single_cycle=None):
         """Called at end of each episode"""
         pass
 
-    def on_step_begin(self, step, logs={}):
-        """Called at beginning of each step"""
-        pass
-
-    def on_step_end(self, step, logs={}):
-        """Called at end of each step"""
-        pass
-
-    def on_action_begin(self, action, logs={}):
-        """Called at beginning of each action"""
-        pass
-
-    def on_action_end(self, action, logs={}):
-        """Called at end of each action"""
-        pass
-
-
-class MyCallbackList(KerasCallbackList):
-    def _set_env(self, env):
-        """ Set environment for each callback in callbackList """
-        for callback in self.callbacks:
-            if callable(getattr(callback, '_set_env', None)):
-                callback._set_env(env)
-
-    def on_episode_begin(self, episode, logs={}):
-        """ Called at beginning of each episode for each callback in callbackList"""
-        for callback in self.callbacks:
-            # Check if callback supports the more appropriate `on_episode_begin` callback.
-            # If not, fall back to `on_epoch_begin` to be compatible with built-in Keras callbacks.
-            if callable(getattr(callback, 'on_episode_begin', None)):
-                callback.on_episode_begin(episode, logs=logs)
-            else:
-                callback.on_epoch_begin(episode, logs=logs)
-
+class MyCallbackList(CallbackList):
     def on_episode_end(self, episode, logs={}, single_cycle=None):
         """ Called at end of each episode for each callback in callbackList"""
         for callback in self.callbacks:
@@ -69,47 +33,14 @@ class MyCallbackList(KerasCallbackList):
             else:
                 callback.on_epoch_end(episode, logs=logs)
 
-    def on_step_begin(self, step, logs={}):
-        """ Called at beginning of each step for each callback in callbackList"""
-        for callback in self.callbacks:
-            # Check if callback supports the more appropriate `on_step_begin` callback.
-            # If not, fall back to `on_batch_begin` to be compatible with built-in Keras callbacks.
-            if callable(getattr(callback, 'on_step_begin', None)):
-                callback.on_step_begin(step, logs=logs)
-            else:
-                callback.on_batch_begin(step, logs=logs)
-
-    def on_step_end(self, step, logs={}):
-        """ Called at end of each step for each callback in callbackList"""
-        for callback in self.callbacks:
-            # Check if callback supports the more appropriate `on_step_end` callback.
-            # If not, fall back to `on_batch_end` to be compatible with built-in Keras callbacks.
-            if callable(getattr(callback, 'on_step_end', None)):
-                callback.on_step_end(step, logs=logs)
-            else:
-                callback.on_batch_end(step, logs=logs)
-
-    def on_action_begin(self, action, logs={}):
-        """ Called at beginning of each action for each callback in callbackList"""
-        for callback in self.callbacks:
-            if callable(getattr(callback, 'on_action_begin', None)):
-                callback.on_action_begin(action, logs=logs)
-
-    def on_action_end(self, action, logs={}):
-        """ Called at end of each action for each callback in callbackList"""
-        for callback in self.callbacks:
-            if callable(getattr(callback, 'on_action_end', None)):
-                callback.on_action_end(action, logs=logs)
-
     def on_train_end(self, logs={}, single_cycle=None):
         """ Called at end of training for each callback in callbackList"""
         # We have to check if the callback supports the single cycle argument or not
         for callback in self.callbacks:
-            if isinstance(callback, MyTrainEpisodeLogger):
+            if isinstance(callback, TrainEpisodeLogger):
                 callback.on_train_end(logs, single_cycle)
             else:
                 callback.on_train_end(logs)
-
 
 class MyTestLogger(MyCallback):
     """ Logger Class for Test """
@@ -154,24 +85,10 @@ Rolling Win Fraction: {rolling_win_fraction:.3f}"""
             print(template.format(**variables))
 
 
-class MyTrainEpisodeLogger(MyCallback):
+class MyTrainEpisodeLogger(TrainEpisodeLogger, MyCallback):
     def __init__(self, interval=25):
-        # Some algorithms compute multiple episodes at once since they are multi-threaded.
-        # We therefore use a dictionary that is indexed by the episode to separate episodes
-        # from each other.
-        self.episode_start = {}
-        self.observations = {}
-        self.rewards = {}
-        self.actions = {}
-        self.metrics = {}
-        self.step = 0
+        super(MyTrainEpisodeLogger, self).__init__()
         self.interval = interval
-
-    def on_train_begin(self, logs):
-        """ Print training values at beginning of training """
-        self.train_start = timeit.default_timer()
-        self.metrics_names = self.model.metrics_names
-        print('Training for {} steps ...'.format(self.params['nb_steps']))
 
     def on_train_end(self, logs, single_cycle):
         """ Print training time at end of training """
@@ -330,187 +247,40 @@ Total Training Time: {elapsed_duration:.3f}s
         self.step += 1
 
 
-# class TrainIntervalLogger(Callback):
-#     def __init__(self, interval=10000):
-#         self.interval = interval
-#         self.step = 0
-#         self.reset()
-# 
-#     def reset(self):
-#         """ Reset statistics """
-#         self.interval_start = timeit.default_timer()
-#         self.progbar = Progbar(target=self.interval)
-#         self.metrics = []
-#         self.infos = []
-#         self.info_names = None
-#         self.episode_rewards = []
-# 
-#     def on_train_begin(self, logs):
-#         """ Initialize training statistics at beginning of training """
-#         self.train_start = timeit.default_timer()
-#         self.metrics_names = self.model.metrics_names
-#         print('Training for {} steps ...'.format(self.params['nb_steps']))
-# 
-#     def on_train_end(self, logs):
-#         """ Print training duration at end of training """
-#         duration = timeit.default_timer() - self.train_start
-#         print('done, took {:.3f} seconds'.format(duration))
-# 
-#     def on_step_begin(self, step, logs):
-#         """ Print metrics if interval is over """
-#         if self.step % self.interval == 0:
-#             if len(self.episode_rewards) > 0:
-#                 metrics = np.array(self.metrics)
-#                 assert metrics.shape == (self.interval, len(self.metrics_names))
-#                 formatted_metrics = ''
-#                 if not np.isnan(metrics).all():  # not all values are means
-#                     means = np.nanmean(self.metrics, axis=0)
-#                     assert means.shape == (len(self.metrics_names),)
-#                     for name, mean in zip(self.metrics_names, means):
-#                         formatted_metrics += ' - {}: {:.3f}'.format(name, mean)
-# 
-#                 formatted_infos = ''
-#                 if len(self.infos) > 0:
-#                     infos = np.array(self.infos)
-#                     if not np.isnan(infos).all():  # not all values are means
-#                         means = np.nanmean(self.infos, axis=0)
-#                         assert means.shape == (len(self.info_names),)
-#                         for name, mean in zip(self.info_names, means):
-#                             formatted_infos += ' - {}: {:.3f}'.format(name,
-#                                                                       mean)
-#                 print(
-#                     '{} episodes - episode_reward: {:.3f} [{:.3f}, {:.3f}]{}{}'.format(
-#                         len(self.episode_rewards),
-#                         np.mean(self.episode_rewards),
-#                         np.min(self.episode_rewards),
-#                         np.max(self.episode_rewards), formatted_metrics,
-#                         formatted_infos))
-#                 print('')
-#             self.reset()
-#             print('Interval {} ({} steps performed)'.format(
-#                 self.step // self.interval + 1, self.step))
-# 
-#     def on_step_end(self, step, logs):
-#         """ Update progression bar at the end of each step """
-#         if self.info_names is None:
-#             self.info_names = logs['info'].keys()
-#         values = [('reward', logs['reward'])]
-#         if KERAS_VERSION > '2.1.3':
-#             self.progbar.update((self.step % self.interval) + 1, values=values)
-#         else:
-#             self.progbar.update((self.step % self.interval) + 1, values=values,
-#                                 force=True)
-#         self.step += 1
-#         self.metrics.append(logs['metrics'])
-#         if len(self.info_names) > 0:
-#             self.infos.append([logs['info'][k] for k in self.info_names])
-# 
-#     def on_episode_end(self, episode, logs):
-#         """ Update reward value at the end of each episode """
-#         self.episode_rewards.append(logs['episode_reward'])
+class MyTrainIntervalLogger(TrainIntervalLogger, MyCallback):
+    def __init__(self, interval=10000):
+        super(MyTrainIntervalLogger, self).__init__(interval)
 
-
-class MyFileLogger(MyCallback):
+class MyFileLogger(FileLogger, MyCallback):
     def __init__(self, filepath, interval=None):
-        self.filepath = filepath
-        self.interval = interval
-
-        # Some algorithms compute multiple episodes at once since they are multi-threaded.
-        # We therefore use a dict that maps from episode to metrics array.
-        self.metrics = {}
-        self.starts = {}
-        self.data = {}
-
-    def on_train_begin(self, logs):
-        """ Initialize model metrics before training """
-        self.metrics_names = self.model.metrics_names
-
-    def on_train_end(self, logs):
-        """ Save model at the end of training """
-        self.save_data()
-
-    def on_episode_begin(self, episode, logs):
-        """ Initialize metrics at the beginning of each episode """
-        assert episode not in self.metrics
-        assert episode not in self.starts
-        self.metrics[episode] = []
-        self.starts[episode] = timeit.default_timer()
+        super(MyFileLogger, self).__init__(filepath, interval)
 
     def on_episode_end(self, episode, logs, single_cycle=None):
-        """ Compute and print metrics at the end of each episode """
-        duration = timeit.default_timer() - self.starts[episode]
-
-        metrics = self.metrics[episode]
-        if np.isnan(metrics).all():
-            mean_metrics = np.array([np.nan for _ in self.metrics_names])
-        else:
-            mean_metrics = np.nanmean(metrics, axis=0)
-        assert len(mean_metrics) == len(self.metrics_names)
-
-        data = list(zip(self.metrics_names, mean_metrics))
-        data += list(logs.items())
-        data += [('episode', episode), ('duration', duration)]
-        for key, value in data:
-            if key not in self.data:
-                self.data[key] = []
-            self.data[key].append(value)
-
-        if self.interval is not None and episode % self.interval == 0:
-            self.save_data()
-
-        # Clean up.
-        del self.metrics[episode]
-        del self.starts[episode]
-
-    def on_step_end(self, step, logs):
-        """ Append metric at the end of each step """
-        self.metrics[logs['episode']].append(logs['metrics'])
-
-    def save_data(self):
-        """ Save metrics in a json file """
-        if len(self.data.keys()) == 0:
-            return
-
-        # Sort everything by episode.
-        assert 'episode' in self.data
-        sorted_indexes = np.argsort(self.data['episode'])
-        sorted_data = {}
-        for key, values in self.data.items():
-            assert len(self.data[key]) == len(sorted_indexes)
-            # We convert to np.array() and then to list to convert from np datatypes to native datatypes.
-            # This is necessary because json.dump cannot handle np.float32, for example.
-            sorted_data[key] = np.array(
-                [self.data[key][idx] for idx in sorted_indexes]).tolist()
-
-        # Overwrite already open file. We can simply seek to the beginning since the file will
-        # grow strictly monotonously.
-        with open(self.filepath, 'w') as f:
-            json.dump(sorted_data, f)
+        # Is this the method from the FileLoger instead of from the MyCallback?
+        MyCallback.on_episode_end(episode, logs, single_cycle)
 
 
-# class Visualizer(Callback):
-#     def on_action_end(self, action, logs):
-#         """ Render environment at the end of each action """
-#         self.env.render(mode='human')
-# 
-# 
-# class ModelIntervalCheckpoint(Callback):
-#     def __init__(self, filepath, interval, verbose=0):
-#         super(ModelIntervalCheckpoint, self).__init__()
-#         self.filepath = filepath
-#         self.interval = interval
-#         self.verbose = verbose
-#         self.total_steps = 0
-# 
-#     def on_step_end(self, step, logs={}):
-#         """ Save weights at interval steps during training """
-#         self.total_steps += 1
-#         if self.total_steps % self.interval != 0:
-#             # Nothing to do.
-#             return
-# 
-#         filepath = self.filepath.format(step=self.total_steps, **logs)
-#         if self.verbose > 0:
-#             print('Step {}: saving model to {}'.format(self.total_steps,
-#                                                        filepath))
-#         self.model.save_weights(filepath, overwrite=True)
+class MyVisualizer(Visualizer, MyCallback):
+    def __init__(self):
+        super(MyVisualizer, self).__init__()
+
+    def on_episode_end(self, episode, logs, single_cycle=None):
+        # Is this the method from the FileLoger instead of from the MyCallback?
+        MyCallback.on_episode_end(episode, logs, single_cycle)
+
+class MyModelIntervalCheckpoint(ModelIntervalCheckpoint, MyCallback):
+    def __init__(self, filepath, interval, verbose=0):
+        super(MyModelIntervalCheckpoint, self).__init__(filepath, interval, verbose)
+
+    def on_episode_end(self, episode, logs, single_cycle=None):
+        # Is this the method from the FileLoger instead of from the MyCallback?
+        MyCallback.on_episode_end(episode, logs, single_cycle)
+
+class MyHistory(History):
+    def __init__(self):
+        super(MyHistory, self).__init__()
+
+    # def on_episode_end(self, episode, logs, single_cycle=None):
+    #     # Is this the method from the FileLoger instead of from the MyCallback?
+    #     MyCallback.on_episode_end(episode, logs, single_cycle)
+

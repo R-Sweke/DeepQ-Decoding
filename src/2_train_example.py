@@ -2,53 +2,26 @@
 # coding: utf-8
 
 # #### 2) Training Decoders in Practice
-# 
-# Now that we have discussed the conceptual foundations, strategies and techniques involved, we will provide detailed examples of how train decoders via the procedures discussed. In particular, in this notebook we will walk through a very simple script for training a decoder with a given set of hyper-parameters, providing the foundation for a later discussion concerning how to obtain optimal decoders for a range of error rates through an iterative training procedure involving a hyper-parameter optimization for each error rate (see the companion notebook "Large Scale Iterative Training"). 
-# 
-# ##### 2a) Requirements
-# 
-# The following packages are required, and can be installed via PIP:
-# 
-# <ol>
-#   <li> Python 3 (with numpy and scipy)</li>
-#   <li> tensorflow </li>
-#   <li> keras </li> 
-#   <li> gym </li> 
-# </ol> 
-# 
-# In addition, a modified version of the Keras-RL package is required, which should be installed from <a href="https://github.com/R-Sweke/keras-rl">this fork</a>
 
-# ##### 2b) A Simple Training Script
-# 
-# We begin by importing all required packages and methods:
-
-# In[9]:
-
+import os
+import datetime
+import pickle
 
 import numpy as np
 import keras
 import tensorflow
 import gym
 
-from Function_Library import *
+from matplotlib import pyplot as plt
+
 from Environments import *
 
-import rl as rl
-from rl.agents.dqn import DQNAgent
 from rl.policy import BoltzmannQPolicy, LinearAnnealedPolicy
-# from rl.memory import SequentialMemory
-from rl.callbacks import FileLogger
 
 from custom_keras_rl_memory import MySequentialMemory
 from custom_keras_rl_policy import MyGreedyQPolicy, MyEpsGreedyQPolicy
-
-import json
-import copy
-import sys
-import os
-import shutil
-import datetime
-import pickle
+from custom_keras_rl_agents import MyDQNAgent
+from custom_keras_rl_callbacks import MyFileLogger
 
 
 # We then proceed by providing all required hyperparameters and physical configuration settings. In order to allow for easier grid searching and incremented training later on we choose to split all hyperparameters into two categories:
@@ -89,10 +62,12 @@ import pickle
 #    9. **gamma**: The discount rate used for calculating the expected discounted cumulative return (the Q-values).
 #    10. **final_eps**: The final value at which annealing of epsilon will be stopped.
 #    
-# Furthermore, in addition to all the above parameters one must provide a directory into which results and training progress as logged, as well as the path to a pre-trained referee decoder. Here e provide two pre-trained feed forward classification based referee decoders, one for X noise and one for DP noise. However, in principle any perfect-measurement decoding algorithm (such as MWPM) could be used here.
-
-# In[2]:
-
+# Furthermore, in addition to all the above parameters one must provide a
+# directory into which results and training progress as logged, as well as
+# the path to a pre-trained referee decoder. Here e provide two pre-trained
+# feed forward classification based referee decoders, one for X noise and one
+# for DP noise. However, in principle any perfect-measurement
+# decoding algorithm (such as MWPM) could be used here.
 
 fixed_configs = {"d": 5,
                 "use_Y": False,
@@ -104,7 +79,7 @@ fixed_configs = {"d": 5,
                 "error_model": "X",
                 "c_layers": [[64,3,2],[32,2,1],[32,2,1]],
                 "ff_layers": [[512,0.2]],
-                "max_timesteps": 1000000,
+                "max_timesteps": 10, #1000000,
                 "volume_depth": 5,
                 "testing_length": 101,
                 "buffer_size": 50000,
@@ -124,6 +99,9 @@ variable_configs = {"p_phys": 0.001,
                     "final_eps": 0.02}
 
 logging_directory = os.path.join(os.getcwd(),"logging_directory/")
+if not os.path.exists(logging_directory):
+    os.makedirs(logging_directory)
+
 static_decoder_path = os.path.join(os.getcwd(),"referee_decoders/nn_d5_X_p5")
 
 
@@ -137,15 +115,13 @@ for key in variable_configs.keys():
 
 static_decoder = load_model(static_decoder_path)                                                 
 logging_path = os.path.join(logging_directory,"training_history.json")
-logging_callback = FileLogger(filepath = logging_path,interval = all_configs["print_freq"])
+logging_callback = MyFileLogger(filepath = logging_path, interval = all_configs["print_freq"])
 
 
-# Now that we have specified all the required parameters we can instantiate our environment:
+# Now that we have specified all the required parameters we can instantiate
+# our environment:
 
-# In[3]:
-
-
-env = Surface_Code_Environment_Multi_Decoding_Cycles(d=all_configs["d"], 
+env = Surface_Code_Environment_Multi_Decoding_Cycles(d=all_configs["d"],
     p_phys=all_configs["p_phys"], 
     p_meas=all_configs["p_meas"],  
     error_model=all_configs["error_model"], 
@@ -154,13 +130,14 @@ env = Surface_Code_Environment_Multi_Decoding_Cycles(d=all_configs["d"],
     static_decoder=static_decoder)
 
 
-# The environment class is defined to mirror the environments of [https://gym.openai.com/](openAI gym), and such contains the required "reset" and "step" methods, via which the agent can interact with the environment, in addition to decoding specific methods and attributes whose details can be found in the relevant method docstrings.
+# The environment class is defined to mirror the environments of
+# [https://gym.openai.com/](openAI gym), and such contains the required
+# "reset" and "step" methods, via which the agent can interact with the
+# environment, in addition to decoding specific methods and attributes whose
+# details can be found in the relevant method docstrings.
 
-# We can now proceed to define the agent. We being by specifying the memory to be used, as well as the exploration and testing policies.
-
-# In[4]:
-
-
+# We can now proceed to define the agent. We being by specifying the memory
+# to be used, as well as the exploration and testing policies.
 memory = MySequentialMemory(limit=all_configs["buffer_size"], window_length=1)
 
 policy = LinearAnnealedPolicy(MyEpsGreedyQPolicy(masked_greedy=all_configs["masked_greedy"]),
@@ -172,17 +149,15 @@ policy = LinearAnnealedPolicy(MyEpsGreedyQPolicy(masked_greedy=all_configs["mask
 test_policy = MyGreedyQPolicy(masked_greedy=True)
 
 
-# Finally, we can then build the deep convolutional neural network which will represent our Q-function and compile our agent.
+# Finally, we can then build the deep convolutional neural network which
+# will represent our Q-function and compile our agent.
 
-# In[5]:
-
-
-model = build_convolutional_nn(all_configs["c_layers"], 
+model = build_convolutional_nn(all_configs["c_layers"],
                                all_configs["ff_layers"], 
                                env.observation_space.shape, 
                                env.num_actions)
 
-dqn = DQNAgent(model=model, 
+dqn = MyDQNAgent(model=model,
                nb_actions=env.num_actions, 
                memory=memory, 
                nb_steps_warmup=all_configs["learning_starts"], 
@@ -191,15 +166,12 @@ dqn = DQNAgent(model=model,
                test_policy = test_policy,
                gamma = all_configs["gamma"],
                enable_dueling_network=all_configs["dueling"])  
-
-
 dqn.compile(Adam(lr=all_configs["learning_rate"]))
 
 
-# With both the agent and the environment specified, it is then possible to train the agent by calling the agent's "fit" method. If you want to run this on a single computer, be careful, it may take up to 12 hours!
-
-# In[6]:
-
+# With both the agent and the environment specified, it is then possible
+# to train the agent by calling the agent's "fit" method. If you want to run
+# this on a single computer, be careful, it may take up to 12 hours!
 
 now = datetime.datetime.now()
 started_file = os.path.join(logging_directory,"started_at.p")
@@ -222,24 +194,24 @@ history = dqn.fit(env,
   single_cycle=False)
 
 
-# As you can see above, during the training procedure various statistics are logged, both to stdout and to file in the specified directory. As you may notice above we manually stopped training after approximately 7000 seconds while the agent was still improving, and before it has reached the specified success threshold.
+# As you can see above, during the training procedure various statistics are
+# logged, both to stdout and to file in the specified directory. As you may
+# notice above we manually stopped training after approximately 7000 seconds
+# while the agent was still improving, and before it has reached the
+# specified success threshold.
 # 
-# In order to evaluate the agent later on, or apply the agent in a production decoding scenario we can easily save the weights:
-
-# In[7]:
-
+# In order to evaluate the agent later on, or apply the agent in a production
+# decoding scenario we can easily save the weights:
 
 weights_file = os.path.join(logging_directory, "dqn_weights.h5f")
 dqn.save_weights(weights_file, overwrite=True)
 
 
-# And finally, in order to evaluate the training procedure we may be interested in viewing any of the metrics which were logged. These are all saved within the history.history dictionary. For example, we are often most interested in analyzing the training procedure by looking at the rolling average of the qubit lifetime, which we can do as follows:
-
-# In[8]:
-
-
-from matplotlib import pyplot as plt
-get_ipython().run_line_magic('matplotlib', 'inline')
+# And finally, in order to evaluate the training procedure we may be interested
+# in viewing any of the metrics which were logged. These are all saved within
+# the history.history dictionary. For example, we are often most interested
+# in analyzing the training procedure by looking at the rolling average of the
+# qubit lifetime, which we can do as follows:
 
 training_history = history.history["episode_lifetimes_rolling_avg"]
 
@@ -249,5 +221,9 @@ plt.xlabel('Episode')
 plt.ylabel('Rolling Average Qubit Lifetime')
 _ = plt.title("Training History")
 
-
-# From the above plot one can see that during the exploration phase the agent was unable to do well, due to constant exploratory random actions, but was able to exploit this knowledge effectively once the exploration probability became sufficiently low. Again, it is also clear that the agent was definitely still learning and improving when we chose to stop the training procedure.
+# From the above plot one can see that during the exploration phase the agent
+# was unable to do well, due to constant exploratory random actions,
+# but was able to exploit this knowledge effectively once the exploration
+# probability became sufficiently low. Again, it is also clear that the
+# agent was definitely still learning and improving when we chose to stop
+# the training procedure.

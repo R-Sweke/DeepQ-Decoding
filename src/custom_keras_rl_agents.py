@@ -6,45 +6,16 @@ import os
 
 from collections import deque
 
-import keras.backend as K
-from keras.models import Model
 from keras.layers import Lambda, Input, Layer, Dense
-from rl.callbacks import TrainIntervalLogger, Visualizer
-
-from keras.callbacks import History
 
 from custom_keras_rl_policy import MyEpsGreedyQPolicy, MyGreedyQPolicy
 from rl.util import *
 
 from rl.agents.dqn import DQNAgent
 
-# class MyAbstractDQNAgent(AbstractDQNAgent):
-#     """Write me
-#     """
-#
-#     def __init__(self, nb_actions, memory, gamma=.99, batch_size=32,
-#                  nb_steps_warmup=1000,
-#                  train_interval=1, memory_interval=1, target_model_update=10000,
-#                  delta_range=None, delta_clip=np.inf, custom_model_objects={},
-#                  *args,
-#                  **kwargs):
-#         super(MyAbstractDQNAgent, self).__init__(nb_actions, memory, gamma,
-#                                                  batch_size, nb_steps_warmup,
-#                  train_interval, memory_interval, target_model_update,
-#                  delta_range, delta_clip, custom_model_objects, **kwargs)
-#
-    # def compute_q_values(self, state):
-    #     # state = np.expand_dims(state[0], 0)
-    #     q_values = self.compute_batch_q_values(state).flatten()
-    #     assert q_values.shape == (self.nb_actions,)
-    #     return q_values
-
-
-# An implementation of the DQN agent as described in Mnih (2013) and Mnih (2015).
-# http://arxiv.org/pdf/1312.5602.pdf
-# http://arxiv.org/abs/1509.06461
 from src.custom_keras_rl_callbacks import MyTestLogger, MyCallbackList, \
-    MyFileLogger, MyTrainEpisodeLogger
+    MyFileLogger, MyTrainEpisodeLogger, MyVisualizer, MyTrainIntervalLogger, \
+    MyModelIntervalCheckpoint, MyHistory
 
 
 class MyDQNAgent(DQNAgent):
@@ -316,12 +287,12 @@ class MyDQNAgent(DQNAgent):
                                             "dqn_weights.h5f")
 
         if verbose == 1:
-            callbacks += [TrainIntervalLogger(interval=log_interval)]
+            callbacks += [MyTrainIntervalLogger(interval=log_interval)]
         elif verbose > 1:
             callbacks += [MyTrainEpisodeLogger(interval=log_interval)]
         if visualize:
-            callbacks += [Visualizer()]
-        history = History()
+            callbacks += [MyVisualizer()]
+        history = MyHistory()
         callbacks += [history]
         callbacks = MyCallbackList(callbacks)
         if hasattr(callbacks, 'set_model'):
@@ -663,8 +634,8 @@ class MyDQNAgent(DQNAgent):
         if verbose >= 1:
             callbacks += [MyTestLogger(interval=interval)]
         if visualize:
-            callbacks += [Visualizer()]
-        history = History()
+            callbacks += [MyVisualizer()]
+        history = MyHistory()
         callbacks += [history]
         callbacks = MyCallbackList(callbacks)
         if hasattr(callbacks, 'set_model'):

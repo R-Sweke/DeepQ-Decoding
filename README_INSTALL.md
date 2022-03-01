@@ -1,6 +1,8 @@
 These instructions work for Linux.
 
-Make sure that the system has Python 3.7 installed.
+Make sure that the system has Python 3.7 installed. For matplotlib you also 
+need something like e.g. `sudo apt-get install python3.7-dev` 
+
 The following instructions have not been tested with conda, but
 with `virtualenv` in a system that has multiple versions of
 Python available. The following does not assume that the

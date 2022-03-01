@@ -12,10 +12,11 @@ from custom_keras_rl_policy import MyEpsGreedyQPolicy, MyGreedyQPolicy
 from rl.util import *
 
 from rl.agents.dqn import DQNAgent
+from rl.core import History
 
 from src.custom_keras_rl_callbacks import MyTestLogger, MyCallbackList, \
     MyFileLogger, MyTrainEpisodeLogger, MyVisualizer, MyTrainIntervalLogger, \
-    MyModelIntervalCheckpoint, MyHistory
+    MyModelIntervalCheckpoint
 
 
 class MyDQNAgent(DQNAgent):
@@ -292,7 +293,7 @@ class MyDQNAgent(DQNAgent):
             callbacks += [MyTrainEpisodeLogger(interval=log_interval)]
         if visualize:
             callbacks += [MyVisualizer()]
-        history = MyHistory()
+        history = History()
         callbacks += [history]
         callbacks = MyCallbackList(callbacks)
         if hasattr(callbacks, 'set_model'):

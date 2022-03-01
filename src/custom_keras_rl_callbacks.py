@@ -275,12 +275,3 @@ class MyModelIntervalCheckpoint(ModelIntervalCheckpoint, MyCallback):
     def on_episode_end(self, episode, logs, single_cycle=None):
         # Is this the method from the FileLoger instead of from the MyCallback?
         MyCallback.on_episode_end(episode, logs, single_cycle)
-
-class MyHistory(History):
-    def __init__(self):
-        super(MyHistory, self).__init__()
-
-    # def on_episode_end(self, episode, logs, single_cycle=None):
-    #     # Is this the method from the FileLoger instead of from the MyCallback?
-    #     MyCallback.on_episode_end(episode, logs, single_cycle)
-

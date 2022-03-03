@@ -636,7 +636,7 @@ class MyDQNAgent(DQNAgent):
             callbacks += [MyTestLogger(interval=interval)]
         if visualize:
             callbacks += [MyVisualizer()]
-        history = MyHistory()
+        history = History()
         callbacks += [history]
         callbacks = MyCallbackList(callbacks)
         if hasattr(callbacks, 'set_model'):

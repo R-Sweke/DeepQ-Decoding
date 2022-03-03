@@ -220,6 +220,8 @@ plt.xlabel('Episode')
 plt.ylabel('Rolling Average Qubit Lifetime')
 _ = plt.title("Training History")
 
+plt.savefig("2_train_example.png")
+
 # From the above plot one can see that during the exploration phase the agent
 # was unable to do well, due to constant exploratory random actions,
 # but was able to exploit this knowledge effectively once the exploration

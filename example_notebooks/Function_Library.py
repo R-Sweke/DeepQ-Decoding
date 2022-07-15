@@ -37,7 +37,7 @@ def generateSurfaceCodeLattice(d):
     
     if np.mod(d,2) != 1:
         raise Exception("for the surface code d must be odd!")
-        
+    
     qubits = [ [ [
                    [ x, y, ((x+y)%2)*2+1],
                    [ x, y+1, ((x+y+1)%2)*2+1],
@@ -45,7 +45,7 @@ def generateSurfaceCodeLattice(d):
                    [ x+1, y+1, ((x+1+y+1)%2)*2+1]
                 ] for y in range(d)] for x in range(d)]
     qubits = np.array(qubits)
-    
+
     for x in range(d):
         for y in range(d):
             for k in range(4):
@@ -318,7 +318,7 @@ def generate_one_hot_labels_surface_code(error,err_model):
     
     X = 0
     Z = 0
-        
+
     for x in range(d):
         if error[x,0] == 1 or error[x,0] == 2:
             X = 1 - X
@@ -375,4 +375,3 @@ def build_convolutional_nn(cc_layers,ff_layers, input_shape, num_actions):
     model.add(Activation('linear'))
          
     return model
-

@@ -70,6 +70,7 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
         self.identity_indicator = self.generate_identity_indicator(self.d)
 
         self.qubits = generateSurfaceCodeLattice(self.d)
+        self.syndromes, self.inv_syndromes = self.get_syndrome_information(self.qubits)
         self.qubit_stabilizers = self.get_stabilizer_list(self.qubits, self.d)  
         self.qubit_neighbours = self.get_qubit_neighbour_list(self.d) 
         self.completed_actions = np.zeros(self.num_actions, int)
@@ -310,7 +311,7 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
                 col = int( action_index % self.d )
 
                 actions_out[ int( 2*row+1 ), int( 2*col+1 ) ] = 1
-
+        
         return actions_out
 
     def indicate_identity(self, board_state):
@@ -384,7 +385,31 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
                 identity_indicator[row,col] = 0
         return identity_indicator
 
+    def get_syndrome_information(self, qubits):
+        """
+        Returns 2d array with type of Pauli check and unique sorted
+        number for each syndrome [0, d**2-1/2].
 
+        :params: qubits: List of syndromes supported by each qubit
+        """
+        syndromes = np.zeros((self.d+1, self.d+1, 2), int)
+        inv_syndromes = {1: {}, 3: {}}
 
+        for i in range(self.d):
+            for j in range(self.d):
+                for k in range(len(qubits[i,j,:])):
+                    (x,y) = qubits[i,j,k,:2]
+                    syndromes[x,y,0] = qubits[i,j,k,-1]
 
-
+        x = y = 0
+        for i in range(self.d+1):
+            for j in range(self.d+1):
+                if syndromes[i,j][0] == 1:
+                    syndromes[i,j][1] = x
+                    inv_syndromes[1][x] = (i,j)
+                    x += 1
+                elif syndromes[i,j][0] == 3:
+                    syndromes[i,j][1] = y
+                    inv_syndromes[3][y] = (i,j)
+                    y += 1
+        return syndromes, inv_syndromes

@@ -4,6 +4,8 @@
 
 for d in */ ; do
     file_path="./${d}Start_Continuing_Simulations.sh"
-    echo $file_path
-    chmod +x $file_path
+    if [ -f $file_path ]; then
+        echo $file_path
+        chmod +x $file_path
+    fi
 done

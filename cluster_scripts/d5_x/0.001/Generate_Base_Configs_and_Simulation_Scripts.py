@@ -103,7 +103,7 @@ scontrol show job $SLURM_JOBID
 
 # ------- run the script -----------------------
 
-python '''+python_script+''' '''+str(config_counter)+'''
+python '''+python_script+''' '''+str(config_counter)+''' || exit 1
 
 #----------- wait some time ------------------------------------
 

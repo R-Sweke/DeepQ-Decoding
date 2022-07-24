@@ -2,5 +2,7 @@
 
 for d in */ ; do
     script_path="./${d}simulation_script.sh"
-    sbatch $script_path
+    if [ -f $script_path ]; then
+        sbatch $script_path
+    fi
 done

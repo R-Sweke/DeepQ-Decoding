@@ -99,11 +99,15 @@ scontrol show job $SLURM_JOBID
 
 # ----------- Activate the environment  -----------------------------------------
 
-#module load python/3.6.5
+module load miniconda
+source activate deepq-mkl
+
+# ----------- Tensorflow XLA flag -----------------------------------------------
+export TF_XLA_FLAGS=--tf_xla_cpu_global_jit
 
 # ------- run the script -----------------------
 
-python '''+python_script+''' '''+str(config_counter)+''' || exit 1
+python -u'''+python_script+''' '''+str(config_counter)+''' || exit 1
 
 #----------- wait some time ------------------------------------
 

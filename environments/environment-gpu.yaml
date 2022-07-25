@@ -1,0 +1,11 @@
+name: deepq-gpu
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - tensorflow=1.14.0=*gpu*
+  - keras=2.3.1
+  - gym
+  - h5py==2.10.0
+  - pip:
+    - git+https://github.com/R-Sweke/keras-rl

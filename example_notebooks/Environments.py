@@ -2,7 +2,6 @@
 
 from Function_Library import *
 import gym
-import copy
 from itertools import product, starmap
 
 #---------- (1) --------------------------------------------------------------------------------------------------------------------------------------
@@ -127,7 +126,6 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
         :return: info: A dictionary via which additional diagnostic information can be provided. Empty here.
         """
 
-        new_error_flag = False
         done_identity = False
         if action == self.identity_index or int(self.completed_actions[action]) == 1:
             done_identity = True
@@ -398,6 +396,7 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
         for i in range(self.d):
             for j in range(self.d):
                 for k in range(len(qubits[i,j,:])):
+                    # get syndrome coordinate and Pauli operator
                     (x,y) = qubits[i,j,k,:2]
                     syndromes[x,y,0] = qubits[i,j,k,-1]
 

@@ -72,7 +72,7 @@ for config in configs:
             # if we know that the simulation started, then we see how long it has been running for
             sim_start_time = pickle.load(open(folder+"started_at.p", "rb" ))
             time_diff = now - sim_start_time
-            time_diff_hours = time_diff.seconds/(3600.0)
+            time_diff_hours = time_diff.total_seconds()/(3600.0)
             if time_diff_hours > simulation_time_limit_hours:
                 results_dict[str(config)] = 0
                 completed_simulations +=1

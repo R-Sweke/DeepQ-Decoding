@@ -1,6 +1,6 @@
 #----- (0) Imports ---------------------------------------------------------------------------------------------------------------
 
-from Function_Library import *
+from deepq.Function_Library import *
 import gym
 from itertools import product, starmap
 
@@ -148,7 +148,7 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
             reward = 1.0
         elif np.argmax(decoder_label[0]) != np.argmax(correct_label):
             self.done = True
-
+ 
 
         # 3) If necessary, apply multiple errors and obtain an error volume - ensure that a non-trivial volume is generated
         if done_identity:

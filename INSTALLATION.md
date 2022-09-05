@@ -31,6 +31,16 @@ jupyter kernelspec uninstall deepq
 
 That's it, you are ready to go!
 
+### Installation of library
+
+---
+
+Notebooks and cluster scripts make use of the `deepq` library which can be found under `/lib`. To install the library in your local environmnent execute following commands:
+```
+cd lib
+pip3 install -v .
+```
+
 ### References
 ---
 - [1] https://github.com/mamba-org/mamba

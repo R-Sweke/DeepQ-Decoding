@@ -4,6 +4,11 @@ from deepq.Utils import *
 
 import matplotlib.pyplot as plt
 
+"""
+Small test to check if MWPM suggest similar corrections as the NN referee decoder
+"""
+
+
 # environment parameter
 d=5
 error_model='X'
@@ -26,6 +31,7 @@ obs = env.reset()
 # instantiate MWPM decoder (MatchingDecoder class)
 stab_list = env.get_stabilizer_list(env.qubits, env.d)
 H = get_parity_matrix(stab_list, env.syndromes, 3, env.d)
+print(H)
 matching_decoder = MatchingDecoder(H)
 
 # draw syndromes and flipped data qubits

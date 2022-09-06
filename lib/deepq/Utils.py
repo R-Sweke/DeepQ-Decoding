@@ -1,7 +1,9 @@
+from enum import Enum
 import numpy as np
-from typing import Tuple
+from typing import List
 
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle
 
 from pymatching import Matching
@@ -12,13 +14,16 @@ class MatchingDecoder():
   MWPM decoder based on PyMatching.
   """
   
-  def __init__(self, H: np.array):
+  def __init__(self, parity_check_matrices: List[np.array]):
     """
-    Currently the decoder only accepts one parity matrix
-    associated with one Pauli operator.
+    Decoder accepts list of parity check matrices. Unfortunately those
+    have to be in order, meaning first X then Z matrix.
     """
-    self.H = H
-    self.M = self.get_matching_graph(self.H)
+    self.parity_check_matrices = parity_check_matrices
+    self.M = []
+    
+    for H in self.parity_check_matrices:
+      self.M.append(self.get_matching_graph(H))
 
   def get_matching_graph(self, H: np.array) -> Matching:
     """
@@ -47,9 +52,11 @@ class MatchingDecoder():
 
     return matching
 
-  def predict(self, syndromes: np.array) -> np.array:
-
-    return self.M.decode(syndromes)
+  def predict(self, syndromes: List[np.array]) -> List[np.array]:
+    corrections = []
+    for idx, syn in enumerate(syndromes):
+      corrections.append(self.M[idx].decode(syn))
+    return corrections
 
 def get_parity_matrix(stab_list, syndromes, pauli: int, d: int) -> np.array:
   """
@@ -107,6 +114,10 @@ def draw_surface_code(state, syndromes, measured_syndromes, d, corrections=None)
   syn_colors={1: '#CFCCF9', 3: '#FECCCB'}
   err_colors={0: 'black', 1: 'yellow', 2: 'red', 3: 'green'}
 
+  custom_lines = [Line2D([0], [0], color='yellow', lw=4),
+                  Line2D([0], [0], color='red', lw=4),
+                  Line2D([0], [0], color='green', lw=4)]
+
   for i in range(d+1):
     for j in range(d+1):
       # draw syndromes plaquettes
@@ -128,6 +139,7 @@ def draw_surface_code(state, syndromes, measured_syndromes, d, corrections=None)
       for (i,j) in corrections:
         plt.plot(j+1,i+1, marker='o', color='magenta')
 
+  ax.legend(custom_lines, ['X', 'Y', 'Z'])
   plt.gca().set_aspect('equal', adjustable='box')
   plt.xlim([0,d+1])
   plt.ylim([0,d+1])

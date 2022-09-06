@@ -39,8 +39,8 @@ def generateSurfaceCodeLattice(d):
         raise Exception("for the surface code d must be odd!")
     
     qubits = [ [ [
-                   [ x, y, ((x+y)%2)*2+1],
-                   [ x, y+1, ((x+y+1)%2)*2+1],
+                   [ x, y, ((x+y)%2)*2+1], # upper-left
+                   [ x, y+1, ((x+y+1)%2)*2+1], # upp
                    [ x+1, y, ((x+1+y)%2)*2+1],
                    [ x+1, y+1, ((x+1+y+1)%2)*2+1]
                 ] for y in range(d)] for x in range(d)]

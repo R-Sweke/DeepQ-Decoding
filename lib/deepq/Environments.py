@@ -1,6 +1,7 @@
 #----- (0) Imports ---------------------------------------------------------------------------------------------------------------
 
 from deepq.Function_Library import *
+from deepq.Utils import *
 import gym
 from itertools import product, starmap
 
@@ -49,6 +50,7 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
         self.error_model = error_model
         self.use_Y = use_Y
         self.volume_depth = volume_depth
+        self.static_decoder_is_mwpm = False
         self.static_decoder = static_decoder
 
         self.n_action_layers = 0
@@ -96,6 +98,16 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
 
         self.multi_cycle = True
 
+        if self.static_decoder is None:
+            # instantiate MWPM decoder if no static decoder was provided
+            stab_list = self.get_stabilizer_list(self.qubits, self.d)
+            parity_check_matrices = [get_parity_matrix(stab_list, self.syndromes, 3, self.d)]
+            if self.error_model == "DP":
+                parity_check_matrices.append(get_parity_matrix(stab_list, self.syndromes, 1, self.d))
+            self.static_decoder = MatchingDecoder(parity_check_matrices)
+            self.static_decoder_is_mwpm = True
+
+
     def reset(self):
         """
         Resetting of the environment introduces a new non-trivial syndrome volume.
@@ -139,8 +151,19 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
         current_true_syndrome_vector = np.reshape(self.current_true_syndrome,(self.d+1)**2) 
         num_anyons = np.sum(self.current_true_syndrome)
 
+        if self.static_decoder_is_mwpm:
+            # if only 'X' error model we only need Z type plaquette checks
+            syn_vec = [get_syndrome_vector(self.current_true_syndrome, self.syndromes, 3, self.d)]
+            if self.error_model == "DP":
+                syn_vec.append(get_syndrome_vector(self.current_true_syndrome, self.syndromes, 1, self.d))
+            corrections = self.static_decoder.predict(syn_vec)
+            new_hidden_state = obtain_new_error_configuration(self.hidden_state, corrections[0].reshape((self.d, self.d)))
+            if self.error_model == "DP":
+                new_hidden_state = obtain_new_error_configuration(new_hidden_state, corrections[1].reshape((self.d, self.d))*3)
+            decoder_label = generate_one_hot_labels_surface_code(new_hidden_state, self.error_model)
+        else:
+            decoder_label = self.static_decoder.predict(np.array([current_true_syndrome_vector]), batch_size=1, verbose=0)
         correct_label = generate_one_hot_labels_surface_code(self.hidden_state, self.error_model)
-        decoder_label = self.static_decoder.predict(np.array([current_true_syndrome_vector]), batch_size=1, verbose=0)
 
         reward = 0
 
@@ -202,6 +225,7 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
 
         return self.board_state, reward, self.done, {}
 
+
     def initialize_state(self):
         """
         Generate an initial non-trivial syndrome volume
@@ -233,7 +257,6 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
         for j in range(self.volume_depth):
             self.board_state[j, :, :] = self.padding_syndrome(faulty_syndromes[j])
 
-
     def reset_legal_moves(self):
         """
         Reset the legal moves
@@ -255,8 +278,6 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
         for j in range(self.n_action_layers):
             for legal_qubit in legal_qubits:
                 self.legal_actions.add(legal_qubit + j*self.d**2)
-
-
 
     def is_adjacent_to_syndrome(self, qubit_number):
         """
@@ -386,9 +407,16 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
     def get_syndrome_information(self, qubits):
         """
         Returns 2d array with type of Pauli check and unique sorted
-        number for each syndrome [0, d**2-1/2].
+        number for each syndrome [0, (d**2-1)/2].
 
-        :params: qubits: List of syndromes supported by each qubit
+        Params
+        ------
+        qubits: List of syndromes supported by each qubit
+
+        Returns
+        -------
+        syndromes: List of syndromes [x,y,pauli,index]
+        inv_syndromes: Invert mapping []
         """
         syndromes = np.zeros((self.d+1, self.d+1, 2), int)
         inv_syndromes = {1: {}, 3: {}}
@@ -396,8 +424,8 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
         for i in range(self.d):
             for j in range(self.d):
                 for k in range(len(qubits[i,j,:])):
-                    # get syndrome coordinate and Pauli operator
                     (x,y) = qubits[i,j,k,:2]
+                    # Store Pauli operator for syndrome at (x,y)
                     syndromes[x,y,0] = qubits[i,j,k,-1]
 
         x = y = 0

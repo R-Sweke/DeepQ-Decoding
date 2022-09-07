@@ -1,9 +1,43 @@
+from distutils import dir_util
 import os 
 import pickle
 import subprocess
 import shutil
-from shutil import copyfile
+from shutil import copyfile, rmtree
 import datetime
+
+# --- Helper function to clean redundant files -------------------------------------------------------------------------------------
+
+def clean_config_dir(p_phys, keep_num):
+    """
+    In order to free up space, we have to delete config directories during training.
+    This function should be called when training at one physical error rate is completed.
+    The function reads the `/results/results_from_x.txt' file and ranks configs according
+    to average qubit lifetime. It then deletes all but best `keep_num` configs.
+
+    Params
+    ------
+    p_phys: Physical error rate for which we want to delete config directories
+    keep_num: Number of config directories to keep
+    """
+    result_file = os.path.join(os.getcwd(),f"results/results_from_{p_phys}.txt")
+    ranking = {}
+    with open(result_file) as f:
+            lines = f.readlines()
+    num_del = max(len(lines) - keep_num, 0)
+    for line in lines:
+            s = line.strip().split(": ")
+            ranking[s[0]] = float(s[1])
+
+    ranking = dict(sorted(ranking.items(), key=lambda item: item[1]))
+
+    for rank, key in enumerate(ranking):
+            if rank >= int(num_del):
+                    break
+            # delete config directory
+            dir_to_delete = os.path.join(os.getcwd(),f"{p_phys}/config_{key}")
+            print(f"Deleting : {dir_to_delete}")
+            rmtree(dir_to_delete)
 
 # --- First we set the controller parameters ---------------------------------------------------------------------------------------
 
@@ -68,7 +102,11 @@ for config in configs:
         results_dict[str(config)] = results[-1:][0]
         completed_simulations +=1
     else:
-        if "started_at.p" in available_files:
+        # If testing didn't pass current error rate, the training will get stuck. Therefore we check if 'all_results.p' is available.
+        if "all_results.p" in available_files:
+            results_dict[str(config)] = 0
+            completed_simulations +=1
+        elif "started_at.p" in available_files:
             # if we know that the simulation started, then we see how long it has been running for
             sim_start_time = pickle.load(open(folder+"started_at.p", "rb" ))
             time_diff = now - sim_start_time
@@ -277,6 +315,9 @@ python {python_script} {config_counter} {new_p_phys_directory} || exit 1'''.form
             # Now, I want to run all the simulation scripts that I have just generated...
             path_to_sims_script = os.path.join(new_p_phys_directory, "Start_Continuing_Simulations.sh")
             subprocess.call([path_to_sims_script, new_p_phys_directory])                                   # NB! This has to be executable!!
+
+            # Now clean configs
+            clean_config_dir(current_error_rate, 5)
 
             # Finally we update the current error rate text file
             text_file = open(file_path_to_error_rate, "w")

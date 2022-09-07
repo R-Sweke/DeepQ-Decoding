@@ -21,8 +21,8 @@ import json
 import pickle
 
 
-from Function_Library import *
-from Environments import *
+from deepq.Function_Library import *
+from deepq.Environments import *
 
 import copy
 import gym

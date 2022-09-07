@@ -107,7 +107,7 @@ export TF_XLA_FLAGS=--tf_xla_cpu_global_jit
 
 # ------- run the script -----------------------
 
-python -u'''+python_script+''' '''+str(config_counter)+''' || exit 1
+python -u '''+python_script+''' '''+str(config_counter)+''' || exit 1
 
 #----------- wait some time ------------------------------------
 

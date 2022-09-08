@@ -25,37 +25,54 @@ class MatchingDecoder():
     for H in self.parity_check_matrices:
       self.M.append(self.get_matching_graph(H))
 
+
   def get_matching_graph(self, H: np.array) -> Matching:
     """
-    Return matching graph for a given parity check matrix
+    Returns matching graph for a given parity check matrix
 
     :param: H: stabilizer parity check matrix
     """
 
     matching = Matching()
-    num_detectors = H.shape[0]
-    num_qubits = H.shape[1]
-    singletons = len(np.where(np.sum(H, axis=0) == 1)[0])  
-    boundary = [e + num_detectors for e in range(singletons)]
-    weights = np.ones(num_qubits+1)
-    error_probabilities = np.ones(num_qubits+1)
+    num_syndromes = H.shape[0] # rows correspond to syndromes
+    num_qubits = H.shape[1] # columns correspond to data qubits
+    singletons = len(np.where(np.sum(H, axis=0) == 1)[0]) # num data qubits supported by only one stabilizer
+    boundary_indices = [e + num_syndromes for e in range(singletons)] # indices for boundary nodes
+    weights = np.ones(num_qubits+1) # Manhattan distance
+    error_probabilities = np.ones(num_qubits+1) # Equi-probable errors
 
-    H = csc_matrix(H)
-    bound_iterator = iter(boundary)
-    for i in range(len(H.indptr) - 1):
-      s, e = H.indptr[i:i + 2]
-      v1 = H.indices[s]
-      v2 = H.indices[e - 1] if e - s == 2 else next(bound_iterator)
-      matching.add_edge(v1, v2, fault_ids={i}, weight=weights[i],
-                                error_probability=error_probabilities[i])
-    matching.set_boundary_nodes(set(boundary))
+    # csr matrix explained: https://stackoverflow.com/questions/52299420/scipy-csr-matrix-understand-indptr
+    # note: matrix below is CSC!
+    H_sparse = csc_matrix(H)
+    bound_indices_iterator = iter(boundary_indices)
 
+    for j in range(len(H_sparse.indptr) - 1):
+      s, e = H_sparse.indptr[j:j + 2] # give me the range in which data for column j is
+      v1 = H_sparse.indices[s] # in which row do we place first data
+      # check if v2 has to be a boundary node
+      if e - s == 1:
+        v2 = next(bound_indices_iterator)
+      else: # not a boundary node since supported by more than one plaquette/stabilizer
+        v2 = H_sparse.indices[e - 1]
+      matching.add_edge(v1, v2, fault_ids={j}, weight=weights[j],
+                                error_probability=error_probabilities[j])
+    
+    # connect all boundary nodes with edge weight 0.
+    # this allows to take shortcut via boundaries and therefore correct less qubits
+    # by taking a short path over boundary instead of through the code.
+    for i in boundary_indices:
+      for j in range(i+1, num_syndromes+singletons):
+        if i != j:
+          matching.add_edge(i,j, weight=0, fault_ids=-1, error_probability=0)
+    
+    matching.set_boundary_nodes(set(boundary_indices))
     return matching
 
   def predict(self, syndromes: List[np.array]) -> List[np.array]:
     corrections = []
     for idx, syn in enumerate(syndromes):
-      corrections.append(self.M[idx].decode(syn))
+      # set num_neighbours to None to ensure exact matching in PyMatching
+      corrections.append(self.M[idx].decode(syn, num_neighbours=None))
     return corrections
 
 def get_parity_matrix(stab_list, syndromes, pauli: int, d: int) -> np.array:

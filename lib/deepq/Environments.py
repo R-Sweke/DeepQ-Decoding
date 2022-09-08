@@ -169,6 +169,11 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
 
         if np.argmax(correct_label) == 0 and num_anyons == 0:
             reward = 1.0
+        # For MWPM referee we stop episode if code cannot be corrected to original value
+        elif self.static_decoder_is_mwpm:
+            if np.argmax(decoder_label) != 0:
+                self.done = True
+        # For NN referee we stop episode if homology label is wrongly predicted
         elif np.argmax(decoder_label[0]) != np.argmax(correct_label):
             self.done = True
  

@@ -84,7 +84,7 @@ config_counter = 1
 check_directory = os.path.join(cwd, current_error_rate+str("/"))
 for directory in os.walk(check_directory):
     if "config" in directory[0]:
-        configs.append(config_counter)
+        configs.append(directory[0].split("config_")[1])
         config_counter +=1
         
 num_configs = config_counter - 1

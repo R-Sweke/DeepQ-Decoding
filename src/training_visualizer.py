@@ -11,10 +11,6 @@ import json
 import argparse
 
 # Script to plot relevant metrics for all configs at certain error rate -------------------
-#
-# TODO: script should offer argument to change output_dir
-# TODO: script should offer filter to remove metrics
-# TODO: script should offer filter to specify list of configs
 
 def plot_figures(data: dict, metrics: list):
   # computing layout of subplot matrix
@@ -78,6 +74,7 @@ def read_config_folders(rootdir: str) -> dict:
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument("inputdir", help="Error rate directory for which training progress should be visualized", type=str)
+  # TODO: optional argument functionality not implemented yet.
   parser.add_argument("--outputdir", help="Output directory path", type=str)
   parser.add_argument("--metrics", help="Metrics that should be plotted", nargs="+")
   parser.add_argument("--configs", help="List of configs for which metrics should be plotted", nargs="+")

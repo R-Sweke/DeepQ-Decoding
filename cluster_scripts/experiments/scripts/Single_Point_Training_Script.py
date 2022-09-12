@@ -1,34 +1,22 @@
 # ------------ This script runs a training cycle for a single configuration point ---------------
 
-import numpy as np
-
 from keras.models import Sequential, load_model
 from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.optimizers import Adam
-from keras.layers.normalization import BatchNormalization
-from keras.utils import np_utils
-from keras.layers import Conv2D, MaxPooling2D, ZeroPadding2D, GlobalAveragePooling2D
-from keras.layers.advanced_activations import LeakyReLU 
-from keras.preprocessing.image import ImageDataGenerator
+from keras.layers import Conv2D
+from keras.callbacks import TensorBoard
 
-import rl as rl
 from rl.agents.dqn import DQNAgent
-from rl.policy import BoltzmannQPolicy, EpsGreedyQPolicy, LinearAnnealedPolicy, GreedyQPolicy
+from rl.policy import EpsGreedyQPolicy, LinearAnnealedPolicy, GreedyQPolicy
 from rl.memory import SequentialMemory
 from rl.callbacks import FileLogger
-
-import json
-import pickle
-
 
 from deepq.Function_Library import *
 from deepq.Environments import *
 
-import copy
-import gym
+import pickle
 import sys
 import os
-import shutil
 import datetime
 
 # ---------------------------------------------------------------------------------------------
@@ -89,11 +77,6 @@ def build_convolutional_nn(cc_layers,ff_layers, input_shape, num_actions):
          
     return model
 
-# ---------------------------------------------------------------------------------------------
-
-logging_path = os.path.join(variable_configs_folder,"training_history.json")
-logging_callback = FileLogger(filepath = logging_path,interval = all_configs["print_freq"])
-
 # --------------------------------------------------------------------------------------------
 
 env = Surface_Code_Environment_Multi_Decoding_Cycles(d=all_configs["d"], 
@@ -103,6 +86,7 @@ env = Surface_Code_Environment_Multi_Decoding_Cycles(d=all_configs["d"],
     use_Y=all_configs["use_Y"], 
     volume_depth=all_configs["volume_depth"],
     static_decoder=static_decoder)
+
 # -------------------------------------------------------------------------------------------
 
 model = build_convolutional_nn(all_configs["c_layers"],all_configs["ff_layers"], env.observation_space.shape, env.num_actions)
@@ -129,6 +113,14 @@ dqn = DQNAgent(model=model,
 
 dqn.compile(Adam(lr=all_configs["learning_rate"]))
 
+# ---------------------------------------------------------------------------------------------
+
+tensorboard_logging_path = os.path.join(variable_configs_folder, "logs", datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+tensorboard_callback = TensorBoard(log_dir=tensorboard_logging_path, histogram_freq=0)
+
+logging_path = os.path.join(variable_configs_folder,"training_history.json")
+logging_callback = FileLogger(filepath = logging_path,interval = all_configs["print_freq"])
+
 # -------------------------------------------------------------------------------------------
 
 now = datetime.datetime.now()
@@ -138,7 +130,7 @@ pickle.dump(now, open(started_file, "wb" ) )
 history = dqn.fit(env, 
   nb_steps=all_configs["max_timesteps"], 
   action_repetition=1, 
-  callbacks=[logging_callback], 
+  callbacks=[logging_callback, tensorboard_callback], 
   verbose=2,
   visualize=False, 
   nb_max_start_steps=0, 

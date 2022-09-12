@@ -4,12 +4,9 @@ import os
 import json
 import shutil
 import pickle
-import uuid
 cwd = os.getcwd()
 
 # ------------ the fixed parameters: These are constant for all error rates -----------------------------
-
-batch_id = str(uuid.uuid1())[0:6]
 
 with open('../training_config.json', 'r') as f:
     data = json.load(f)
@@ -53,7 +50,7 @@ for ls in parameter_grid["learning_starts_list"]:
                                         
                             # Now, write into the bash script exactly what we want to appear there
                             job_limit = str(parameter_grid["sim_time_per_ef"][ef_count])
-                            job_name=batch_id+"_"+str(parameter_grid["p_phys"])+"_"+str(config_counter)
+                            job_name=data["training_id"]+"_"+str(parameter_grid["p_phys"])+"_"+str(config_counter)
                             output_file = os.path.join(cwd,"output_files/out_"+job_name+".out")
                             error_file = os.path.join(cwd,"output_files/err_"+job_name+".err")
                             python_script = os.path.join(cwd, "Single_Point_Training_Script.py")

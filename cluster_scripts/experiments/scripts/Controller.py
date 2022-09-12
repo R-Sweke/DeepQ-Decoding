@@ -245,7 +245,7 @@ if completed_simulations == num_configs:
 
                                             # Now, write into the bash script exactly what we want to appear there
                                             python_script = os.path.join(new_p_phys_directory,"Single_Point_Continue_Training_Script.py")
-                                            job_name=str(new_p_phys)+"_"+str(config_counter)
+                                            job_name=data["training_id"]+"_"+str(new_p_phys)+"_"+str(config_counter)
                                             output_file = os.path.join(new_p_phys_directory,"output_files/out_"+job_name+".out")
                                             error_file = os.path.join(new_p_phys_directory,"output_files/err_"+job_name+".err")
 

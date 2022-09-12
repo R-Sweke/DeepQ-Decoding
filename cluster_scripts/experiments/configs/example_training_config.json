@@ -1,0 +1,52 @@
+{
+  "config_dir" : "d5_dp_test",
+  "fixed_config": {
+    "d": 5,
+    "use_Y": false,
+    "train_freq": 1,
+    "batch_size": 32,
+    "print_freq": 250,
+    "rolling_average_length": 1000,
+    "stopping_patience": 1000,
+    "error_model": "DP",
+    "c_layers": [[64,3,2],[32,2,1],[32,2,1]],
+    "ff_layers": [[512,0.2]],
+    "max_timesteps": 1000000,
+    "volume_depth": 5,
+    "testing_length": 101,
+    "buffer_size": 50000,
+    "dueling": true,
+    "masked_greedy": false,
+    "static_decoder": false
+  },
+  "base_param_grid": {
+    "p_phys": 0.001,
+    "success_threshold": 100000,
+    "learning_starts_list": [1000],
+    "learning_rate_list": [0.0001, 0.00005, 0.00001],
+    "target_network_update_freq_list": [2500, 5000],
+    "gamma_list": [0.99],
+    "exploration_fraction_list": [100000, 200000],
+    "max_eps_list": [1.0],
+    "final_eps_list": [0.04, 0.02, 0.001],
+    "sim_time_per_ef": [14, 14]
+  },
+  "controller_params": {
+    "threshold_dict": {"0.001": 1000, "0.003": 334, "0.005": 200, "0.007": 142, "0.009": 112, "0.011": 91, "0.013": 77, "0.015": 67, "0.017": 59},
+    "num_best_to_spawn_from": 1,
+    "p_phys_list": [0.001, 0.003, 0.005, 0.007, 0.009, 0.011, 0.013, 0.015, 0.017],
+    "success_threshold_list": [100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000, 100000],
+    "simulation_time_limit_hours": 16,
+    "simulation_time_limit_hours_desc": "Amount of time we give to each simulation before marking it as timed out",            
+    "controller_param_grid": {           
+      "learning_starts_list": [1000],
+      "learning_rate_list": [0.0001, 0.00005, 0.00001, 0.000005],
+      "exploration_fraction_list": [100000, 200000],
+      "final_eps_list": [0.04, 0.02, 0.001],
+      "max_eps_list": [1.0, 0.5, 0.25],
+      "target_network_update_freq_list": [2500, 5000],
+      "gamma_list": [0.99]
+    },
+    "controller_param_grid_desc": "Grid over which any spawned simulation will run"
+  }
+}

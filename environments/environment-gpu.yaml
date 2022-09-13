@@ -10,4 +10,4 @@ dependencies:
   - pymatching
   - h5py==2.10.0
   - pip:
-    - git+https://github.com/R-Sweke/keras-rl
+    - git+https://github.com/JLenssen/keras-rl

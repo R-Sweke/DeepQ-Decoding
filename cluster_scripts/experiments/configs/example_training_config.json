@@ -17,7 +17,8 @@
     "buffer_size": 50000,
     "dueling": true,
     "masked_greedy": false,
-    "static_decoder": false
+    "static_decoder": false,
+    "tensorboard" : true
   },
   "base_param_grid": {
     "p_phys": 0.001,

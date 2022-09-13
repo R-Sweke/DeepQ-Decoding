@@ -1,33 +1,21 @@
 # ------------ This script runs a training cycle for a single configuration point ---------------
 
-import numpy as np
-
 from keras.models import Sequential, load_model
 from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.optimizers import Adam
-from keras.layers.normalization import BatchNormalization
-from keras.utils import np_utils
-from keras.layers import Conv2D, MaxPooling2D, ZeroPadding2D, GlobalAveragePooling2D
-from keras.layers.advanced_activations import LeakyReLU 
-from keras.preprocessing.image import ImageDataGenerator
+from keras.layers import Conv2D
 
-import rl as rl
 from rl.agents.dqn import DQNAgent
-from rl.policy import BoltzmannQPolicy, EpsGreedyQPolicy, LinearAnnealedPolicy, GreedyQPolicy
+from rl.policy import EpsGreedyQPolicy, LinearAnnealedPolicy, GreedyQPolicy
 from rl.memory import SequentialMemory
 from rl.callbacks import FileLogger
-
-import json
-import pickle 
 
 from deepq.Function_Library import *
 from deepq.Environments import *
 
-import copy
-import gym
+import pickle 
 import sys
 import os
-import shutil
 import datetime
 
 # ---------------------------------------------------------------------------------------------

@@ -166,7 +166,6 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
         correct_label = generate_one_hot_labels_surface_code(self.hidden_state, self.error_model)
 
         reward = 0
-
         if np.argmax(correct_label) == 0 and num_anyons == 0:
             reward = 1.0
         # For MWPM referee we stop episode if code cannot be corrected to original value

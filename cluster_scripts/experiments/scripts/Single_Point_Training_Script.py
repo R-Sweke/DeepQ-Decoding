@@ -11,6 +11,9 @@ from rl.policy import EpsGreedyQPolicy, LinearAnnealedPolicy, GreedyQPolicy
 from rl.memory import SequentialMemory
 from rl.callbacks import FileLogger
 
+import numpy as np
+import tensorflow as tf
+
 from deepq.Function_Library import *
 from deepq.Environments import *
 
@@ -18,6 +21,7 @@ import pickle
 import sys
 import os
 import datetime
+import random
 
 # ---------------------------------------------------------------------------------------------
 
@@ -46,6 +50,14 @@ if fixed_configs["static_decoder"]:
       base_directory, "../static_decoder"))
 else:
   static_decoder = None
+
+# -------------------------------------------------------------------------------------------
+
+RANDOM_SEED = fixed_configs["random_seed"]
+os.environ['PYTHONHASHSEED']=str(RANDOM_SEED)
+np.random.seed(RANDOM_SEED)
+random.seed(RANDOM_SEED)
+tf.set_random_seed(RANDOM_SEED)
 
 # ---------------------------------------------------------------------------------------------
 

@@ -137,8 +137,8 @@ callbacks = []
 if fixed_configs["use_tensorboard"]:
   tensorboard_logging_path = os.path.join(
       base_directory, "tensorboard_logs", "config_"+str(variable_config_number))
-  callbacks.append(TensorBoard(log_dir=tensorboard_logging_path,
-                   histogram_freq=0, update_freq=1000))
+  # Choosing update frequency to be epoch which means that TensorBoard will update after each episode.
+  callbacks.append(TensorBoard(log_dir=tensorboard_logging_path, histogram_freq=0, update_freq='epoch'))
 
 logging_path = os.path.join(variable_configs_folder, "training_history.json")
 callbacks.append(FileLogger(filepath=logging_path,

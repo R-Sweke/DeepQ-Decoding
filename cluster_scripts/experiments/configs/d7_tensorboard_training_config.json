@@ -1,7 +1,7 @@
 {
-  "config_dir" : "d5_dp_test",
+  "config_dir" : "d7_tensorboard_test",
   "fixed_config": {
-    "d": 5,
+    "d": 7,
     "use_Y": false,
     "train_freq": 1,
     "batch_size": 32,
@@ -12,14 +12,13 @@
     "c_layers": [[64,3,2],[32,2,1],[32,2,1]],
     "ff_layers": [[512,0.2]],
     "max_timesteps": 1000000,
-    "volume_depth": 5,
+    "volume_depth": 7,
     "testing_length": 101,
     "buffer_size": 50000,
     "dueling": true,
     "masked_greedy": false,
     "static_decoder": false,
-    "use_tensorboard" : true,
-    "random_seed": 0
+    "use_tensorboard" : true
   },
   "base_param_grid": {
     "p_phys": 0.001,

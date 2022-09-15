@@ -147,35 +147,7 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
         self.hidden_state = obtain_new_error_configuration(self.hidden_state, action_lattice)
 
         # 2) Calculate the reward
-        self.current_true_syndrome = generate_surface_code_syndrome_NoFT_efficient(self.hidden_state, self.qubits)
-        current_true_syndrome_vector = np.reshape(self.current_true_syndrome,(self.d+1)**2) 
-        num_anyons = np.sum(self.current_true_syndrome)
-
-        if self.static_decoder_is_mwpm:
-            # if only 'X' error model we only need Z type plaquette checks
-            syn_vec = [get_syndrome_vector(self.current_true_syndrome, self.syndromes, 3, self.d)]
-            if self.error_model == "DP":
-                syn_vec.append(get_syndrome_vector(self.current_true_syndrome, self.syndromes, 1, self.d))
-            corrections = self.static_decoder.predict(syn_vec)
-            new_hidden_state = obtain_new_error_configuration(self.hidden_state, corrections[0].reshape((self.d, self.d)))
-            if self.error_model == "DP":
-                new_hidden_state = obtain_new_error_configuration(new_hidden_state, corrections[1].reshape((self.d, self.d))*3)
-            decoder_label = generate_one_hot_labels_surface_code(new_hidden_state, self.error_model)
-        else:
-            decoder_label = self.static_decoder.predict(np.array([current_true_syndrome_vector]), batch_size=1, verbose=0)
-        correct_label = generate_one_hot_labels_surface_code(self.hidden_state, self.error_model)
-
-        reward = 0
-        if np.argmax(correct_label) == 0 and num_anyons == 0:
-            reward = 1.0
-        # For MWPM referee we stop episode if code cannot be corrected to original value
-        elif self.static_decoder_is_mwpm:
-            if np.argmax(decoder_label) != 0:
-                self.done = True
-        # For NN referee we stop episode if homology label is wrongly predicted
-        elif np.argmax(decoder_label[0]) != np.argmax(correct_label):
-            self.done = True
- 
+        reward, self.current_true_syndrome, self.done = self.get_reward(self.hidden_state)
 
         # 3) If necessary, apply multiple errors and obtain an error volume - ensure that a non-trivial volume is generated
         if done_identity:
@@ -229,6 +201,37 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
 
         return self.board_state, reward, self.done, {}
 
+    def get_reward(self, hidden_state):
+        current_true_syndrome = generate_surface_code_syndrome_NoFT_efficient(hidden_state, self.qubits)
+        current_true_syndrome_vector = np.reshape(current_true_syndrome,(self.d+1)**2) 
+        num_anyons = np.sum(current_true_syndrome)
+
+        if self.static_decoder_is_mwpm:
+            # if only 'X' error model we only need Z type plaquette checks
+            syn_vec = [get_syndrome_vector(current_true_syndrome, self.syndromes, 3, self.d)]
+            if self.error_model == "DP":
+                syn_vec.append(get_syndrome_vector(current_true_syndrome, self.syndromes, 1, self.d))
+            corrections = self.static_decoder.predict(syn_vec)
+            new_hidden_state = obtain_new_error_configuration(hidden_state, corrections[0].reshape((self.d, self.d)))
+            if self.error_model == "DP":
+                new_hidden_state = obtain_new_error_configuration(new_hidden_state, corrections[1].reshape((self.d, self.d))*3)
+            decoder_label = generate_one_hot_labels_surface_code(new_hidden_state, self.error_model)
+        else:
+            decoder_label = self.static_decoder.predict(np.array([current_true_syndrome_vector]), batch_size=1, verbose=0)
+        correct_label = generate_one_hot_labels_surface_code(hidden_state, self.error_model)
+
+        reward = 0
+        done = False
+        if np.argmax(correct_label) == 0 and num_anyons == 0:
+            reward = 1.0
+        # For MWPM referee we stop episode if code cannot be corrected to original value
+        elif self.static_decoder_is_mwpm:
+            if np.argmax(decoder_label) != 0:
+                done = True
+        # For NN referee we stop episode if homology label is wrongly predicted
+        elif np.argmax(decoder_label[0]) != np.argmax(correct_label):
+            done = True
+        return reward, current_true_syndrome, done
 
     def initialize_state(self):
         """

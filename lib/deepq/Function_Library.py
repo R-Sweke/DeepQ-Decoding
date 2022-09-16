@@ -4,18 +4,15 @@
 #
 # ----- (0) Imports --------------------------------------------------------------------------------------
 
-import random
 import numpy as np
 
-import keras
-from keras.callbacks import EarlyStopping, ReduceLROnPlateau
-from keras.regularizers import l1_l2, l2
-from keras import backend as K
-from keras.models import Sequential, load_model, Model
+from keras.models import Sequential
 from keras.optimizers import Adam
-from keras.layers.normalization import BatchNormalization
-from keras.utils import np_utils
-from keras.layers import Dense, Dropout, Activation, Flatten, Conv2D, MaxPooling2D, ZeroPadding2D, GlobalAveragePooling2D, Flatten, Lambda, Cropping2D, Activation, Input, merge, Concatenate
+from keras.layers import Dense, Dropout, Activation, Flatten, Conv2D, Flatten, Activation
+
+from rl.agents.dqn import DQNAgent
+from rl.policy import GreedyQPolicy
+from rl.memory import SequentialMemory
 
 # ---- (1) Functions -------------------------------------------------------------------------------------
 
@@ -70,94 +67,6 @@ def multiplyPaulis(a,b):
     
     out = [[0,1,2,3],[1,0,3,2],[2,3,0,1],[3,2,1,0]]
     return out[int(a)][int(b)]
-
-
-# 2) Error generation
-
-def generate_error(d,p_phys,error_model):
-    """"
-    This function generates an error configuration, via a single application of the specified error channel, on a square dxd lattice.
-    
-    :param: d: The code distance/lattice width and height (for surface/toric codes)
-    :param: p_phys: The physical error rate.
-    :param: error_model: A string in ["X", "DP", "IIDXZ"] indicating the desired error model.
-    :return: error: The error configuration
-    """
-    
-    if error_model == "X":
-        return generate_X_error(d,p_phys)
-    elif error_model == "DP":
-        return generate_DP_error(d,p_phys)
-    elif error_model == "IIDXZ":
-        return generate_IIDXZ_error(d,p_phys)
-        
-    return error
-
-def generate_DP_error(d,p_phys):
-    """"
-    This function generates an error configuration, via a single application of the depolarizing noise channel, on a square dxd lattice.
-    
-    :param: d: The code distance/lattice width and height (for surface/toric codes)
-    :param: p_phys: The physical error rate.
-    :return: error: The error configuration
-    """
-
-    error = np.zeros((d,d),int) 
-    for i in range(d): 
-        for j in range(d):
-            p = 0
-            if np.random.rand() < p_phys:
-                p = np.random.randint(1,4)
-                error[i,j] = p
-                
-    return error
-
-def generate_X_error(d,p_phys):
-    """"
-    This function generates an error configuration, via a single application of the bitflip noise channel, on a square dxd lattice.
-    
-    :param: d: The code distance/lattice width and height (for surface/toric codes)
-    :param: p_phys: The physical error rate.
-    :return: error: The error configuration
-    """
-    
-    
-    error = np.zeros((d,d),int) 
-    for i in range(d): 
-        for j in range(d):
-            p = 0
-            if np.random.rand() < p_phys:
-                error[i,j] = 1
-    
-    return error
-                
-def generate_IIDXZ_error(d,p_phys):
-    """"
-    This function generates an error configuration, via a single application of the IIDXZ noise channel, on a square dxd lattice.
-    
-    :param: d: The code distance/lattice width and height (for surface/toric codes)
-    :param: p_phys: The physical error rate.
-    :return: error: The error configuration
-    """
-    
-    error = np.zeros((d,d),int)
-    for i in range(d):
-        for j in range(d):
-            X_err = False
-            Z_err = False
-            p = 0
-            if np.random.rand() < p_phys:
-                X_err = True
-                p = 1
-            if np.random.rand() < p_phys:
-                Z_err = True
-                p = 3
-            if X_err and Z_err:
-                p = 2
-
-            error[i,j] = p
-    
-    return error
 
 def generate_surface_code_syndrome_NoFT_efficient(error,qubits):
     """"
@@ -308,7 +217,7 @@ def generate_one_hot_labels_surface_code(error,err_model):
 
     This function generates the homology class label, in a one-hot encoding, for a given perfect syndrome, to use as the target label
     for a feed forward neural network homology class predicting decoder.
-!
+
     :param: error: An error configuration on a square lattice
     :param: err_model: A string in ["IIDXZ","DP","X"]
     :return: training_label: The one-encoded training label
@@ -339,7 +248,7 @@ def build_convolutional_nn(cc_layers,ff_layers, input_shape, num_actions):
     """"
 
     This function builds a convolutional neural network:
-!
+
     :param: cc_layers: [[num_filters, kernel_size,strides],...]
     :param: ff_layers: [[neurons, output_dropout_rate],...]
     :param: input_shape: The shape of the input - i.e. num channels and image height,width
@@ -375,3 +284,40 @@ def build_convolutional_nn(cc_layers,ff_layers, input_shape, num_actions):
     model.add(Activation('linear'))
          
     return model
+
+
+def build_eval_agent_model(all_configs: dict, env):
+    """"
+
+    This function builds a DQN agent from configuration dictionary.
+    The agents policies are chosen to be fitting for evaluation of an model.
+
+    :param: all_configs: dictionary containing training and model information
+    :param: env: the gym environment in which the agent is evaluated
+    """
+    model = build_convolutional_nn(
+        all_configs["c_layers"],
+        all_configs["ff_layers"],
+        env.observation_space.shape,
+        env.num_actions,
+    )
+    memory = SequentialMemory(
+        limit=all_configs["buffer_size"], window_length=1)
+    policy = GreedyQPolicy(masked_greedy=True)
+    test_policy = GreedyQPolicy(masked_greedy=True)
+
+    dqn = DQNAgent(
+        model=model,
+        nb_actions=env.num_actions,
+        memory=memory,
+        nb_steps_warmup=all_configs["learning_starts"],
+        target_model_update=all_configs["target_network_update_freq"],
+        policy=policy,
+        test_policy=test_policy,
+        gamma=all_configs["gamma"],
+        enable_dueling_network=all_configs["dueling"],
+    )
+
+    dqn.compile(Adam(lr=all_configs["learning_rate"]))
+    dqn.model.load_weights(all_configs["model_weights_path"])
+    return dqn

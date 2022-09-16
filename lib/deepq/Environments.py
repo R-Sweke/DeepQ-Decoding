@@ -2,6 +2,7 @@
 
 from deepq.Function_Library import *
 from deepq.Utils import *
+from deepq.Noise_Library import *
 import gym
 from itertools import product, starmap
 
@@ -32,8 +33,8 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
     ----------
 
     :param: d: The code distance
-    :param: p_phys: The physical error probability on a single physical data qubit
     :param: p_meas: The measurement error probability on a single syndrome bit
+    :param: noise_model: The noise model generating syndromes in the environment
     :param: error_model: A string in ["X, DP"]
     :param: use_Y: A boolean indicating whether the environment accepts Y Pauli flips as actions
     :param: volume_depth: The number of sequential syndrome measurements performed when generating a new syndrome volume.
@@ -42,22 +43,22 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
     """
 
 
-    def __init__(self, d=5, p_phys=0.01, p_meas=0.01, error_model="DP", use_Y=True, volume_depth=3, static_decoder=None):
+    def __init__(self, d=5, p_meas=0.01, noise_model=XNoise(5,0.001), use_Y=True, volume_depth=3, static_decoder=None):
 
         self.d = d
-        self.p_phys = p_phys
         self.p_meas= p_meas
-        self.error_model = error_model
+        self.noise_model = noise_model
+        self.error_model = self.noise_model.get_error_model()
         self.use_Y = use_Y
         self.volume_depth = volume_depth
         self.static_decoder_is_mwpm = False
         self.static_decoder = static_decoder
 
         self.n_action_layers = 0
-        if error_model == "X":
+        if self.error_model == "X":
             self.num_actions = d**2 + 1
             self.n_action_layers = 1
-        elif error_model == "DP":
+        elif self.error_model == "DP":
             if use_Y:
                 self.num_actions = 3*d**2 + 1
                 self.n_action_layers = 3
@@ -157,7 +158,7 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
                 self.summed_syndrome_volume = np.zeros((self.d + 1, self.d + 1), int)
                 faulty_syndromes = []
                 for j in range(self.volume_depth):
-                    error = generate_error(self.d, self.p_phys, self.error_model)
+                    error = self.noise_model.generate_error()
                     if int(np.sum(error)!=0):
                         self.hidden_state = obtain_new_error_configuration(self.hidden_state, error)
                         self.current_true_syndrome = generate_surface_code_syndrome_NoFT_efficient(self.hidden_state, self.qubits)
@@ -248,7 +249,7 @@ class Surface_Code_Environment_Multi_Decoding_Cycles():
             self.summed_syndrome_volume = np.zeros((self.d + 1, self.d + 1), int)
             faulty_syndromes = []
             for j in range(self.volume_depth):
-                error = generate_error(self.d, self.p_phys, self.error_model)
+                error = self.noise_model.generate_error()
                 if int(np.sum(error)) != 0:
                     self.hidden_state = obtain_new_error_configuration(self.hidden_state, error)
                     self.current_true_syndrome = generate_surface_code_syndrome_NoFT_efficient(self.hidden_state, self.qubits)

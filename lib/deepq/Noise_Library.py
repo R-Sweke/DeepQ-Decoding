@@ -39,13 +39,8 @@ class DPNoise():
       :return: error: The error configuration
       """
 
-      error = np.zeros((self.d, self.d), int)
-      for i in range(self.d):
-          for j in range(self.d):
-              p = 0
-              if np.random.rand() < self.p_phys:
-                  p = np.random.randint(1, 4)
-                  error[i, j] = p
+      error = np.random.binomial(1, self.p_phys, (self.d, self.d))
+      error *= np.random.randint(low=1, high=4, size=(self.d,self.d))
 
       return error
 
@@ -71,14 +66,7 @@ class XNoise():
       :return: error: The error configuration
       """
 
-      error = np.zeros((self.d, self.d), int)
-      for i in range(self.d):
-          for j in range(self.d):
-              p = 0
-              if np.random.rand() < self.p_phys:
-                  error[i, j] = 1
-
-      return error
+      return np.random.binomial(1, self.p_phys, (self.d, self.d))
 
 
 class IIDXZNoise():

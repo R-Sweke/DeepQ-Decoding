@@ -95,11 +95,11 @@ def build_convolutional_nn(cc_layers, ff_layers, input_shape, num_actions):
 
 # --------------------------------------------------------------------------------------------
 
+noise_model = NoiseFactory(all_configs["error_model"], all_configs["d"], all_configs["p_phys"]).generate()
 
 env = Surface_Code_Environment_Multi_Decoding_Cycles(d=all_configs["d"],
-                                                     p_phys=all_configs["p_phys"],
                                                      p_meas=all_configs["p_meas"],
-                                                     error_model=all_configs["error_model"],
+                                                     noise_model=noise_model,
                                                      use_Y=all_configs["use_Y"],
                                                      volume_depth=all_configs["volume_depth"],
                                                      static_decoder=static_decoder)

@@ -16,9 +16,8 @@ class NoiseFactory():
     elif self.error_model == "IIDXZ":
       return IIDXZNoise(self.d, self.p_phys)
     elif self.error_model == "HEAT":
-      if "p_X" in self.kwargs and "p_Z" in self.kwargs:
-        heatmaps = [self.kwargs["p_X"], self.kwargs["p_Z"]]
-        return HeatmapNoise(self.d, self.p_phys, heatmaps)
+      if "heat" in self.kwargs:
+        return HeatmapNoise(self.d, self.p_phys, self.kwargs["heat"])
     else:
       raise ValueError(f"Error model: {self.error_model} doesn't exist!")
 
@@ -52,14 +51,18 @@ class DPNoise():
 
 
 class XNoise():
-  def __init__(self, d, p_phys):
+  def __init__(self, d, p_phys, context="X"):
     self.d = d
     self.p_phys = p_phys
+    # agent selects number of actions based on noise model
+    # if we want to test X noise for DP trained agent, the number of
+    # actions won't match. Therefore we set a different context.
+    self.context = context
 
   def get_error_model(self):
-    return "X"
+    return self.context
 
-  def generate_X_error(self):
+  def generate_error(self):
       """"
       This function generates an error configuration, via a single application of the bitflip noise channel, on a square dxd lattice.
       
@@ -118,16 +121,16 @@ class IIDXZNoise():
 
 class HeatmapNoise():
 
-  def __init__(self, d, p_phys, p_X, p_Z):
+  def __init__(self, d, p_phys, heat):
     self.d = d
     self.p_phys = p_phys
-    self.p_X = p_X
-    self.p_Z = p_Z
+    self.heat = heat
 
   def get_error_model(self):
-    return "HEAT"
+    # TODO environment actions require DP and don't recognize HEAT
+    return "DP"
 
-  def generate_heatmap_error(self):
+  def generate_error(self):
       """"
       This function generates an error configuration, using a dxd heatmap as input that servers as error probability distribution
       for every qubit.
@@ -136,21 +139,18 @@ class HeatmapNoise():
       :param: heatmaps: List of Numpy arrays, shape dxd. [heatmap_X, heatmap_Z] is the default
       """
 
-      error = np.zeros((self.d,self.d),int)
+      error = np.zeros((self.d, self.d), int)
       for i in range(self.d):
           for j in range(self.d):
-              X_err = False
-              Z_err = False
               p = 0
-              if np.random.rand() < self.p_X[i,j]:
-                  X_err = True
-                  p = 1
-              if np.random.rand() < self.p_Z[i,j]:
-                  Z_err = True
-                  p = 3
-              if X_err and Z_err:
-                  p = 2
+              if np.random.rand() < self.heat[i,j]:
+                  p = np.random.randint(1, 4)
+                  error[i, j] = p
 
-              error[i,j] = p
-      
       return error
+
+  def set_physical_error_rate(self, p_phys):
+    # find factor so that max value in gaussian corresponds to depolarizing p_phys
+    self.heat = p_phys/np.max(self.heat)*self.heat
+
+    assert np.isclose(np.max(self.heat), p_phys)

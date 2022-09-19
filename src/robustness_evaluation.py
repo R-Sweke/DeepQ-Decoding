@@ -1,3 +1,7 @@
+import warnings
+warnings.filterwarnings('ignore', category=DeprecationWarning)
+warnings.filterwarnings('ignore', category=FutureWarning)
+
 import numpy as np
 import tensorflow as tf
 
@@ -56,14 +60,21 @@ pprint.pprint(all_configs)
 # --- Build env ---------------------------------------------------------------------------------
 
 # For Heatmap noise we load heatmap from pickled file
+scaling_factor = 1.6
 with open("heatmap_experiments/a1000_t50_s5_dp_c2/heatmaps.p", "rb") as fp:
   heatmap_data = pickle.load(fp)
+  # normalize heatmap
+  p = heatmap_data["heatmap"]/np.sum(heatmap_data["heatmap"])
+  # find factor so that max value in gaussian corresponds to depolarizing p_phys
+  eps_p = scaling_factor*all_configs['p_phys']/np.max(p)
+  # prepare kwargs dictionary for NoiseFactory
   kwargs = {
-    "p_X" : heatmap_data["x_heatmap"]/np.sum(heatmap_data["x_heatmap"]),
-    "p_Z" : heatmap_data["z_heatmap"]/np.sum(heatmap_data["z_heatmap"])
+    "heat" : p*eps_p, 
   }
 
-noise_model = NoiseFactory("HEAT", all_configs["d"], all_configs["p_phys"], kwargs).generate()
+# noise_model = NoiseFactory("HEAT", all_configs["d"], all_configs["p_phys"], **kwargs).generate()
+# noise_model = NoiseFactory(all_configs["error_model"], all_configs["d"], all_configs["p_phys"]).generate()
+noise_model = XNoise(all_configs["d"], all_configs["p_phys"]/3, context='DP')
 
 env = Surface_Code_Environment_Multi_Decoding_Cycles(
     d=all_configs["d"],
@@ -91,8 +102,10 @@ all_results = {}
 keep_evaluating = True
 count = 0
 while keep_evaluating:
-    err_rate = error_rates[count]
+    # err_rate = error_rates[count]
+    err_rate = 0.007
     env.noise_model.p_phys = err_rate
+    # env.noise_model.set_physical_error_rate(err_rate)
     env.p_meas = err_rate
 
     dict_key = str(err_rate)[:5]

@@ -1,34 +1,26 @@
 # ------------ This script runs a training cycle for a single configuration point ---------------
 
-import numpy as np
-
 from keras.models import Sequential, load_model
 from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.optimizers import Adam
-from keras.layers.normalization import BatchNormalization
-from keras.utils import np_utils
-from keras.layers import Conv2D, MaxPooling2D, ZeroPadding2D, GlobalAveragePooling2D
-from keras.layers.advanced_activations import LeakyReLU 
-from keras.preprocessing.image import ImageDataGenerator
+from keras.layers import Conv2D
 
-import rl as rl
 from rl.agents.dqn import DQNAgent
-from rl.policy import BoltzmannQPolicy, EpsGreedyQPolicy, LinearAnnealedPolicy, GreedyQPolicy
+from rl.policy import EpsGreedyQPolicy, LinearAnnealedPolicy, GreedyQPolicy
 from rl.memory import SequentialMemory
 from rl.callbacks import FileLogger
 
-import json
+from deepq.Function_Library import *
+from deepq.Environments import *
+
+import numpy as np
+import tensorflow as tf
+
 import pickle 
-
-from Function_Library import *
-from Environments import *
-
-import copy
-import gym
 import sys
 import os
-import shutil
 import datetime
+import random
 
 # ---------------------------------------------------------------------------------------------
 
@@ -55,6 +47,14 @@ if fixed_configs["static_decoder"]:
 else:
   static_decoder = None
 
+
+# -------------------------------------------------------------------------------------------
+
+RANDOM_SEED = fixed_configs["random_seed"]
+os.environ['PYTHONHASHSEED']=str(RANDOM_SEED)
+np.random.seed(RANDOM_SEED)
+random.seed(RANDOM_SEED)
+tf.set_random_seed(RANDOM_SEED)
 
 # ---------------------------------------------------------------------------------------------
 
@@ -96,13 +96,14 @@ logging_callback = FileLogger(filepath = logging_path,interval = all_configs["pr
 
 # --------------------------------------------------------------------------------------------
 
-env = Surface_Code_Environment_Multi_Decoding_Cycles(d=all_configs["d"], 
-    p_phys=all_configs["p_phys"], 
-    p_meas=all_configs["p_meas"],  
-    error_model=all_configs["error_model"], 
-    use_Y=all_configs["use_Y"], 
-    volume_depth=all_configs["volume_depth"],
-    static_decoder=static_decoder)
+noise_model = NoiseFactory(all_configs["error_model"], all_configs["d"], all_configs["p_phys"]).generate()
+
+env = Surface_Code_Environment_Multi_Decoding_Cycles(d=all_configs["d"],
+                                                     p_meas=all_configs["p_meas"],
+                                                     noise_model=noise_model,
+                                                     use_Y=all_configs["use_Y"],
+                                                     volume_depth=all_configs["volume_depth"],
+                                                     static_decoder=static_decoder)
 
 # -------------------------------------------------------------------------------------------
 
